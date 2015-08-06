@@ -49,9 +49,6 @@ Coordinates=0,233,55,36
 [TextColorBtn]
 Coordinates=365,243,90,36
 
-[Label19]
-Coordinates=138,146,60,58
-
 [Label21]
 Coordinates=351,78,60,58
 
@@ -122,7 +119,7 @@ Coordinates=410,146,53,58
 Coordinates=288,461,65,36
 
 []
-Coordinates=88,1,53,58
+Coordinates=138,146,60,58
 Visible=True
 
 [Timer1]

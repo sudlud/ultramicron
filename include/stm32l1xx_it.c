@@ -443,6 +443,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			// Сдвиг массива дозы
 			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут (150)
 			{
+				if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
 				DataUpdate.Need_update_mainscreen_counters=ENABLE;
 
 				// -----------------------------------------------------
@@ -453,7 +454,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 					DataUpdate.doze_count=0;
 					flash_write_page(DataUpdate.current_flash_page);
 					DataUpdate.current_flash_page++;
-					if(DataUpdate.current_flash_page > ((FLASH_END_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE)) // если за границами диапазона
+					if(DataUpdate.current_flash_page > (FLASH_MAX_PAGE)) // если за границами диапазона
 						DataUpdate.current_flash_page=0;
 				}
 				// -----------------------------------------------------

@@ -20,6 +20,7 @@ object Form1: TForm1
     Top = 50
     Width = 386
     Height = 25
+    Alignment = taRightJustify
     Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1084#1072#1089#1089#1080#1074#1072' '#1084#1072#1082#1089#1080#1084#1072#1083#1100#1085#1086#1075#1086' '#1092#1086#1085#1072':'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -33,6 +34,7 @@ object Form1: TForm1
     Top = 81
     Width = 285
     Height = 25
+    Alignment = taRightJustify
     Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1084#1072#1089#1089#1080#1074#1072' '#1080#1084#1087#1091#1083#1100#1089#1086#1074':'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -46,6 +48,7 @@ object Form1: TForm1
     Top = 160
     Width = 236
     Height = 23
+    Alignment = taRightJustify
     Caption = #1054#1096#1080#1073#1086#1082' '#1087#1077#1088#1077#1076#1072#1095#1080' '#1076#1072#1085#1085#1099#1093':'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -59,6 +62,7 @@ object Form1: TForm1
     Top = 112
     Width = 214
     Height = 25
+    Alignment = taRightJustify
     Caption = #1048#1089#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1086#1096#1080#1073#1086#1082':'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

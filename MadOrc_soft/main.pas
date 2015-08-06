@@ -11,9 +11,6 @@ uses
   IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
   IdSSLOpenSSL, IdMultipartFormData;
 
-//  const
-//  cmRxByte = WM_USER;
-
 type
   TmainFrm = class(TForm)
     MyTray: TJvTrayIcon;
@@ -35,7 +32,6 @@ type
     Panel3: TPanel;
     Label15: TLabel;
     Label18: TLabel;
-    Label19: TLabel;
     Image1: TImage;
     Label21: TLabel;
     Label1: TLabel;
@@ -77,6 +73,7 @@ type
     SavePictureDialog1: TSavePictureDialog;
     IdHTTP1: TIdHTTP;
     Timer4: TTimer;
+    RUSENG1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -116,6 +113,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
     procedure Timer4Timer(Sender: TObject);
+    procedure RUSENG1Click(Sender: TObject);
      private
     { Private declarations }
     RS232: TiaRS232;
@@ -126,14 +124,9 @@ type
     procedure DoOnSendedEvent(Sender: TObject; Const aData: TiaBuf;
       aCount: Cardinal);
  protected
-//    procedure CreateAnswer(aData: TiaBuf);
-
   public
     procedure RefreshRAD;
     procedure SaveReg;
-//    function GetDevInfo: boolean;
-//    function RequestRAD: boolean;
-//    function CheckDev: boolean;
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
 end;
@@ -198,11 +191,44 @@ var
   address_last: UInt32 = 0;
   doze_loading_flag:  boolean = false;
   maxfon_loading_flag:  boolean = false;
+  lang_settings:  boolean = false;
   usb_send_try: UInt32 = 0;
   Fix_error_now: boolean = false;
   time_offset:uint32;
   myDate : TDateTime;
   formattedDateTime : string;
+
+
+mr_lang: string =        'МР/Ч';
+mkr_lang: string =       ' мкР';
+mkr2_lang: string =      ' мкР/ч';
+mkr3_lang: string =      'мкР/ч]';
+dos_off_lang: string =   'Дозиметр не подключен';
+normal_lang: string =    '[ нормальный фон ]';
+high_lang: string =      '[ повышенный фон ]';
+danger_lang: string =    '[ ОПАСНЫЙ ФОН ]';
+imps_lang: string =      'Имп.';
+ZA_lang: string =        'За ';
+day_lang: string =       ' дней ';
+hour_lang: string =      ' часов ';
+minute_lang: string =    ' минут,';
+summary_lang: string =   'суммарная доза: ';
+maxi_lang: string =      'Максимальный фон за это время: ';
+error_lang: string =     'Ошибка:';
+curr_lang: string =      'Текущий фон:';
+alarm_lang: string =     'Тревога [';
+dosi_name_lang: string = 'Ультра-Микрон ';
+avg_lang: string =       'Средний фон ';
+maxi2_lang: string =     'Максимальный фон ';
+avg2_lang: string =      'Средний фон 0 мкР/ч';
+maxi3_lang: string =     'Максимальный фон 0 мкР/ч';
+time_lang: string =      'Время ';
+hours2_lang: string =    ' час(ов)   ';
+minutes2_lang: string =  ' минут';
+alarm2_lang: string =    'ТРЕВОГА!';
+fonmax_lang: string =    'Фон более ';
+voltage_lang: string =   'Напряжение АКБ: ';
+
 
 implementation
 
@@ -236,6 +262,7 @@ begin
   reg.OpenKey('Software\USB_Geiger\USB_Geiger', true); // Открываем раздел
   reg.WriteBool('autorun', AutoStartup);
   reg.WriteBool('alarmenable', AlarmEnable);
+  reg.WriteBool('lang', lang_settings);
   reg.WriteInteger('alarmlevel', AlarmLevel);
   reg.WriteInteger('comport',comport_number);
   reg.CloseKey;                                          // Закрываем раздел
@@ -259,7 +286,7 @@ begin
   if (not DevPresent) then
     begin
   ImageList1.GetIcon(0,MyTray.Icon);
-  MyTray.Hint := 'Дозиметр не подключен';
+  MyTray.Hint := dos_off_lang;
     end
     else
     begin
@@ -275,27 +302,27 @@ begin
       else
       begin // cv
         blinker:=true;
-        if (Fon < 41) and (Fon_units <> 'МР/Ч') then
+        if (Fon < 41) and (Fon_units <> mr_lang) then
         begin
           Panel1.Color := clGreen;
-          Label7.Caption := '[ нормальный фон ]';
+          Label7.Caption := normal_lang;
           ImageList1.GetIcon(2,MyTray.Icon);
         end
-        else if (Fon < 121) and (Fon_units <> 'МР/Ч') then
+        else if (Fon < 121) and (Fon_units <> mr_lang) then
         begin
           Panel1.Color := clOlive;
-          Label7.Caption := '[ повышенный фон ]';
+          Label7.Caption := high_lang;
           ImageList1.GetIcon(3,MyTray.Icon);
         end
         else
         begin
           Panel1.Color := clMaroon;
-          Label7.Caption := '[ ОПАСНЫЙ ФОН ]';
+          Label7.Caption := danger_lang;
           ImageList1.GetIcon(4,MyTray.Icon);
         end;
       end; // cv
     end;
-//
+
   Image1.Canvas.Brush.Color := clWhite;
   Image1.Canvas.Pen.Color := clWhite;
   Image1.Canvas.Rectangle(4, 0,305,100);
@@ -326,7 +353,7 @@ begin
     graph_x:=graph_x+5;
     end;
 
-      Fon_units := 'Имп.';
+      Fon_units := imps_lang;
     Label22.Caption := IntToStr(divgraphimp);
     Label23.Caption := fon_units;
 // граф ИМПУЛЬСОВ
@@ -353,16 +380,8 @@ begin
 
     graph_x:=graph_x+5;
     end;
-
-//    if (divgraph > 1500) then
-//    begin
-//      Fon_units := 'МР/Ч';
-
-//      divgraph := divgraph div 1000;
-//    end
-//    else
     begin
-      Fon_units := 'мкР/ч';
+      Fon_units := mkr2_lang;
     end;
     Label22.Caption := IntToStr(divgraph);
     Label23.Caption := fon_units;
@@ -390,15 +409,8 @@ begin
 
     graph_x:=graph_x+5;
     end;
-
-//    if (divgraphminute > 1500) then
-//    begin
-//      Fon_units := 'МР/Ч';
-//      divgraphminute := divgraphminute div 1000;
-//    end
-//    else
     begin
-      Fon_units := 'мкР/ч';
+      Fon_units := mkr2_lang;
     end;
     Label22.Caption := IntToStr(divgraphminute);
     Label23.Caption := fon_units;
@@ -426,15 +438,8 @@ begin
 
     graph_x:=graph_x+12;
     end;
-
-//    if (divgraphhour > 1500) then
-//    begin
-//      Fon_units := 'МР/Ч';
-//      divgraphhour := divgraphhour div 1000;
-//    end
-//    else
     begin
-      Fon_units := 'мкР/ч';
+      Fon_units := mkr2_lang;
     end;
     Label22.Caption := IntToStr(divgraphhour);
     Label23.Caption := fon_units;
@@ -442,39 +447,27 @@ begin
 end;
 
 // пока уберём    Label3.Caption := '[Датчик] - Импульсов в секунду: '+IntToStr(IMPS);
-    Label4.Caption := 'За '+IntToStr(d_day)+' дней '+IntToStr(d_hour)+' часов '+IntToStr(d_minute)+' минут,';
+    Label4.Caption := ZA_lang+IntToStr(d_day)+day_lang+IntToStr(d_hour)+hour_lang+IntToStr(d_minute)+minute_lang;
 
     if (d_minute > 0) then
     begin
       doseadd := (fonpmm div 60);
     end else doseadd := 0;
-
-//    if ((dosefull+doseday+doseadd) > 1500) then
-//    begin
-//    Label5.Caption := 'суммарная доза: '+IntToStr((dosefull+doseday+doseadd) div 1000)+' Миллирентген';
-//    end
-//    else
     begin
-    Label5.Caption := 'суммарная доза: '+IntToStr(dosefull+doseday+doseadd)+' мкР';
+    Label5.Caption := summary_lang+IntToStr(dosefull+doseday+doseadd)+mkr_lang;
     end;
-
-//    if (maxfon > 1500) then
-//    begin
-//      maxfon := maxfon div 1000; - КОСЯЧИЩЕ!
-//      Label6.Caption := 'Максимальный фон за это время: '+IntToStr(maxfon div 1000)+' МР/Ч';
-//    end
-//    else
-//    begin
-      Label6.Caption := 'Максимальный фон за это время: '+IntToStr(maxfon)+' мкР/ч';
-//    end;
-
-    // Label3.Caption := 'T: '+IntToStr(temperature)+' C';
-
+      Label6.Caption := maxi_lang+IntToStr(maxfon)+mkr2_lang;
 end;
 
 procedure TmainFrm.RefreshRAD;
 begin
     MakeIcon(Fon);
+end;
+
+procedure TmainFrm.RUSENG1Click(Sender: TObject);
+begin
+lang_settings:=RUSENG1.Checked;
+SaveReg;
 end;
 
 procedure TmainFrm.FormCreate(Sender: TObject);
@@ -504,6 +497,11 @@ begin
       AutoStartup := reg.ReadBool('autorun');
     except
       AutoStartup := false;
+    end;
+    try
+      lang_settings := reg.ReadBool('lang');
+    except
+      lang_settings := false;
     end;
     try
       comport_number := reg.ReadInteger('comport');
@@ -550,12 +548,76 @@ begin
   reg.CloseKey;                                        // Закрываем раздел
   reg.Free;
   AutoStartupBtn.Checked := AutoStartup;
+  RUSENG1.Checked := lang_settings;
   AlarmEnableBtn.Checked := AlarmEnable;
   if(comport_number=1)then COM11.Checked := true;
   if(comport_number=2)then COM21.Checked := true;
   if(comport_number=3)then COM31.Checked := true;
   if(comport_number=4)then COM41.Checked := true;
   if(comport_number=5)then COM51.Checked := true;
+
+  if (lang_settings=false) then
+  begin
+
+    mr_lang:=        'mR/h';
+    mkr_lang:=       ' uR';
+    mkr2_lang:=      ' uR/h';
+    mkr3_lang:=      'uR/h]';
+    dos_off_lang:=   'Dosimeter not connected';
+    normal_lang:=    '[ normal radiation level ]';
+    high_lang:=      '[ high radiation level ]';
+    danger_lang:=    '[ !!! DANGER !!! ]';
+    imps_lang:=     'Imp.';
+    ZA_lang:=        'On ';
+    day_lang:=       ' days ';
+    hour_lang:=      ' hours ';
+    minute_lang:=    ' minute,';
+    summary_lang:=   'Summary dose: ';
+    maxi_lang:=      'Maximum peak radiation level: ';
+    error_lang:=     'Error:';
+    curr_lang:=      'radiation level:';
+    alarm_lang:=     'ALARM [';
+    dosi_name_lang:= 'Ultra-Micron ';
+    avg_lang:=       'Avg level ';
+    maxi2_lang:=     'Max level ';
+    avg2_lang:=      'Avg level 0 uR/h';
+    maxi3_lang:=     'Max level 0 uR/h';
+    time_lang:=      'Time ';
+    hours2_lang:=    ' hours   ';
+    minutes2_lang:=  ' minute';
+    alarm2_lang:=    'ALARM!';
+    fonmax_lang:=    'radiation level up to ';
+    voltage_lang:=   'Li-Ion voltage: ';
+
+    Label7.Caption:=       '';
+    Label18.Caption:=       '';
+    Label2.Caption:=       'Accumulated radiation dose:';
+    Load_stat_btn.Caption:='Load logs';
+    OKBtn.Caption:=        'Hide';
+    Button1.Caption:=      'Clear';
+    Button2.Caption:=      'Screenshot';
+    Radiobutton4.Caption:= 'dose/h';
+    Radiobutton3.Caption:= 'dose/m';
+    Radiobutton2.Caption:= 'dose/s';
+    Radiobutton1.Caption:= 'imp/10s';
+
+    N1.Caption:='Dosimeter';
+    TextColorBtn.Caption:='Alarm level';
+    PortSub.Caption:='COM Port';
+    AlarmEnableBtn.Caption:='Enable Alarm';
+    AboutBtn.Caption:='About';
+    ExitBtn.Caption:='Exit';
+    AutoStartupBtn.Caption:='Autostart';
+
+    BlackBtn.Caption:='25 uR/h';
+    WhiteBtn.Caption:='40 uR/h';
+    GreenBtn.Caption:='120 uR/h';
+    BlueBtn.Caption:='400 uR/h';
+    FuchsiaBtn.Caption:='1000 uR/h';
+    N10001.Caption:='3000 uR/h';
+
+  end
+
 end;
 
 
@@ -705,11 +767,11 @@ begin
 if Button <> mbRight then
 begin
   if (not DevPresent) then
-      MyTray.BalloonHint('Ошибка:','Дозиметр не подключен',TBalloonType(3),5000,true)
+      MyTray.BalloonHint(error_lang,dos_off_lang,TBalloonType(3),5000,true)
     else
-      MyTray.BalloonHint('Текущий фон:',IntToStr(Fon)+' '+fon_units,TBalloonType(2),5000,true);
+      MyTray.BalloonHint(curr_lang,IntToStr(Fon)+' '+fon_units,TBalloonType(2),5000,true);
 end;
-      AlarmEnableBtn.Caption := 'Тревога ['+IntToStr(alarmlevel)+'мкР/ч]';
+      AlarmEnableBtn.Caption := alarm_lang+IntToStr(alarmlevel)+mkr3_lang;
 end;
 
 procedure TmainFrm.N10001Click(Sender: TObject);
@@ -784,6 +846,17 @@ var
 begin
 
 Unit1.Form1.Show;
+
+  if (lang_settings=false) then
+  begin
+    Unit1.Form1.Label5.Caption:='Dont stop the process. Dont turn off device!';
+    Unit1.Form1.Label1.Caption:='Loading maximum radiation array:';
+    Unit1.Form1.Label2.Caption:='Loading average radiation array:';
+    Unit1.Form1.Label4.Caption:='Correcting errors:';
+    Unit1.Form1.Label3.Caption:='Errors detected:';
+  end;
+
+
 Unit1.Form1.max_fon.Caption:='0%';
 Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.fix_errors.Caption:='0%';
@@ -895,7 +968,7 @@ png.assign(bmp);
 
 
 SavePictureDialog1.DefaultExt := '.png';
-SavePictureDialog1.FileName := 'Ультра-Микрон '+Combobox1.Text+'.png';
+SavePictureDialog1.FileName := dosi_name_lang+Combobox1.Text+'.png';
 
 If SavePictureDialog1.Execute then
    begin
@@ -957,7 +1030,6 @@ if(USB_massive_loading = false) then begin
       if(DevPresent=true) then
       begin
         DevPresent:=false;
-//        ShowMessage('НЕ ЗАБУДЬ ОТКЛЮЧИТЬ В ДОЗИМЕТРЕ РЕЖИМ USB!!!');
       end;
       RS232.StopListner;
       RS232.Close;
@@ -979,7 +1051,6 @@ var
   hour: uint32;
   minute: uint32;
 begin
-//  GetCursorPos(foo);
   foo:=Image2.ScreenToClient(Mouse.CursorPos);
   if(foo.X < Image2.Width) and (foo.Y < Image2.Height) and (foo.X > 0) and (foo.Y > 0) then
   begin
@@ -999,23 +1070,15 @@ begin
     end;
 
     if ((((Image2.Width-foo.X) Div 5)>time_offset) or (Combobox1.ItemIndex <> 0)) then begin
-      Label9.Caption:='Средний фон '+      IntToStr(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   ' мкР/ч';
-      Label10.Caption:='Максимальный фон '+IntToStr(max_fon_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset])+' мкР/ч';
+      Label9.Caption:=avg_lang+      IntToStr(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   mkr2_lang;
+      Label10.Caption:=maxi2_lang+IntToStr(max_fon_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset])+mkr2_lang;
     end else begin
-      Label9.Caption:='Средний фон 0 мкР/ч';
-      Label10.Caption:='Максимальный фон 0 мкР/ч';
+      Label9.Caption:=avg2_lang;
+      Label10.Caption:=maxi3_lang;
     end;
-    Label11.Caption:='Время '+IntToStr(hour)+' час(ов)   '+IntToStr(minute)+' минут';
+    Label11.Caption:=time_lang+IntToStr(hour)+hours2_lang+IntToStr(minute)+minutes2_lang;
 
 end;
-
-//Image2.Picture:= nil;
-
-//Image2.Canvas.Brush.Color := clGREEN;
-//Image2.Canvas.Pen.Color := clBlack;
-
-//Image2.Canvas.Rectangle(foo.X,0,foo.X+1,Image2.Height);
-
 end;
 
 procedure TmainFrm.Timer3Timer(Sender: TObject);
@@ -1120,7 +1183,6 @@ begin
 MainFrm.Width:=1148;
   Image2.Picture:= nil;
 
-//  Image2.Canvas.Brush.Color := RGB(253, 255, 161);
   Image2.Canvas.Brush.Color := RGB(186, 170, 134);
   Image2.Canvas.Pen.Color := clBlack;
   Image2.Canvas.Rectangle(0,0,Image2.Width, Image2.Height);
@@ -1176,7 +1238,7 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'15 мкР/ч');
+      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'15'+mkr2_lang);
     end;
 
     graph_y:= (30 * always_multipiller) Div scale_factor; // линия 30 мкр/ч
@@ -1188,7 +1250,7 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'30 мкР/ч');
+      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'30'+mkr2_lang);
     end;
 
     graph_y:= (50 * always_multipiller) Div scale_factor; // линия 50 мкр/ч
@@ -1200,14 +1262,8 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'50 мкР/ч');
+      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'50'+mkr2_lang);
     end;
-
-
-//      Fon_units := 'Имп.';
-//    Label22.Caption := IntToStr(divgraphimp);
-//    Label23.Caption := fon_units;
-// граф ИМПУЛЬСОВ
 
 end;
 
@@ -1258,7 +1314,6 @@ While used_len<(Length(aData)-1) do begin
    aData_massive_pointer:=used_len+1;
    fBuf_pointer:=0;
 
-//   if fBufCount >= 10 then
      begin
        ss := '';
        For F := 0 To packet_size - 1 do
@@ -1280,7 +1335,7 @@ if (fBuf[0] = $d1) then begin
   // обработчик тревоги
   if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
   begin
-    MyTray.BalloonHint('ТРЕВОГА!','Фон более '+IntToStr(alarmlevel)+'мкР/ч',TBalloonType(3),5000,true);
+    MyTray.BalloonHint(alarm2_lang,fonmax_lang+IntToStr(alarmlevel)+mkr2_lang,TBalloonType(3),5000,true);
     PlaySound('alarm', hInstance, SND_RESOURCE);
   end;
 
@@ -1306,14 +1361,12 @@ if (fBuf[0] = $d1) then begin
     if fonps[ia] > divgraph then divgraph := fonps[ia];
   end;
   fonps[0] := 0;
-  Fon_units := 'мкР/ч';
+  Fon_units := mkr2_lang;
 
   Label15.Caption := IntToStr(fon);
   Label18.Caption := fon_units;
 
   if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
-
-  Label19.Caption := 'Интервал счёта '+IntToStr(count_interval)+' секунд(ы) - '+IntToStr(count_validate_percent)+'%';
 
   SetLength(vAns, 1);
   if(doze_loading_flag = true) then vAns[0]:=$32;
@@ -1488,9 +1541,6 @@ if (fBuf[0] = $f5) then begin // загрузка настроек
 
   geiger_seconds_count:=                      fBuf[1] shl 8;
   geiger_seconds_count:=geiger_seconds_count+ fBuf[2];
-
-//  Load_stat_btn.Caption:='Загрузка настроек';
-
 end;
 //-----------------------------------------------------------------------------------
 
@@ -1505,30 +1555,17 @@ begin
   RS232.Close;
 end;
 
-
-//   If vBufCount + vCount > 10 then
-//     Begin
-//       fBufCount := 0;
-//       For F := 0 to vCount - (vBufCount - 10) - 1 do
-//         begin
-//           fBuf[F] := aData[F + (vBufCount - 10)];
-//           Inc(fBufCount);
-//         end;
-//     end;
-
-
-
 if(USB_massive_loading = false) then
 begin
   RS232.StopListner;
   RS232.Close;
   if((Voltage_level Div 10) Mod 100)>9 then
   begin
-   Voltage.Caption:='Напряжение АКБ: '+IntToStr(Voltage_level Div 1000)+'.'+IntToStr((Voltage_level Div 10) Mod 100)+' В';
+   Voltage.Caption:=voltage_lang+IntToStr(Voltage_level Div 1000)+'.'+IntToStr((Voltage_level Div 10) Mod 100)+' V';
   end
   else
   begin
-   Voltage.Caption:='Напряжение АКБ: '+IntToStr(Voltage_level Div 1000)+'.0'+IntToStr((Voltage_level Div 10) Mod 100)+' В';
+   Voltage.Caption:=voltage_lang+IntToStr(Voltage_level Div 1000)+'.0'+IntToStr((Voltage_level Div 10) Mod 100)+' V';
   end;
 end;
 end;
@@ -1544,7 +1581,6 @@ begin
   For F := 0 To Length(aData) - 1 do
     ss := ss + IntToHex(aData[F],2) + ' ';
 
-  //Memo2.Lines.Add(ss);
 end;
 
 

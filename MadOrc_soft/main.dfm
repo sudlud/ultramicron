@@ -84,7 +84,7 @@ object mainFrm: TmainFrm
     ParentFont = False
   end
   object Image2: TImage
-    Left = 408
+    Left = 413
     Top = 16
     Width = 721
     Height = 354
@@ -37049,9 +37049,8 @@ object mainFrm: TmainFrm
   object Label9: TLabel
     Left = 400
     Top = 390
-    Width = 121
+    Width = 5
     Height = 24
-    Caption = #1057#1088#1077#1076#1085#1080#1081' '#1092#1086#1085
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -19
@@ -37062,9 +37061,8 @@ object mainFrm: TmainFrm
   object Label10: TLabel
     Left = 400
     Top = 420
-    Width = 176
+    Width = 5
     Height = 24
-    Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1099#1081' '#1092#1086#1085
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -19
@@ -37075,9 +37073,8 @@ object mainFrm: TmainFrm
   object Label11: TLabel
     Left = 744
     Top = 390
-    Width = 57
+    Width = 5
     Height = 24
-    Caption = #1042#1088#1077#1084#1103
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -19
@@ -37114,8 +37111,8 @@ object mainFrm: TmainFrm
     ParentFont = False
     TabOrder = 1
     object Label18: TLabel
-      Left = 263
-      Top = 16
+      Left = 269
+      Top = 19
       Width = 87
       Height = 33
       Caption = #1084#1082#1056'/'#1095
@@ -37126,27 +37123,11 @@ object mainFrm: TmainFrm
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object Label19: TLabel
-      Left = 42
-      Top = 63
-      Width = 314
-      Height = 19
-      Alignment = taRightJustify
-      Caption = #1048#1085#1090#1077#1088#1074#1072#1083' '#1089#1095#1105#1090#1072' 72 '#1089#1077#1082#1091#1085#1076'('#1099') - 100%'
-      Font.Charset = RUSSIAN_CHARSET
-      Font.Color = clHighlightText
-      Font.Height = -16
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Visible = False
-    end
     object Label1: TLabel
       Left = 13
       Top = 15
-      Width = 69
+      Width = 8
       Height = 33
-      Caption = #1060#1086#1085':'
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -27
@@ -37155,10 +37136,10 @@ object mainFrm: TmainFrm
       ParentFont = False
     end
     object Panel3: TPanel
-      Left = 91
-      Top = 8
-      Width = 166
-      Height = 49
+      Left = 33
+      Top = 13
+      Width = 230
+      Height = 50
       BevelKind = bkSoft
       BevelOuter = bvNone
       BorderWidth = 2
@@ -37174,12 +37155,12 @@ object mainFrm: TmainFrm
       ParentFont = False
       TabOrder = 0
       object Label15: TLabel
-        Left = 9
+        Left = 193
         Top = 0
-        Width = 144
+        Width = 24
         Height = 45
         Alignment = taRightJustify
-        Caption = '000000'
+        Caption = '0'
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clBlack
         Font.Height = -37
@@ -37247,7 +37228,6 @@ object mainFrm: TmainFrm
       Top = 0
       Width = 148
       Height = 18
-      Alignment = taRightJustify
       Caption = #1053#1072#1082#1086#1087#1083#1077#1085#1085#1072#1103' '#1076#1086#1079#1072':'
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
@@ -37259,9 +37239,8 @@ object mainFrm: TmainFrm
     object Label4: TLabel
       Left = 13
       Top = 24
-      Width = 274
+      Width = 5
       Height = 19
-      Caption = #1047#1072' 0000 '#1076#1085#1077#1081' 00 '#1095#1072#1089#1086#1074' 00 '#1084#1080#1085#1091#1090','
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -16
@@ -37272,11 +37251,10 @@ object mainFrm: TmainFrm
     object Label5: TLabel
       Left = 13
       Top = 49
-      Width = 232
+      Width = 5
       Height = 19
       Alignment = taRightJustify
       BiDiMode = bdRightToLeft
-      Caption = #1087#1086#1083#1091#1095#1077#1085#1072' '#1076#1086#1079#1072': 0000000 '#1084#1056
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -16
@@ -37288,11 +37266,10 @@ object mainFrm: TmainFrm
     object Label6: TLabel
       Left = 13
       Top = 73
-      Width = 310
+      Width = 4
       Height = 16
       Alignment = taRightJustify
       BiDiMode = bdRightToLeft
-      Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1099#1081' '#1092#1086#1085' '#1079#1072' '#1101#1090#1086' '#1074#1088#1077#1084#1103': 0000 '#1084#1082#1056'/'#1095
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -13
@@ -37304,9 +37281,8 @@ object mainFrm: TmainFrm
     object Voltage: TLabel
       Left = 13
       Top = 95
-      Width = 203
+      Width = 5
       Height = 19
-      Caption = #1053#1072#1087#1088#1103#1078#1077#1085#1080#1077' '#1040#1050#1041': 0.00'#1042
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBtnHighlight
       Font.Height = -16
@@ -37724,12 +37700,12 @@ object mainFrm: TmainFrm
     Visibility = [tvAutoHide]
     OnClick = MyTrayClick
     OnDblClick = MyTrayDoubleClick
-    Left = 32
-    Top = 8
+    Left = 136
+    Top = 360
   end
   object TrayMenu: TPopupMenu
     Left = 64
-    Top = 8
+    Top = 65496
     object N1: TMenuItem
       Bitmap.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -38076,6 +38052,12 @@ object mainFrm: TmainFrm
       Checked = True
       OnClick = AutoStartupBtnClick
     end
+    object RUSENG1: TMenuItem
+      AutoCheck = True
+      Caption = 'RUS/ENG'
+      Checked = True
+      OnClick = RUSENG1Click
+    end
     object AboutBtn: TMenuItem
       Bitmap.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -38156,20 +38138,20 @@ object mainFrm: TmainFrm
     end
   end
   object XPManifest1: TXPManifest
-    Left = 96
-    Top = 8
+    Left = 72
+    Top = 360
   end
   object MessTmr: TTimer
     Enabled = False
     OnTimer = MessTmrTimer
-    Left = 128
-    Top = 8
+    Left = 72
+    Top = 392
   end
   object ImageList1: TImageList
-    Left = 160
-    Top = 8
+    Left = 104
+    Top = 392
     Bitmap = {
-      494C010105008C00380110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00400110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38443,24 +38425,25 @@ object mainFrm: TmainFrm
   object Timer1: TTimer
     Interval = 10000
     OnTimer = Timer1Timer
-    Top = 8
+    Left = 104
+    Top = 360
   end
   object Timer2: TTimer
     Enabled = False
     Interval = 30
     OnTimer = Timer2Timer
-    Left = 192
-    Top = 8
+    Left = 136
+    Top = 392
   end
   object Timer3: TTimer
     OnTimer = Timer3Timer
-    Left = 224
-    Top = 8
+    Left = 168
+    Top = 392
   end
   object SavePictureDialog1: TSavePictureDialog
     Filter = 'PNG (*.png)|*.png'
-    Left = 256
-    Top = 8
+    Left = 192
+    Top = 392
   end
   object IdHTTP1: TIdHTTP
     AllowCookies = False
@@ -38476,13 +38459,13 @@ object mainFrm: TmainFrm
     Request.Ranges.Units = 'bytes'
     Request.Ranges = <>
     HTTPOptions = [hoForceEncodeParams]
-    Left = 288
-    Top = 8
+    Left = 224
+    Top = 392
   end
   object Timer4: TTimer
     Interval = 60000
     OnTimer = Timer4Timer
-    Left = 320
-    Top = 8
+    Left = 256
+    Top = 392
   end
 end

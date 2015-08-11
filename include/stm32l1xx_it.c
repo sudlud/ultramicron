@@ -428,6 +428,15 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				pump_counter_avg_impulse_by_1sec[0]=0;
 				DataUpdate.pump_counter_update_time=0;
 
+			if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
+			{
+				GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
+			} else {
+				GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
+			}			
+				
+				
+				
 				if(pump_counter_avg_impulse_by_1sec[1]==0) //затычка на случай глюка с накачкой
 				{
 					dac_init();

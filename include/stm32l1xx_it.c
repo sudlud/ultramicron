@@ -158,6 +158,13 @@ void SysTick_Handler(void)
 
 void check_wakeup_keys()
 {
+		if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
+		{
+			GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
+		} else {
+			GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
+		}			
+
 	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
 	{
 		sound_activate();
@@ -389,7 +396,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 				
 			DataUpdate.Need_display_update=ENABLE;
-			
+				
 			if(Power.USB_active)
 			{
 				USB_not_active++; // Счетчик неактивности USB
@@ -421,6 +428,15 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				pump_counter_avg_impulse_by_1sec[0]=0;
 				DataUpdate.pump_counter_update_time=0;
 
+			if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
+			{
+				GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
+			} else {
+				GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
+			}			
+				
+				
+				
 				if(pump_counter_avg_impulse_by_1sec[1]==0) //затычка на случай глюка с накачкой
 				{
 					dac_init();

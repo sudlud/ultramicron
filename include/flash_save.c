@@ -82,7 +82,7 @@ void flash_write_page(uint32_t page) // Write 32 element of massive ram_Doze_mas
 {  
 uint32_t Address = 0;
 
-if(page <= FLASH_MAX_PAGE) // если не за границами диапазона
+if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 {	
 
 	Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE);
@@ -133,6 +133,8 @@ if(page <= FLASH_MAX_PAGE) // если не за границами диапазона
 uint32_t flash_read_Doze_massive(uint32_t virt_element)
 {  
 	uint32_t Address=0, page=0, index=0;
+
+	if(virt_element>=FLASH_MAX_ELEMENT)return 0; // ѕроверка вход€щего параметра
 	
 	if(virt_element<doze_length) // 0-31
 	{
@@ -181,6 +183,8 @@ uint32_t flash_read_Doze_massive(uint32_t virt_element)
 uint32_t flash_read_max_fon_massive(uint32_t virt_element)
 {  
 	uint32_t Address=0, page=0, index=0;
+
+	if(virt_element>=FLASH_MAX_ELEMENT)return 0; // ѕроверка вход€щего параметра
 	
 	if(virt_element<doze_length) // 0-31
 	{

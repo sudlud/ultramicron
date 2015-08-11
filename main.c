@@ -224,17 +224,11 @@ int main(void)
 		////////////////////////////////////////////////////
 
 		
-		if((Power.sleep_time>0)&(!Power.Display_active))sleep_mode(DISABLE); // Если дисплей еще выключен, а счетчик сна уже отсчитывает, поднимаем напряжение и включаем дисплей
+		if((Power.sleep_time>0)&&(!Power.Display_active))sleep_mode(DISABLE); // Если дисплей еще выключен, а счетчик сна уже отсчитывает, поднимаем напряжение и включаем дисплей
     
 		if(Power.Display_active)
     {
 			if(Power.sleep_time==0 && !Alarm.Alarm_active) sleep_mode(ENABLE);  // Счетчик сна досчитал до нуля, а дисплей еще активен, то выключаем его и понижаем напряжение
-			if(Power.led_sleep_time>0)
-			{
-				GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
-			} else {
-				GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-			}			
 			if(DataUpdate.Need_display_update==ENABLE)
 			{
 				DataUpdate.Need_display_update=DISABLE;

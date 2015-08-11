@@ -138,8 +138,8 @@ extern uint16_t Detector_massive[120+1];
 #define FLASH_PAGE_SIZE                 0x100
 #define FLASH_START_ADDR                0x0800F000
 #define FLASH_END_ADDR                  0x0801FFFF
-#define FLASH_MAX_ELEMENT               (FLASH_END_ADDR - FLASH_START_ADDR) / 4
-#define FLASH_MAX_PAGE                  (FLASH_END_ADDR - FLASH_START_ADDR)/FLASH_PAGE_SIZE 
+#define FLASH_MAX_PAGE                  (FLASH_END_ADDR - FLASH_START_ADDR) / FLASH_PAGE_SIZE 
+#define FLASH_MAX_ELEMENT               FLASH_MAX_PAGE * (FLASH_PAGE_SIZE >> 3)
 
 #define doze_length_10m      1 // 10 минут
 #define doze_length_hour     6 // 1 час    интервалами по 10 минут 60/10

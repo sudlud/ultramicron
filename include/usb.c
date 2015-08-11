@@ -21,85 +21,6 @@ uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
-#pragma O0
-void USB_on()
-{
-//---------------------------------------------Включение USB------------------------------------
-	set_pll_for_usb();
-	Set_System();
-  Set_USBClock();
-  USB_Interrupts_Config();
-  USB_Init();
-  SYSCFG->PMC |= (uint32_t) SYSCFG_PMC_USB_PU; // Connect internal pull-up on USB DP line
-	Power.USB_active=ENABLE;
-}
-
-
-void USB_work()
-{
-//---------------------------------------------Передача данных------------------------------------
-	if (bDeviceState == CONFIGURED)
-    {
-      CDC_Receive_DATA();
-
-#ifndef version_401 // Версия платы дозиметра 4.01+
-			if(Settings.USB == 1) // MadOrc
-#endif				
-			{
-			
-				/*Check to see if we have data yet */
-				if (Receive_length  == 1)
-				{
-
-					USB_not_active=0; // Сброс четчика неактивности USB 
-					
-					if(Receive_Buffer[0] == 0xD4) // передача основных данных в USB Gaiger
-					{
-						USB_send_madorc_data();
-					}
-					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
-					{
-						Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
-					}
-					if(Receive_Buffer[0] == 0x32) // передача массива дозы
-					{
-						Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
-					}
-					if(Receive_Buffer[0] == 0x33) // передача настроек
-					{
-						USB_maxfon_massive_pointer=0;
-						USB_doze_massive_pointer=0;
-						USB_send_settings_data();
-					}
-					if(Receive_Buffer[0] == 0x39) // завершение передачи
-					{
-						USB_maxfon_massive_pointer=0;
-						USB_doze_massive_pointer=0;
-					}
-
-					Receive_length = 0;
-					if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
-					while(packet_sent != 1);
-					Send_length=0;
-			}
-		}
-// -----------------------------------------------------------------------------------------------------------------------
-	}
-#ifdef version_401
-	if (!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9)) // если 5В на USB не подается, то отключаем его
-#else
-	if ((USB_not_active>60) && (Settings.USB == 1)) // если 4 минуты USB не активно, то отключаем его
-#endif
-	{
-		delay_ms(100);
-#ifndef version_401 
-		Settings.USB=0;
-#endif
-		usb_deactivate(0x00);
-	}
-
-}
-
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
 {
@@ -220,6 +141,89 @@ void USB_send_madorc_data()
 	
 	Send_length=7;
 }
+// =========================================================================================
+
+
+
+#pragma O0
+void USB_on()
+{
+//---------------------------------------------Включение USB------------------------------------
+	set_pll_for_usb();
+	Set_System();
+  Set_USBClock();
+  USB_Interrupts_Config();
+  USB_Init();
+  SYSCFG->PMC |= (uint32_t) SYSCFG_PMC_USB_PU; // Connect internal pull-up on USB DP line
+	Power.USB_active=ENABLE;
+}
+
+
+void USB_work()
+{
+//---------------------------------------------Передача данных------------------------------------
+	if (bDeviceState == CONFIGURED)
+    {
+      CDC_Receive_DATA();
+
+#ifndef version_401 // Версия платы дозиметра 4.01+
+			if(Settings.USB == 1) // MadOrc
+#endif				
+			{
+			
+				/*Check to see if we have data yet */
+				if (Receive_length  == 1)
+				{
+
+					USB_not_active=0; // Сброс четчика неактивности USB 
+					
+					if(Receive_Buffer[0] == 0xD4) // передача основных данных в USB Gaiger
+					{
+						USB_send_madorc_data();
+					}
+					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
+					{
+						Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
+					}
+					if(Receive_Buffer[0] == 0x32) // передача массива дозы
+					{
+						Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
+					}
+					if(Receive_Buffer[0] == 0x33) // передача настроек
+					{
+						USB_maxfon_massive_pointer=0;
+						USB_doze_massive_pointer=0;
+						USB_send_settings_data();
+					}
+					if(Receive_Buffer[0] == 0x39) // завершение передачи
+					{
+						USB_maxfon_massive_pointer=0;
+						USB_doze_massive_pointer=0;
+					}
+
+					Receive_length = 0;
+					if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
+					while(packet_sent != 1);
+					Send_length=0;
+			}
+		}
+// -----------------------------------------------------------------------------------------------------------------------
+	}
+#ifdef version_401
+	if (!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9)) // если 5В на USB не подается, то отключаем его
+#else
+	if ((USB_not_active>60) && (Settings.USB == 1)) // если 4 минуты USB не активно, то отключаем его
+#endif
+	{
+		delay_ms(100);
+#ifndef version_401 
+		Settings.USB=0;
+#endif
+		usb_deactivate(0x00);
+	}
+
+}
+
 
 
 void USB_send_settings_data()

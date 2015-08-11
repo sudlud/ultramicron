@@ -866,10 +866,10 @@ RS232.Close;
 Timer2.Enabled:=true;
 doze_loading_flag:= false;
 maxfon_loading_flag:=false;
-address_last:=8063;
+address_last:=8640;
 
 ComboBox1.Items.Clear;
-for ibx := 0 to 55 do
+for ibx := 0 to 60 do
 begin
 Combobox1.AddItem(DateToStr(Date-ibx), nil);
 end;
@@ -892,7 +892,7 @@ begin
   RS232.Properties.StopBits := ONESTOPBIT;
   RS232.Open;
   RS232.StartListner;
-  for ix := 0 to 8063 do begin
+  for ix := 0 to 8640 do begin
     doze_massive[ix]:=0;
     max_fon_massive[ix]:=0;
     doze_massive_ready[ix]:=false;
@@ -1389,14 +1389,14 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
   massive_element:=massive_element+(fBuf[5] shl 8);
   massive_element:=massive_element+ fBuf[6];
 
-  if (address < 8063) then
+  if (address < 8640) then
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 80)+'%';
+      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 80)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 86)+'%';
       if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
@@ -1442,14 +1442,14 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
   massive_element:=massive_element+ fBuf[6];
 
 
-  if (address < 8063) then
+  if (address < 8640) then
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 80)+'%';
+      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 80)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 86)+'%';
       if(doze_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
     doze_massive[address]:=massive_element;
@@ -1478,7 +1478,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     StopRS232:=TRUE;
 
     Unit1.Form1.errors.Caption:='0';
-    for iy := 0 to 8063-1 do begin
+    for iy := 0 to 8640-1 do begin
       if(max_fon_massive_ready[iy]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
       if(doze_massive_ready[iy]=false)    then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
     end;
@@ -1503,7 +1503,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
 
       try
         // добавляем нужные параметры
-        for ix := 0 to 8063 do begin
+        for ix := 0 to 8640 do begin
           data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
         end;
         IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);

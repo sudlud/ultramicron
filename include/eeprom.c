@@ -26,7 +26,7 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
 				Settings.Geiger_voltage=360;
 				Settings.Power_comp=0;
 				Settings.Vibro=0;
-				Settings.v4_target_pump=11;
+				Settings.v4_target_pump=8;
         eeprom_write_settings(); // Запись
       }  
     }

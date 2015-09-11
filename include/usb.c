@@ -98,9 +98,10 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 		
 		used_lenght+=7;
 
-		if(*massive_pointer>=FLASH_MAX_ELEMENT)
+		if(*massive_pointer>=FLASH_MAX_ELEMENT-1)
 		{
-			*massive_pointer=0;
+			*massive_pointer=FLASH_MAX_ELEMENT-1;
+			//*massive_pointer=0;
 			return used_lenght;
 		}
 	}
@@ -161,6 +162,7 @@ void USB_on()
 
 void USB_work()
 {
+	uint32_t i=0;
 //---------------------------------------------ѕередача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
     {
@@ -174,12 +176,15 @@ void USB_work()
 				/*Check to see if we have data yet */
 				if (Receive_length  == 1)
 				{
-
+				 while(i<16)
+				 {
+					i++;
 					USB_not_active=0; // —брос четчика неактивности USB 
 					
 					if(Receive_Buffer[0] == 0xD4) // передача основных данных в USB Gaiger
 					{
-						USB_send_madorc_data();
+						USB_send_madorc_data(); 
+						i=16;
 					}
 					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
 					{
@@ -194,17 +199,20 @@ void USB_work()
 						USB_maxfon_massive_pointer=0;
 						USB_doze_massive_pointer=0;
 						USB_send_settings_data();
+						i=16;
 					}
 					if(Receive_Buffer[0] == 0x39) // завершение передачи
 					{
 						USB_maxfon_massive_pointer=0;
 						USB_doze_massive_pointer=0;
+						i=16;
 					}
 
 					Receive_length = 0;
 					if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
 					while(packet_sent != 1);
 					Send_length=0;
+				}
 			}
 		}
 // -----------------------------------------------------------------------------------------------------------------------

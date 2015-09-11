@@ -4,7 +4,7 @@ object Form1: TForm1
   BorderIcons = []
   BorderStyle = bsToolWindow
   Caption = #1055#1077#1088#1077#1076#1072#1095#1072' '#1076#1072#1085#1085#1099#1093
-  ClientHeight = 200
+  ClientHeight = 159
   ClientWidth = 586
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -44,27 +44,13 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
-  object Label3: TLabel
-    Left = 32
-    Top = 160
-    Width = 236
-    Height = 23
-    Alignment = taRightJustify
-    Caption = #1054#1096#1080#1073#1086#1082' '#1087#1077#1088#1077#1076#1072#1095#1080' '#1076#1072#1085#1085#1099#1093':'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-  end
   object Label4: TLabel
-    Left = 204
+    Left = 168
     Top = 112
-    Width = 214
+    Width = 250
     Height = 25
     Alignment = taRightJustify
-    Caption = #1048#1089#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1086#1096#1080#1073#1086#1082':'
+    Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1076#1072#1085#1085#1099#1093' '#1085#1072' '#1089#1072#1081#1090':'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -21
@@ -100,14 +86,12 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
-  object fix_errors: TLabel
-    Left = 460
+  object Loading: TLabel
+    Left = 436
     Top = 112
-    Width = 32
+    Width = 101
     Height = 25
-    Alignment = taRightJustify
     BiDiMode = bdLeftToRight
-    Caption = '0%'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -21
@@ -117,8 +101,8 @@ object Form1: TForm1
     ParentFont = False
   end
   object errors: TLabel
-    Left = 288
-    Top = 160
+    Left = 16
+    Top = 128
     Width = 10
     Height = 23
     Caption = '0'

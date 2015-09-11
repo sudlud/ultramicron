@@ -10,11 +10,10 @@ type
   TForm1 = class(TForm)
     Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
     Label4: TLabel;
     max_fon: TLabel;
     impulses: TLabel;
-    fix_errors: TLabel;
+    Loading: TLabel;
     errors: TLabel;
     Label5: TLabel;
   private

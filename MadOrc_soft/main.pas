@@ -1504,7 +1504,8 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
         try
           // добавляем нужные параметры
           for ix := 0 to 8640 do begin
-            data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
+            if doze_massive[ix]>0 then
+              data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
           end;
           IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
           used_len:=(Length(aData)-1); // принудительно завершаем цикл

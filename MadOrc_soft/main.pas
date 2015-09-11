@@ -920,7 +920,7 @@ begin
    vAns[0]:=$31; // начать загрузку массива
    maxfon_loading_flag:=true;
    RS232.Send(vAns);
-   sleep(100);
+   sleep(1);
    USB_massive_loading:=true;
 
 
@@ -1486,6 +1486,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     if(StrToInt(Unit1.Form1.errors.Caption)=0) then
     begin
       USB_massive_loading:=false;
+      Unit1.Form1.Close;
       Draw_massive();
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1518,7 +1519,6 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     end;
 /////////////////////////////////////////////////////////////////////////////////////
 
-      Unit1.Form1.Close;
       maxfon_loading_flag:=false;
       doze_loading_flag:=false;
       Fix_error_now:=false;

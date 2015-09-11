@@ -228,6 +228,7 @@ minutes2_lang: string =  ' минут';
 alarm2_lang: string =    'ТРЕВОГА!';
 fonmax_lang: string =    'Фон более ';
 voltage_lang: string =   'Напряжение АКБ: ';
+loading_lang: string =   'Загрузка...';
 
 
 implementation
@@ -615,6 +616,7 @@ begin
     BlueBtn.Caption:='400 uR/h';
     FuchsiaBtn.Caption:='1000 uR/h';
     N10001.Caption:='3000 uR/h';
+    loading_lang:='Loading...';
 
   end
 
@@ -852,14 +854,12 @@ Unit1.Form1.Show;
     Unit1.Form1.Label5.Caption:='Dont stop the process. Dont turn off device!';
     Unit1.Form1.Label1.Caption:='Loading maximum radiation array:';
     Unit1.Form1.Label2.Caption:='Loading average radiation array:';
-    Unit1.Form1.Label4.Caption:='Correcting errors:';
-    Unit1.Form1.Label3.Caption:='Errors detected:';
+    Unit1.Form1.Label4.Caption:='Loading to web service:';
   end;
 
 
 Unit1.Form1.max_fon.Caption:='0%';
 Unit1.Form1.impulses.Caption:='0%';
-Unit1.Form1.fix_errors.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
 RS232.StopListner;
 RS232.Close;
@@ -1396,7 +1396,6 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
       Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 86)+'%';
       if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
@@ -1449,7 +1448,6 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 86)+'%';
       if(doze_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
     doze_massive[address]:=massive_element;
@@ -1486,8 +1484,9 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     if(StrToInt(Unit1.Form1.errors.Caption)=0) then
     begin
       USB_massive_loading:=false;
-      Unit1.Form1.Close;
-      Draw_massive();
+
+      Unit1.Form1.Loading.Caption:=loading_lang;
+      Unit1.Form1.Refresh;
 
 /////////////////////////////////////////////////////////////////////////////////////
   // Загрузка данных на сервер
@@ -1497,27 +1496,35 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
       reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
       key := reg.ReadString('Reg_key');
       reg.CloseKey;                                          // Закрываем раздел
-
-      data := TIdMultiPartFormDataStream.Create;
-      AIdHTTP := TIdHTTP.Create(nil);
-      AIdHTTP.HandleRedirects := true;
-
-      try
-        // добавляем нужные параметры
-        for ix := 0 to 8640 do begin
-          data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
+      if key <> '' then
+      begin
+        data := TIdMultiPartFormDataStream.Create;
+        AIdHTTP := TIdHTTP.Create(nil);
+        AIdHTTP.HandleRedirects := true;
+        try
+          // добавляем нужные параметры
+          for ix := 0 to 8640 do begin
+            data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
+          end;
+          IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
+          used_len:=(Length(aData)-1); // принудительно завершаем цикл
+        except
+          begin
+          end;
         end;
-        IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
-        used_len:=(Length(aData)-1); // принудительно завершаем цикл
-      except
-        begin
-        end;
+        AIdHTTP.Disconnect;
+        AIdHTTP.Free;
+        data.Free;
       end;
-      AIdHTTP.Disconnect;
-      AIdHTTP.Free;
-      data.Free;
     end;
 /////////////////////////////////////////////////////////////////////////////////////
+
+      Unit1.Form1.Loading.Caption:='';
+      Unit1.Form1.Refresh;
+
+      Draw_massive();
+      Unit1.Form1.Close;
+
 
       maxfon_loading_flag:=false;
       doze_loading_flag:=false;

@@ -131,6 +131,7 @@ static __IO uint8_t  timer_is_reload = 0;	// counts 1ms timeTicks
 extern uint16_t key; // массив нажатых кнопок [012]
 extern uint32_t ix;
 extern uint32_t ix_update;
+//extern int zyx;
 
 //#define count_seconds 75 // 
 extern uint16_t Detector_massive[120+1];

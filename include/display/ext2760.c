@@ -508,10 +508,10 @@ void LcdBatt(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t persen
 {
   uint32_t horizon_line=0,horizon_line2=0,i=0;
   if(persent>100)persent=100;
-  LcdLine(x1,y2,x2,y2,1);  //down
-  LcdLine(x2,y1,x2,y2,1);  //right
-  LcdLine(x1,y1,x1,y2,1);  //left
-  LcdLine(x1,y1,x2,y1,1);  //up
+  LcdLine(x1,  y2,  x2,  y2,  1);  //down
+  LcdLine(x2,  y1,  x2,  y2,  1);  //right
+  LcdLine(x1,  y1,  x1,  y2,  1);  //left
+  LcdLine(x1,  y1,  x2,  y1,  1);  //up
   LcdLine(x1+7,y1-1,x2-7,y1-1,1);
   LcdLine(x1+7,y1-2,x2-7,y1-2,1);
   

@@ -64,6 +64,8 @@ uint32_t madorc_impulse=0;
 
 FunctionalState Sound_key_pressed=DISABLE;
 
+//int zyx=0;
+
 DataUpdateDef DataUpdate;
 ADCDataDef ADCData;
 SettingsDef Settings;

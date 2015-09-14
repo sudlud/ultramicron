@@ -22,7 +22,7 @@ uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
 // =========================================================================================
-uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
+uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
 {
 	uint8_t data_key=0;
 	uint8_t address_hi=0;
@@ -162,7 +162,7 @@ void USB_on()
 
 void USB_work()
 {
-	uint32_t i=0;
+	uint32_t i, send_blocks=32; // по сколько блоков слать
 //---------------------------------------------Передача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
     {
@@ -180,42 +180,42 @@ void USB_work()
 					// Предотвращение загрузки старых неверных блоков данных.
 					if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
 
-					while(i<16) // По 16 блоков 64 байта за 1 запров
+					USB_not_active=0; // Сброс четчика неактивности USB 
+					Receive_length = 0;
+					
+					for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
 					{
-						i++;
-						USB_not_active=0; // Сброс четчика неактивности USB 
 						
-						if(Receive_Buffer[0] == 0xD4) // передача основных данных в USB Gaiger
+						switch (Receive_Buffer[0])
 						{
-							USB_send_madorc_data(); 
-							i=16;
-						}
-						if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
-						{
-							Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
-						}
-						if(Receive_Buffer[0] == 0x32) // передача массива дозы
-						{
-							Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
-						}
-						if(Receive_Buffer[0] == 0x33) // передача настроек
-						{
-							USB_maxfon_massive_pointer=0;
-							USB_doze_massive_pointer=0;
-							USB_send_settings_data();
-							i=16;
-						}
-						if(Receive_Buffer[0] == 0x39) // завершение передачи
-						{
-							USB_maxfon_massive_pointer=0;
-							USB_doze_massive_pointer=0;
-							i=16;
-						}
+							case 0xD4: 								// Отправка данных по запросу каждую минуту
+								USB_send_madorc_data();
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
 
-						Receive_length = 0;
+							case 0x31: 								// передача массива максимального фона
+								Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1); // Подготовка массива данных к передаче
+								break;
+
+							case 0x32: 								// передача массива дозы
+								Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3); // Подготовка массива данных к передаче
+								break;
+
+							case 0x33: 								// передача настроек
+								USB_maxfon_massive_pointer=0;
+								USB_doze_massive_pointer=0;
+								USB_send_settings_data();
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+
+							case 0x39: 								// завершение передачи
+								USB_maxfon_massive_pointer=0;
+								USB_doze_massive_pointer=0;
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+						}
 						if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
-						while(packet_sent != 1);
-						Send_length=0;
+						while(packet_sent != 1)Send_length=0;
 					}
 			}
 		}

@@ -384,11 +384,18 @@ void recalculate_fon()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 		int i;
+		//extern int zyx;
 #ifdef debug
 		Wakeup.rtc_wakeup++;
-#endif	
+#endif
     if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
 		{
+
+			
+			//Detector_massive[Detector_massive_pointer]=zyx/50;
+			//ram_Doze_massive[0]=zyx;
+
+			
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
       EXTI_ClearITPendingBit(EXTI_Line17);
 			if(!poweroff_state)
@@ -428,15 +435,13 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				pump_counter_avg_impulse_by_1sec[0]=0;
 				DataUpdate.pump_counter_update_time=0;
 
-			if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
-			{
-				GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
-			} else {
-				GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-			}			
-				
-				
-				
+				if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
+				{
+					GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
+				} else {
+					GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
+				}			
+								
 				if(pump_counter_avg_impulse_by_1sec[1]==0) //затычка на случай глюка с накачкой
 				{
 					dac_init();
@@ -459,6 +464,10 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			// Сдвиг массива дозы
 			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут (150)
 			{
+				
+				//zyx++;
+				
+				
 				if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
 				DataUpdate.Need_update_mainscreen_counters=ENABLE;
 

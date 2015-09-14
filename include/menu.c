@@ -52,11 +52,11 @@ void main_screen()
   
   uint32_t battery_procent=0, i=0,x=0;
    
-  //Рачсет процента батарейки 3.2В = 0% 4.2В = 100%
+  //Рачсет процента батарейки 3.5В = 0% 4.0В = 100%
   battery_procent=ADCData.Batt_voltage;
-  battery_procent-=3200;
-  battery_procent/=10;
-  if(ADCData.Batt_voltage<3200){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
+  battery_procent-=3500;
+  battery_procent/=5;
+  if(ADCData.Batt_voltage<3500){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
 	if (main_menu_stat>6)main_menu_stat=1;

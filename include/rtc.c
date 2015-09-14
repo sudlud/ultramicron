@@ -101,6 +101,7 @@ void RTC_Config(void)
 	}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	SynchPrediv = 0xFF;
+	//SynchPrediv = 0x0;
 	Settings.LSI_freq=0x00;
 #endif
 	
@@ -109,7 +110,7 @@ void RTC_Config(void)
   
   RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
   RTC_InitStructure.RTC_SynchPrediv	=  SynchPrediv;
-	  RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
+	RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
   RTC_Init(&RTC_InitStructure);
 
   /* Wait for RTC APB registers synchronisation */

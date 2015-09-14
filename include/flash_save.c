@@ -127,7 +127,7 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 
 
 //////////////////////////////////////////////////////////////////////////////////////
-uint32_t flash_read_Doze_massive(uint32_t virt_element)
+uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 {  
 	uint32_t Address=0, page=0, page_num=0, index=0;
 
@@ -143,59 +143,16 @@ uint32_t flash_read_Doze_massive(uint32_t virt_element)
 //////////////////////////////////////////////////
 		page_num=index/doze_length; // сколько страниц надо пройти 
 		
-																// ѕример пройти надо 200 (page_num)
-																// page = 10
-		
 		if(page_num>page){page=FLASH_MAX_PAGE+page-page_num;} // ≈сли надо пройти больше конца пам€ти, то скорректировать число
-		
-																// if(200>10)
-																// 271-200=71(+10)=81
-		
 		else							{page=page-page_num-1;}
-
 
 		//ќстаток от индекса
 		index=index-(page_num*doze_length);
 
-		Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
+		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE>>1) + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
+		if(mode == dose_select)    Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
+
 		return 	(*(__IO uint32_t*)Address); // „итаем данные из флеша
 	}
 }
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////
-uint32_t flash_read_max_fon_massive(uint32_t virt_element)
-{  
-	uint32_t Address=0, page=0, page_num=0, index=0;
-
-	if(virt_element>=FLASH_MAX_ELEMENT)return 0; // ѕроверка вход€щего параметра
-	
-	if(virt_element<doze_length) // 0-31
-	{
-		return ram_max_fon_massive[virt_element];
-	} else // >31
-	{
-		index=virt_element-(DataUpdate.doze_count+1);
-		page=DataUpdate.current_flash_page;
-//////////////////////////////////////////////////
-		page_num=index/doze_length; // сколько страниц надо пройти 
-		
-																// ѕример пройти надо 200 (page_num)
-																// page = 10
-		
-		if(page_num>page){page=FLASH_MAX_PAGE+page-page_num;} // ≈сли надо пройти больше конца пам€ти, то скорректировать число
-		
-																// if(200>10)
-																// 271-200=71(+10)=81
-		
-		else							{page=page-page_num-1;}
-
-
-		//ќстаток от индекса
-		index=index-(page_num*doze_length);
-
-		Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE>>1) + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
-		return 	(*(__IO uint32_t*)Address); // „итаем данные из флеша
-	}
-}

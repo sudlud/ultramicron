@@ -72,10 +72,10 @@ void main_screen()
 		
 		for(i=doze_length_month;i>0;i--)		
 		{
-			if(i<doze_length_day  ) Doze_day_count+=  flash_read_Doze_massive(i);// расчет дневной дозы
-			if(i<doze_length_month) Doze_month_count+=flash_read_Doze_massive(i);// расчет месячной дозы
-			if(i<doze_length_week ){Doze_week_count+= flash_read_Doze_massive(i);// расчет недельной дозы
-															x=flash_read_max_fon_massive(i);
+			if(i<doze_length_day  ) Doze_day_count+=  flash_read_massive(i,dose_select);// расчет дневной дозы
+			if(i<doze_length_month) Doze_month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
+			if(i<doze_length_week ){Doze_week_count+= flash_read_massive(i,dose_select);// расчет недельной дозы
+															x=flash_read_massive(i,max_fon_select);
 															if(x>Max_fon)Max_fon=x;                      // расчет максимального фона
 														 }
 		}
@@ -95,10 +95,10 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSE10M); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 			
-			if(flash_read_Doze_massive(doze_length_10m)>0)
+			if(flash_read_massive(doze_length_10m,dose_select)>0)
 			{
 				//фон за час massive/(3600/время счета)
-				sprintf (lcd_buf, LANG_9UMKR, (flash_read_Doze_massive(doze_length_10m)*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
+				sprintf (lcd_buf, LANG_9UMKR, (flash_read_massive(doze_length_10m,dose_select)*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
@@ -109,10 +109,10 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSEHOUR); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
-			if(flash_read_Doze_massive(doze_length_hour)>0)
+			if(flash_read_massive(doze_length_hour,dose_select)>0)
 			{
 				Doze_hour_count=0;
-				for(i=doze_length_hour;i>0;i--)Doze_hour_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				for(i=doze_length_hour;i>0;i--)Doze_hour_count+=flash_read_massive(i,dose_select);    // расчет недельной дозы
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_hour_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
@@ -124,7 +124,7 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSE24H); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера		
 			
-			if(flash_read_Doze_massive(doze_length_day)>0) // День
+			if(flash_read_massive(doze_length_day,dose_select)>0) // День
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_day_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
@@ -138,7 +138,7 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSEWEEK); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
-			if(flash_read_Doze_massive(doze_length_week)>0) // неделя
+			if(flash_read_massive(doze_length_week,dose_select)>0) // неделя
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_week_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
@@ -155,7 +155,7 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSEMONTH); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
-			if(flash_read_Doze_massive(doze_length_month)>0) // неделя
+			if(flash_read_massive(doze_length_month,dose_select)>0) // неделя
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_month_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {

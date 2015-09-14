@@ -10,9 +10,6 @@
 #include "clock.h"
 #include "flash_save.h"
 
-#define max_fon_select 1
-#define dose_select 2
-
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
 extern __IO  uint32_t length ;
@@ -20,6 +17,8 @@ extern __IO  uint32_t Send_length ;
 uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
+
+#define send_blocks 32 // по сколько блоков слать
 
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
@@ -39,54 +38,26 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 		address_lo =  *massive_pointer       & 0xff;	
 		address_hi = (*massive_pointer >> 8) & 0xff;	
 
-		if(mode == max_fon_select)
-		{
-			if (flash_read_max_fon_massive((*massive_pointer))  <0xff &&
-					flash_read_max_fon_massive((*massive_pointer)+1)<0xff &&
-					flash_read_max_fon_massive((*massive_pointer)+2)<0xff &&
-					flash_read_max_fon_massive((*massive_pointer)+3)<0xff)
-			{	// Если возможно сжатие массива
-				data_key=start_key-0x70;
-				fon_1_4 = flash_read_max_fon_massive((*massive_pointer))   & 0xff; 
-				fon_2_4 = flash_read_max_fon_massive((*massive_pointer)+1) & 0xff; 
-				fon_3_4 = flash_read_max_fon_massive((*massive_pointer)+2) & 0xff;
-				fon_4_4 = flash_read_max_fon_massive((*massive_pointer)+3) & 0xff;
-				*massive_pointer = *massive_pointer + 4;
-			}	else { // Если данные сжать нельзя
-				data_key=start_key;
-				tmp=flash_read_max_fon_massive(*massive_pointer);
-				fon_1_4 =  tmp        & 0xff;       
-				fon_2_4 = (tmp >> 8)  & 0xff; 
-				fon_3_4 = (tmp >> 16) & 0xff;
-				fon_4_4 = (tmp >> 24) & 0xff;
-				*massive_pointer = *massive_pointer + 1;
-			}
+		if (flash_read_massive((*massive_pointer),mode)  <0xff &&
+				flash_read_massive((*massive_pointer)+1,mode)<0xff &&
+				flash_read_massive((*massive_pointer)+2,mode)<0xff &&
+				flash_read_massive((*massive_pointer)+3,mode)<0xff)
+		{	// Если возможно сжатие массива
+			data_key=start_key-0x70;
+			fon_1_4 = flash_read_massive((*massive_pointer),mode)   & 0xff; 
+			fon_2_4 = flash_read_massive((*massive_pointer)+1,mode) & 0xff; 
+			fon_3_4 = flash_read_massive((*massive_pointer)+2,mode) & 0xff;
+			fon_4_4 = flash_read_massive((*massive_pointer)+3,mode) & 0xff;
+			*massive_pointer = *massive_pointer + 4;
+		}	else { // Если данные сжать нельзя
+			data_key=start_key;
+			tmp=flash_read_massive(*massive_pointer,mode);
+			fon_1_4 =  tmp        & 0xff;       
+			fon_2_4 = (tmp >> 8)  & 0xff; 
+			fon_3_4 = (tmp >> 16) & 0xff;
+			fon_4_4 = (tmp >> 24) & 0xff;
+			*massive_pointer = *massive_pointer + 1;
 		}
-		
-		if(mode == dose_select)
-		{
-			if (flash_read_Doze_massive((*massive_pointer))  <0xff &&
-					flash_read_Doze_massive((*massive_pointer)+1)<0xff &&
-					flash_read_Doze_massive((*massive_pointer)+2)<0xff &&
-					flash_read_Doze_massive((*massive_pointer)+3)<0xff)
-			{	// Если возможно сжатие массива
-				data_key=start_key-0x70;
-				fon_1_4 = flash_read_Doze_massive((*massive_pointer))   & 0xff; 
-				fon_2_4 = flash_read_Doze_massive((*massive_pointer)+1) & 0xff; 
-				fon_3_4 = flash_read_Doze_massive((*massive_pointer)+2) & 0xff;
-				fon_4_4 = flash_read_Doze_massive((*massive_pointer)+3) & 0xff;
-				*massive_pointer = *massive_pointer + 4;
-			}	else { // Если данные сжать нельзя
-				data_key=start_key;
-				tmp=flash_read_Doze_massive(*massive_pointer);
-				fon_1_4 =  tmp        & 0xff;       
-				fon_2_4 = (tmp >> 8)  & 0xff; 
-				fon_3_4 = (tmp >> 16) & 0xff;
-				fon_4_4 = (tmp >> 24) & 0xff;
-				*massive_pointer = *massive_pointer + 1;
-			}
-		}
-		
 
 		Send_Buffer[used_lenght  ]=data_key;                                  // передать ключ
 		Send_Buffer[used_lenght+1]=address_hi;                                 // передать по УСАПП 
@@ -162,7 +133,7 @@ void USB_on()
 
 void USB_work()
 {
-	uint32_t i, send_blocks=32; // по сколько блоков слать
+	uint32_t i; // по сколько блоков слать
 //---------------------------------------------Передача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
     {

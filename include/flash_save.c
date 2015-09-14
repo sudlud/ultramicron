@@ -86,7 +86,7 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 {	
 
 	Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE);
-	
+
 	page_erase_flash(page); // Стереть страницу перед записью
 	
 	/* Unlock the FLASH Program memory */ 
@@ -108,7 +108,7 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
                     | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
   } 
 
-	Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE)+(FLASH_PAGE_SIZE/2);
+	Address+=FLASH_PAGE_SIZE>>1;
   /* Write the FLASH Program memory using HalfPage operation */
   FLASHStatus_eeprom = FLASH_ProgramHalfPage(Address, ram_max_fon_massive);
 
@@ -135,7 +135,9 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 	
 	if(virt_element<doze_length) // 0-31
 	{
-		return ram_Doze_massive[virt_element];
+		if(mode == max_fon_select) return ram_max_fon_massive[virt_element];
+		if(mode == dose_select)    return ram_Doze_massive[virt_element];
+
 	} else // >31 Элемент не из памяти, лезем во флешку
 	{
 		index=virt_element-(DataUpdate.doze_count+1);
@@ -150,9 +152,10 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 		index=index-(page_num*doze_length);
 
 		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE>>1) + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисляем адрес начала страницы
-		if(mode == dose_select)    Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисляем адрес начала страницы
+		if(mode == dose_select)    Address = FLASH_START_ADDR +                        (page * FLASH_PAGE_SIZE) + (index<<2); // вычисляем адрес начала страницы
 
 		return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
 	}
+	return 0;
 }
 //////////////////////////////////////////////////////////////////////////////////////

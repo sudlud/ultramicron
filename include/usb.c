@@ -136,15 +136,12 @@ void USB_work()
 	uint32_t i; // по сколько блоков слать
 //---------------------------------------------Передача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
-    {
-				
+    {		
       CDC_Receive_DATA();
-
 #ifndef version_401 // Версия платы дозиметра 4.01+
 			if(Settings.USB == 1) // MadOrc
 #endif				
 			{
-			
 				/*Check to see if we have data yet */
 				if (Receive_length  == 1)
 				{

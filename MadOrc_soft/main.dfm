@@ -37336,7 +37336,7 @@ object mainFrm: TmainFrm
     TabOrder = 7
   end
   object Load_stat_btn: TButton
-    Left = 140
+    Left = 143
     Top = 433
     Width = 127
     Height = 25
@@ -37361,6 +37361,15 @@ object mainFrm: TmainFrm
     Caption = #1057#1082#1088#1080#1085#1096#1086#1090
     TabOrder = 10
     OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 936
+    Top = 433
+    Width = 107
+    Height = 25
+    Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074' CSV'
+    TabOrder = 11
+    OnClick = Button3Click
   end
   object MyTray: TJvTrayIcon
     Active = True
@@ -38152,7 +38161,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C00440110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C005C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38468,5 +38477,11 @@ object mainFrm: TmainFrm
     OnTimer = Timer4Timer
     Left = 256
     Top = 392
+  end
+  object SaveDialog1: TSaveDialog
+    Filter = 'CSV (*.CSV)|*.csv'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 168
+    Top = 359
   end
 end

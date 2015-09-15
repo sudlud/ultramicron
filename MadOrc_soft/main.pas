@@ -9,7 +9,7 @@ uses
   shellapi, JvExExtCtrls, MMSystem, About_f, iaRS232, Vcl.ExtDlgs, pngimage,
   ShlObj, IdAuthentication, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
-  IdSSLOpenSSL, IdMultipartFormData;
+  IdSSLOpenSSL, IdMultipartFormData, System.DateUtils;
 
 type
   TmainFrm = class(TForm)
@@ -74,6 +74,8 @@ type
     IdHTTP1: TIdHTTP;
     Timer4: TTimer;
     RUSENG1: TMenuItem;
+    Button3: TButton;
+    SaveDialog1: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -114,6 +116,7 @@ type
     procedure Image2Click(Sender: TObject);
     procedure Timer4Timer(Sender: TObject);
     procedure RUSENG1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
      private
     { Private declarations }
     RS232: TiaRS232;
@@ -597,6 +600,7 @@ begin
     OKBtn.Caption:=        'Hide';
     Button1.Caption:=      'Clear';
     Button2.Caption:=      'Screenshot';
+    Button3.Caption:=      'Save to CSV';
     Radiobutton4.Caption:= 'dose/h';
     Radiobutton3.Caption:= 'dose/m';
     Radiobutton2.Caption:= 'dose/s';
@@ -849,6 +853,8 @@ begin
 
 Unit1.Form1.Show;
 
+  myDate:=Now;
+
   if (lang_settings=false) then
   begin
     Unit1.Form1.Label5.Caption:='Dont stop the process. Dont turn off device!';
@@ -979,6 +985,47 @@ png.free;
 
 end;
 
+procedure TmainFrm.Button3Click(Sender: TObject);
+var
+  F: TextFile;
+  FileName: string;
+  I: Integer;
+  ix: Integer;
+  TempStr: string;
+  Y, M, D: Word;
+begin
+  SaveDialog1.DefaultExt := '.csv';
+  SaveDialog1.FileName := dosi_name_lang+'.csv';
+
+  If SaveDialog1.Execute then
+   begin
+   try
+    AssignFile(F, SaveDialog1.fileName);  // связали файл с переменной
+    Rewrite(F);               // создаем пустой файл
+// если строка с заголовком не нужна, то можно эту строку удалить.
+
+    WriteLn(F,
+        '"', 'Element', '";',
+        '"', 'Timestamp', '";',
+        '"', 'Avg_Fon', '";',
+        '"', 'Max_Fon', '"');
+
+    for ix := 0 to 8640 do begin
+     if doze_massive[ix]>0 then begin
+       DateTimeToString(formattedDateTime, 'c', IncMinute(myDate, -(10*ix)));
+       WriteLn(F,
+          '"', IntToStr(ix), '";',
+          '"', formattedDateTime,      '";',
+          '"', IntToStr((doze_massive[ix] * geiger_seconds_count) Div 600), '";',
+          '"', IntToStr(max_fon_massive[ix]), '"');
+       end;
+    end;
+  finally
+    CloseFile(F);
+  end;
+ end;
+end;
+
 procedure TmainFrm.FuchsiaBtnClick(Sender: TObject);
 begin
     alarmlevel:=1000;
@@ -1070,7 +1117,7 @@ begin
     end;
 
     if ((((Image2.Width-foo.X) Div 5)>time_offset) or (Combobox1.ItemIndex <> 0)) then begin
-      Label9.Caption:=avg_lang+      IntToStr(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   mkr2_lang;
+      Label9.Caption:=avg_lang+    IntToStr(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   mkr2_lang;
       Label10.Caption:=maxi2_lang+IntToStr(max_fon_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset])+mkr2_lang;
     end else begin
       Label9.Caption:=avg2_lang;

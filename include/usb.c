@@ -18,7 +18,7 @@ uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
-#define send_blocks 32 // по сколько блоков слать
+#define send_blocks 64 // по сколько блоков слать
 
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
@@ -185,8 +185,9 @@ void USB_work()
 								i=send_blocks; 					// принудительное завершение цикла
 								break;
 						}
+						while(packet_sent != 1);
 						if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
-						while(packet_sent != 1)Send_length=0;
+						Send_length=0;
 					}
 			}
 		}

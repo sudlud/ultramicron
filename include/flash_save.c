@@ -1,8 +1,5 @@
 #include "stm32l1xx.h"
 #include "main.h"
-
-//#pragma O0
-
 #include "flash_save.h"
                     
 
@@ -140,19 +137,30 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 
 	} else // >31 Ёлемент не из пам€ти, лезем во флешку
 	{
+/*	x<<1 = *2
+		x<<2 = *4
+		x<<5 = *32
+		x<<8 = *256
+*/
+
 		index=virt_element-(DataUpdate.doze_count+1);
 		page=DataUpdate.current_flash_page;
 //////////////////////////////////////////////////
-		page_num=index/doze_length; // сколько страниц надо пройти 
+		//page_num=index/doze_length; // до оптимизации
+		page_num=index>>5; // сколько страниц надо пройти // /32
 		
 		if(page_num>page){page=FLASH_MAX_PAGE+page-page_num;} // ≈сли надо пройти больше конца пам€ти, то скорректировать число
-		else							{page=page-page_num-1;}
+		else						 {page=page-page_num-1;}
 
 		//ќстаток от индекса
-		index=index-(page_num*doze_length);
-
-		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE>>1) + (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
-		if(mode == dose_select)    Address = FLASH_START_ADDR +                        (page * FLASH_PAGE_SIZE) + (index<<2); // вычисл€ем адрес начала страницы
+		//index=index-(page_num*doze_length); // до оптимизации
+		index=index-(page_num<<5); // *32
+		
+		// до оптимизации
+		//if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE/2) + (page * FLASH_PAGE_SIZE) + (index*4); // вычисл€ем адрес начала страницы
+		//if(mode == dose_select)    Address = FLASH_START_ADDR +                       (page * FLASH_PAGE_SIZE) + (index*4); // вычисл€ем адрес начала страницы
+		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE >> 1) + (page << 8) + (index << 2); // вычисл€ем адрес начала страницы
+		if(mode == dose_select)    Address = FLASH_START_ADDR +                          (page << 8) + (index << 2); // вычисл€ем адрес начала страницы
 
 		return 	(*(__IO uint32_t*)Address); // „итаем данные из флеша
 	}

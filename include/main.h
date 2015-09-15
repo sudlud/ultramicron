@@ -135,7 +135,7 @@ extern uint32_t ix_update;
 //#define count_seconds 75 // 
 extern uint16_t Detector_massive[120+1];
 
-#define FLASH_PAGE_SIZE                 0x100
+#define FLASH_PAGE_SIZE                 0x100         // (НЕ ТРОГАТЬ! развилится оптимизация USB обмена!!)
 #define FLASH_START_ADDR                0x0800F000
 #define FLASH_END_ADDR                  0x0801FFFF
 #define FLASH_MAX_PAGE                  (FLASH_END_ADDR - FLASH_START_ADDR) / FLASH_PAGE_SIZE 
@@ -150,7 +150,7 @@ extern uint16_t Detector_massive[120+1];
 #define doze_length_week  1008 // 1 неделя интервалами по 10 минут (60/10)*24*7
 #define doze_length_month 4320 // 1 месяц  интервалами по 10 минут (60/10)*24*30
 
-#define doze_length 32 // длинна массива в памяти
+#define doze_length 32 // длинна массива в памяти (НЕ ТРОГАТЬ! развилится оптимизация USB обмена!!)
 
 extern uint32_t ram_Doze_massive[doze_length+1]; // 1 ячейка = 10 минут
 extern uint32_t ram_max_fon_massive[doze_length+1]; // 1 ячейка = 10 минут

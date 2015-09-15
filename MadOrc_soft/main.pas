@@ -18,7 +18,6 @@ type
     AutoStartupBtn: TMenuItem;
     ExitBtn: TMenuItem;
     AboutBtn: TMenuItem;
-    OKBtn: TButton;
     XPManifest1: TXPManifest;
     MessTmr: TTimer;
     TextColorBtn: TMenuItem;
@@ -61,7 +60,6 @@ type
     COM41: TMenuItem;
     COM51: TMenuItem;
     Voltage: TLabel;
-    Load_stat_btn: TButton;
     Image2: TImage;
     Label9: TLabel;
     Label10: TLabel;
@@ -79,7 +77,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
-    procedure OKBtnClick(Sender: TObject);
+    procedure OKBtnClick();
     procedure AutoStartupBtnClick(Sender: TObject);
     procedure MessTmrTimer(Sender: TObject);
     procedure BlackBtnClick(Sender: TObject);
@@ -107,7 +105,7 @@ type
     procedure COM31Click(Sender: TObject);
     procedure COM41Click(Sender: TObject);
     procedure COM51Click(Sender: TObject);
-    procedure Load_stat_btnClick(Sender: TObject);
+    procedure Load_stat_btnClick();
     procedure Timer2Timer(Sender: TObject);
     procedure Draw_massive();
     procedure Timer3Timer(Sender: TObject);
@@ -132,6 +130,7 @@ type
     procedure SaveReg;
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
+    procedure WMSysCommand(var Message:TMessage);        message WM_SYSCOMMAND;
 end;
 
 var
@@ -216,7 +215,7 @@ day_lang: string =       ' дней ';
 hour_lang: string =      ' часов ';
 minute_lang: string =    ' минут,';
 summary_lang: string =   'суммарная доза: ';
-maxi_lang: string =      'Максимальный фон за это время: ';
+maxi_lang: string =      'Максимальный фон: ';
 error_lang: string =     'Ошибка:';
 curr_lang: string =      'Текущий фон:';
 alarm_lang: string =     'Тревога [';
@@ -239,6 +238,24 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+
+procedure TmainFrm.WMSysCommand(var Message: TMessage);
+begin
+    if Message.WParam = SC_MAXIMIZE then begin
+        Load_stat_btnClick();
+        Message.Result := 0;
+    end else if Message.WParam = SC_MINIMIZE then begin
+        OKBtnClick();
+        Message.Result := 0;
+    end else if Message.WParam = SC_CLOSE then begin
+        OKBtnClick();
+        Message.Result := 0;
+    end else inherited;
+end;
+
+
+
 
 procedure TmainFrm.WMPowerBroadcast(var MyMessage: TMessage);
 begin
@@ -479,6 +496,11 @@ var
   reg: TRegistry;
 begin
 
+
+   Windows.EnableMenuItem( GetSystemMenu( Handle, false ), SC_CLOSE, MF_DISABLED or MF_GRAYED );
+   GetSystemMenu( Handle, false );
+   Perform( WM_NCPAINT, Handle, 0 );
+
   Image2.Canvas.Brush.Color := RGB(186, 170, 134);
   Image2.Canvas.Pen.Color := clBlack;
   Image2.Canvas.Rectangle(0,0,Image2.Width, Image2.Height);
@@ -577,7 +599,7 @@ begin
     hour_lang:=      ' hours ';
     minute_lang:=    ' minute,';
     summary_lang:=   'Summary dose: ';
-    maxi_lang:=      'Maximum peak radiation level: ';
+    maxi_lang:=      'Maximum peak: ';
     error_lang:=     'Error:';
     curr_lang:=      'radiation level:';
     alarm_lang:=     'ALARM [';
@@ -596,8 +618,8 @@ begin
     Label7.Caption:=       '';
     Label18.Caption:=       '';
     Label2.Caption:=       'Accumulated radiation dose:';
-    Load_stat_btn.Caption:='Load logs';
-    OKBtn.Caption:=        'Hide';
+    //Load_stat_btn.Caption:='Load logs';
+    //OKBtn.Caption:=        'Hide';
     Button1.Caption:=      'Clear';
     Button2.Caption:=      'Screenshot';
     Button3.Caption:=      'Save to CSV';
@@ -698,7 +720,7 @@ begin
   needexit := true; // вежливо просим свалить из памяти
 end;
 
-procedure TmainFrm.OKBtnClick(Sender: TObject);
+procedure TmainFrm.OKBtnClick();
 begin
   MainFrm.Width:=400;
   Timer2.Enabled:=false;
@@ -844,7 +866,7 @@ end;
 end;
 
 
-procedure TmainFrm.Load_stat_btnClick(Sender: TObject);
+procedure TmainFrm.Load_stat_btnClick();
 var
   vAns: TiaBuf;
   ix: uint;
@@ -1156,7 +1178,7 @@ if(usb_send_try < 100) then
     RS232.Close;
     Unit1.Form1.Close;
     Fix_error_now:=false;
-    Load_stat_btn.Caption:='Ошибка чтения';
+    //Load_stat_btn.Caption:='Ошибка чтения';
     USB_massive_loading:=false;
     doze_loading_flag:=false;
     maxfon_loading_flag:=false;

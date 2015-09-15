@@ -1,10 +1,9 @@
 object mainFrm: TmainFrm
-  Left = 8
-  Top = 8
-  BorderIcons = []
+  Left = 0
+  Top = 0
   BorderStyle = bsSingle
   Caption = 'USB Geiger'
-  ClientHeight = 466
+  ClientHeight = 434
   ClientWidth = 1142
   Color = clWindow
   Font.Charset = DEFAULT_CHARSET
@@ -13,7 +12,7 @@ object mainFrm: TmainFrm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poDesigned
   Scaled = False
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -86,7 +85,7 @@ object mainFrm: TmainFrm
   end
   object Image2: TImage
     Left = 413
-    Top = 16
+    Top = 8
     Width = 721
     Height = 354
     Cursor = crArrow
@@ -37049,7 +37048,7 @@ object mainFrm: TmainFrm
   end
   object Label9: TLabel
     Left = 400
-    Top = 390
+    Top = 374
     Width = 5
     Height = 24
     Font.Charset = DEFAULT_CHARSET
@@ -37061,7 +37060,7 @@ object mainFrm: TmainFrm
   end
   object Label10: TLabel
     Left = 400
-    Top = 420
+    Top = 400
     Width = 5
     Height = 24
     Font.Charset = DEFAULT_CHARSET
@@ -37072,8 +37071,8 @@ object mainFrm: TmainFrm
     ParentFont = False
   end
   object Label11: TLabel
-    Left = 744
-    Top = 390
+    Left = 714
+    Top = 374
     Width = 5
     Height = 24
     Font.Charset = DEFAULT_CHARSET
@@ -37082,15 +37081,6 @@ object mainFrm: TmainFrm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-  end
-  object OKBtn: TButton
-    Left = 8
-    Top = 434
-    Width = 64
-    Height = 24
-    Caption = #1057#1074#1077#1088#1085#1091#1090#1100
-    TabOrder = 0
-    OnClick = OKBtnClick
   end
   object Panel2: TPanel
     Left = 8
@@ -37110,7 +37100,7 @@ object mainFrm: TmainFrm
     ParentBackground = False
     ParentDoubleBuffered = False
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
     object Label18: TLabel
       Left = 269
       Top = 19
@@ -37189,7 +37179,7 @@ object mainFrm: TmainFrm
     ParentBackground = False
     ParentDoubleBuffered = False
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 1
     object Label7: TLabel
       Left = 100
       Top = 8
@@ -37207,7 +37197,7 @@ object mainFrm: TmainFrm
   end
   object Panel4: TPanel
     Left = 8
-    Top = 279
+    Top = 278
     Width = 373
     Height = 148
     BevelKind = bkSoft
@@ -37223,7 +37213,7 @@ object mainFrm: TmainFrm
     ParentBackground = False
     ParentDoubleBuffered = False
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 2
     object Label2: TLabel
       Left = 13
       Top = 0
@@ -37267,21 +37257,21 @@ object mainFrm: TmainFrm
     object Label6: TLabel
       Left = 13
       Top = 73
-      Width = 4
-      Height = 16
+      Width = 5
+      Height = 19
       Alignment = taRightJustify
       BiDiMode = bdRightToLeft
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
-      Font.Height = -13
+      Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentBiDiMode = False
       ParentFont = False
     end
     object Voltage: TLabel
-      Left = 13
-      Top = 95
+      Left = 12
+      Top = 98
       Width = 5
       Height = 19
       Font.Charset = DEFAULT_CHARSET
@@ -37308,7 +37298,7 @@ object mainFrm: TmainFrm
     Height = 17
     Caption = #1048#1084#1087'./10'#1089#1077#1082'.'
     Checked = True
-    TabOrder = 4
+    TabOrder = 3
     TabStop = True
   end
   object RadioButton2: TRadioButton
@@ -37317,7 +37307,7 @@ object mainFrm: TmainFrm
     Width = 70
     Height = 17
     Caption = #1060#1086#1085'/'#1089#1077#1082'.'
-    TabOrder = 5
+    TabOrder = 4
   end
   object RadioButton3: TRadioButton
     Left = 143
@@ -37325,7 +37315,7 @@ object mainFrm: TmainFrm
     Width = 70
     Height = 17
     Caption = #1060#1086#1085'/'#1084#1080#1085'.'
-    TabOrder = 6
+    TabOrder = 5
   end
   object RadioButton4: TRadioButton
     Left = 67
@@ -37333,42 +37323,33 @@ object mainFrm: TmainFrm
     Width = 70
     Height = 17
     Caption = #1060#1086#1085'/'#1095#1072#1089
-    TabOrder = 7
-  end
-  object Load_stat_btn: TButton
-    Left = 143
-    Top = 433
-    Width = 127
-    Height = 25
-    Caption = #1047#1072#1075#1088#1091#1079#1082#1072' '#1089#1090#1072#1090#1080#1089#1090#1080#1082#1080
-    TabOrder = 8
-    OnClick = Load_stat_btnClick
+    TabOrder = 6
   end
   object ComboBox1: TComboBox
     Left = 989
-    Top = 376
+    Top = 368
     Width = 145
     Height = 21
     Style = csDropDownList
-    TabOrder = 9
+    TabOrder = 7
     OnChange = ComboBox1Change
   end
   object Button2: TButton
     Left = 1059
-    Top = 432
+    Top = 403
     Width = 75
     Height = 26
     Caption = #1057#1082#1088#1080#1085#1096#1086#1090
-    TabOrder = 10
+    TabOrder = 8
     OnClick = Button2Click
   end
   object Button3: TButton
     Left = 936
-    Top = 433
+    Top = 403
     Width = 107
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074' CSV'
-    TabOrder = 11
+    TabOrder = 9
     OnClick = Button3Click
   end
   object MyTray: TJvTrayIcon
@@ -38161,7 +38142,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C005C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00680110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

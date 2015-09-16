@@ -129,7 +129,9 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 	uint32_t Address=0, page=0, page_num=0, index=0;
 
 	if(virt_element>=FLASH_MAX_ELEMENT)return 0; // Проверка входящего параметра
-	
+
+	if(licensed!=ENABLE)if(virt_element>doze_length_week)return 0;
+
 	if(virt_element<doze_length) // 0-31
 	{
 		if(mode == max_fon_select) return ram_max_fon_massive[virt_element];

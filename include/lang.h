@@ -29,14 +29,15 @@
 
 ///////////////////////////////////////////////////////
 // Dose
-#define LANG_MAXFON    "Максимум фона"
-#define LANG_DOSE10M   "Доза за 10мин"
-#define LANG_DOSEHOUR  "Доза за час"
-#define LANG_DOSE24H   "Доза за сутки"
-#define LANG_DOSEWEEK  "Доза за неделю"
-#define LANG_DOSEMONTH "Доза за месяц"
-#define LANG_DOSECALC  " *расчет* мкР"
-#define LANG_9UMKR     "%9u мкР"
+#define LANG_MAXFON     "Максимум фона"
+#define LANG_DOSE10M    "Доза за 10мин"
+#define LANG_DOSEHOUR   "Доза за час"
+#define LANG_DOSE24H    "Доза за сутки"
+#define LANG_DOSEWEEK   "Доза за неделю"
+#define LANG_DOSEMONTH  "Доза за месяц"
+#define LANG_DOSE2MONTH "Доза 2 месяца"
+#define LANG_DOSECALC   " *расчет* мкР"
+#define LANG_9UMKR      "%9u мкР"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
@@ -108,6 +109,7 @@
 #define LANG_DOSEHOUR "Hour dose"
 #define LANG_DOSE24H  "Day dose"
 #define LANG_DOSEWEEK "Week dose"
+#define LANG_DOSE2MONTH "2 Month dose"
 #define LANG_DOSEMONTH "Month dose"
 #define LANG_DOSECALC " *CALC*   uR"
 #define LANG_9UMKR    "%9u uR"

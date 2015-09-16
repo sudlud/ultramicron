@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, pngimage, ExtCtrls, Registry;
+  Dialogs, StdCtrls, pngimage, ExtCtrls, Registry, iaRS232;
 
 type
   TAbout = class(TForm)
@@ -17,8 +17,12 @@ type
     Label5: TLabel;
     Edit1: TEdit;
     Label6: TLabel;
+    Edit2: TEdit;
+    Label7: TLabel;
+    Button2: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -27,9 +31,11 @@ type
 
 var
   About: TAbout;
+
 implementation
 
 {$R *.dfm}
+uses main;
 
 procedure TAbout.Button1Click(Sender: TObject);
 var
@@ -42,6 +48,43 @@ begin
   reg.CloseKey;                                          // Закрываем раздел
   reg.Free;
 About.Close;
+end;
+
+procedure TAbout.Button2Click(Sender: TObject);
+var
+  vAns: TiaBuf;
+begin
+
+if (main.mainFrm.RS232.Active = false) then
+begin
+  DevPresent:=false;
+  main.mainFrm.RS232.Properties.PortNum  := comport_number;
+  main.mainFrm.RS232.Properties.BaudRate := CBR_115200;
+  main.mainFrm.RS232.Properties.Parity   := NOPARITY;
+  main.mainFrm.RS232.Properties.StopBits := ONESTOPBIT;
+  main.mainFrm.RS232.Open;
+  main.mainFrm.RS232.StartListner;
+
+
+
+  if (main.mainFrm.RS232.Active)then
+  begin
+   DevPresent:=true;
+
+   SetLength(vAns, 1);
+   vAns[0]:=$e0; // считать серийный номер МК U_ID_0
+   main.mainFrm.RS232.Send(vAns);
+
+   SetLength(vAns, 1);
+   vAns[0]:=$e1; // считать серийный номер МК U_ID_1
+   main.mainFrm.RS232.Send(vAns);
+
+   SetLength(vAns, 1);
+   vAns[0]:=$e2; // считать серийный номер МК U_ID_2
+   main.mainFrm.RS232.Send(vAns);
+
+  end;
+ end;
 end;
 
 procedure TAbout.FormCreate(Sender: TObject);

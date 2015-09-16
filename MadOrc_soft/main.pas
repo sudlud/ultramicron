@@ -6,10 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, JvTrayIcon, JvComponentBase, ImgList, Registry,
   Menus, StdCtrls, XPMan, ExtCtrls, jpeg, JvExControls, JvPoweredBy,
-  shellapi, JvExExtCtrls, MMSystem, About_f, iaRS232, Vcl.ExtDlgs, pngimage,
+  shellapi, JvExExtCtrls, MMSystem, iaRS232, Vcl.ExtDlgs, pngimage,
   ShlObj, IdAuthentication, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
-  IdSSLOpenSSL, IdMultipartFormData, System.DateUtils;
+  IdSSLOpenSSL, IdMultipartFormData, System.DateUtils, About_f;
 
 type
   TmainFrm = class(TForm)
@@ -115,17 +115,19 @@ type
     procedure Timer4Timer(Sender: TObject);
     procedure RUSENG1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+
      private
-    { Private declarations }
-    RS232: TiaRS232;
     fBuf: TiaBuf;
     fBufCount: Integer;
     procedure DoOnReceiveEvent(Sender: TObject; Const aData: TiaBuf;
       aCount: Cardinal);
     procedure DoOnSendedEvent(Sender: TObject; Const aData: TiaBuf;
       aCount: Cardinal);
+
+    { Private declarations }
  protected
   public
+    RS232: TiaRS232;
     procedure RefreshRAD;
     procedure SaveReg;
     procedure MakeIcon(f_fon: ulong);
@@ -150,6 +152,7 @@ var
   count_validate_percent: uint;
   IMPS: uint = 0;
   Fon: ulong = 0;
+  time_offset_device: uint = 0;
   count_validate: uchar = 0;
   count_interval: uchar = 0;
   blinker: boolean;
@@ -184,6 +187,10 @@ var
   max_fon_massive: array[0..10080] of UInt32;
   doze_massive: array[0..10080] of UInt32;
   selected_point_massive: uint;
+
+  device_serial_0:UInt32;
+  device_serial_1:UInt32;
+  device_serial_2:UInt32;
 
   max_fon_massive_ready: array[0..10080] of boolean;
   doze_massive_ready: array[0..10080] of boolean;
@@ -905,9 +912,9 @@ end;
 Combobox1.ItemIndex := 0;
 
 
-DateTimeToString(formattedDateTime, 'h', Now);
+DateTimeToString(formattedDateTime, 'h', IncSecond(myDate, -(4*time_offset_device)));
 time_offset:=StrToInt(formattedDateTime)*60;
-DateTimeToString(formattedDateTime, 'n', Now);
+DateTimeToString(formattedDateTime, 'n', IncSecond(myDate, -(4*time_offset_device)));
 time_offset:=time_offset+StrToInt(formattedDateTime);
 time_offset:=144-(time_offset Div 10); //113
 
@@ -936,8 +943,13 @@ begin
    RS232.Send(vAns);
 
    SetLength(vAns, 1);
+   vAns[0]:=$d5; // считать смещение времени
+   RS232.Send(vAns);
+
+   SetLength(vAns, 1);
    vAns[0]:=$33; // считать настройки
    RS232.Send(vAns);
+
 
    SetLength(vAns, 1);
    vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
@@ -1034,7 +1046,7 @@ begin
 
     for ix := 0 to 8640 do begin
      if doze_massive[ix]>0 then begin
-       DateTimeToString(formattedDateTime, 'c', IncMinute(myDate, -(10*ix)));
+       DateTimeToString(formattedDateTime, 'c', IncMinute(IncSecond(myDate, -(4*time_offset_device)), -(10*ix)));
        WriteLn(F,
           '"', IntToStr(ix), '";',
           '"', formattedDateTime,      '";',
@@ -1156,7 +1168,7 @@ var
   iy: uint32;
 begin
 
-if(usb_send_try < 100) then
+if(usb_send_try < 5) then
  begin
    if (address = address_last) and (USB_massive_loading = true) then
    begin
@@ -1445,6 +1457,43 @@ StopRS232:= TRUE;
 end;
 //-----------------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------------
+if (fBuf[0] = $d2) then begin // чтение смещени€ времени
+
+  time_offset_device := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
+
+end;
+//-----------------------------------------------------------------------------------
+
+if (fBuf[0] = $e0) then begin // —ерийника U_ID_0
+
+  device_serial_0 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
+  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
+
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
+  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+
+end;
+//-----------------------------------------------------------------------------------
+
+if (fBuf[0] = $e1) then begin // —ерийника U_ID_1
+
+  device_serial_1 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
+  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
+  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+
+end;
+//-----------------------------------------------------------------------------------
+
+if (fBuf[0] = $e2) then begin // —ерийника U_ID_2
+
+  device_serial_2 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
+  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
+  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+
+end;
 
 
 //-----------------------------------------------------------------------------------
@@ -1576,7 +1625,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
             if doze_massive[ix]>0 then
               data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
           end;
-          IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
+          IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key,'&devoffset=',Inttostr(time_offset_device)), data);
           used_len:=(Length(aData)-1); // принудительно завершаем цикл
         except
           begin

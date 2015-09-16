@@ -81,6 +81,63 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 // =========================================================================================
 
 
+void USB_send_serial_data(int num)
+{
+//---------------------------------------------КомПорт для MadOrc------------------------------------
+
+	switch (num)
+	{
+		case 0x0: 					
+			Send_Buffer[0]=0xE0;          
+			Send_Buffer[1]= U_ID_0        & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[2]=(U_ID_0 >> 8)  & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[3]=(U_ID_0 >> 16) & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[4]=(U_ID_0 >> 24) & 0xff;                                 // передать по УСАПП 
+			break;
+		case 0x1: 					
+			Send_Buffer[0]=0xE1;          
+			Send_Buffer[1]= U_ID_1        & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[2]=(U_ID_1 >> 8)  & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[3]=(U_ID_1 >> 16) & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[4]=(U_ID_1 >> 24) & 0xff;                                 // передать по УСАПП 
+			break;
+		case 0x2: 					
+			Send_Buffer[0]=0xE2;          
+			Send_Buffer[1]= U_ID_2        & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[2]=(U_ID_2 >> 8)  & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[3]=(U_ID_2 >> 16) & 0xff;                                 // передать по УСАПП 
+			Send_Buffer[4]=(U_ID_2 >> 24) & 0xff;                                 // передать по УСАПП 
+			break;
+	}
+	Send_Buffer[5]=0;                                      // передать по УСАПП 
+	Send_Buffer[6]=licensed;                               // передать по УСАПП 
+	
+	Send_length=7;
+}
+// =========================================================================================
+
+void USB_send_time_offset_data()
+{
+//---------------------------------------------КомПорт для MadOrc------------------------------------
+  uint8_t offsetHi=0;                //  старший байт индекса
+  uint8_t offsetLo=0;                // младший  байт индекса 
+
+	
+	offsetLo =  DataUpdate.doze_sec_count & 0xff;                         // разбить индекс на младший байт
+	offsetHi = (DataUpdate.doze_sec_count >> 8) & 0xff;                   // разбить индекс на старший байт  
+
+	Send_Buffer[0]=0xD2;                                      // передать ключь смещения времени
+	Send_Buffer[1]=offsetHi;                                 // передать по УСАПП 
+	Send_Buffer[2]=offsetLo;                                 // передать по УСАПП 
+	Send_Buffer[3]=0;                                 // передать по УСАПП 
+	Send_Buffer[4]=0;                                     // передать по УСАПП 
+	Send_Buffer[5]=0;                                     // передать по УСАПП 
+	Send_Buffer[6]=0;                               // передать по УСАПП 
+	
+	Send_length=7;
+}
+// =========================================================================================
+
 void USB_send_madorc_data()
 {
 //---------------------------------------------КомПорт для MadOrc------------------------------------
@@ -158,6 +215,26 @@ void USB_work()
 						{
 							case 0xD4: 								// Отправка данных по запросу каждую минуту
 								USB_send_madorc_data();
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+							
+////////////////////////////////////////////////////////////////////////////////
+							case 0xE0: 								// Отправка серийного номера МК
+								USB_send_serial_data(0);
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+							case 0xE1: 								// Отправка серийного номера МК
+								USB_send_serial_data(1);
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+							case 0xE2: 								// Отправка серийного номера МК
+								USB_send_serial_data(2);
+								i=send_blocks; 					// принудительное завершение цикла
+								break;
+////////////////////////////////////////////////////////////////////////////////
+							
+							case 0xD5: 								// Отправка метки смещения времени
+								if(licensed==ENABLE)USB_send_time_offset_data();
 								i=send_blocks; 					// принудительное завершение цикла
 								break;
 

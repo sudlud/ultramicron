@@ -6,7 +6,7 @@
 #include "ext2760.h"
 #include "lang.h"
 #include "flash_save.h"
-
+	
 MenuItem Menu_list[max_struct_index] = {
   
   //Сервис   Текст          Если значение 0   Если 1          если больше чем 1  Откуда брать само значение                             минимум  максимум  дефолт   Реакция на увеличение     на уменьшение 
@@ -59,8 +59,8 @@ void main_screen()
   if(ADCData.Batt_voltage<3500){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
-	if (main_menu_stat>6)main_menu_stat=1;
-	if (main_menu_stat<1)main_menu_stat=6;
+	if (main_menu_stat>7)main_menu_stat=1;
+	if (main_menu_stat<1)main_menu_stat=7;
 
 	if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
 	{
@@ -70,7 +70,7 @@ void main_screen()
 		Doze_week_count=0;
 		Doze_month_count=0;
 		
-		for(i=doze_length_month;i>0;i--)		
+		for(i=doze_length_2month;i>0;i--)		
 		{
 			if(i<doze_length_day  ) Doze_day_count+=  flash_read_massive(i,dose_select);// расчет дневной дозы
 			if(i<doze_length_month) Doze_month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
@@ -78,6 +78,10 @@ void main_screen()
 															x=flash_read_massive(i,max_fon_select);
 															if(x>Max_fon)Max_fon=x;                      // расчет максимального фона
 														 }
+			if(licensed==ENABLE)
+			{
+				if(i<doze_length_2month) Doze_2month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
+			}
 		}
 	}
 		
@@ -166,6 +170,22 @@ void main_screen()
       break;
   // -----------------------------------------
 			
+			// -----------------------------------------
+		case 0x07:
+			sprintf (lcd_buf, LANG_DOSE2MONTH); // Пишем в буфер значение счетчика
+			LcdString(1,4); // // Выводим обычным текстом содержание буфера
+		
+			if(flash_read_massive(doze_length_2month,dose_select)>0) // неделя
+			{
+				sprintf (lcd_buf, LANG_9UMKR, (Doze_2month_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
+			} else {
+				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
+			}
+
+			LcdString(1,5); // // Выводим обычным текстом содержание буфера
+      break;
+  // -----------------------------------------
+
     default: 
 			break;
 	}

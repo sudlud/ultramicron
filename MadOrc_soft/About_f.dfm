@@ -3,8 +3,8 @@ object About: TAbout
   Top = 0
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 254
-  ClientWidth = 247
+  ClientHeight = 375
+  ClientWidth = 268
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -239,15 +239,28 @@ object About: TAbout
     ParentFont = False
   end
   object Label6: TLabel
-    Left = 62
-    Top = 157
+    Left = 70
+    Top = 277
     Width = 120
     Height = 13
     Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1086#1085#1085#1099#1081' '#1082#1083#1102#1095
   end
-  object Button1: TButton
+  object Label7: TLabel
     Left = 86
-    Top = 213
+    Top = 163
+    Width = 90
+    Height = 23
+    Caption = 'MCU Serial'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Button1: TButton
+    Left = 93
+    Top = 334
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -255,8 +268,8 @@ object About: TAbout
     OnClick = Button1Click
   end
   object Edit1: TEdit
-    Left = 12
-    Top = 176
+    Left = 24
+    Top = 296
     Width = 219
     Height = 32
     Color = clYellow
@@ -267,5 +280,29 @@ object About: TAbout
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+  end
+  object Edit2: TEdit
+    Left = 24
+    Top = 192
+    Width = 219
+    Height = 24
+    Alignment = taCenter
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 65
+    Top = 222
+    Width = 132
+    Height = 25
+    Caption = #1055#1088#1086#1074#1077#1088#1080#1090#1100' '#1083#1080#1094#1077#1085#1079#1080#1102
+    TabOrder = 3
+    OnClick = Button2Click
   end
 end

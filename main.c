@@ -39,6 +39,7 @@ uint32_t Doze_day_count=0;
 uint32_t Doze_week_count=0;
 uint32_t Doze_hour_count=0;
 uint32_t Doze_month_count=0;
+uint32_t Doze_2month_count=0;
 uint32_t Max_fon=0;
 uint8_t  main_menu_stat=1;
 uint16_t Detector_massive_pointer=0;
@@ -58,6 +59,7 @@ uint32_t fon_level=0;
 FunctionalState poweroff_state=DISABLE;
 FunctionalState hidden_menu=DISABLE;
 FunctionalState Pump_on_alarm=DISABLE;
+FunctionalState licensed=DISABLE;
 
 uint32_t working_days=0;
 
@@ -73,6 +75,28 @@ PowerDef Power;
 #ifdef debug
 WakeupDef Wakeup;
 #endif
+
+// лицухи
+//----------------------------------------------------------------
+#define lic_num 1
+uint32_t license[lic_num] = {
+0x44B76AA7 // Shodan monitoring
+};
+//----------------------------------------------------------------
+
+FunctionalState check_license(void)
+{
+	int i;
+	for (i=0;i<lic_num;i++)
+	{
+		if(((U_ID_0+U_ID_1+U_ID_2) & 0xffffffff) == license[i])
+		{
+			return ENABLE;
+		}
+	}
+	return DISABLE;
+
+}
 
 void sleep_mode(FunctionalState sleep)
 { 
@@ -176,7 +200,9 @@ int main(void)
   Power.Display_active=ENABLE;
 	
 	ADCData.DAC_voltage_raw=0x610;
-		
+
+	licensed=check_license(); // проверка лицензии
+
   dac_init();
 	comp_init();
 	comp_on();

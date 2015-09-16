@@ -9,7 +9,6 @@
 #define U_ID_1 (*(uint32_t*) 0x1FF80054)
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
-
 #ifdef service
 	#define debug // отладка
 #endif
@@ -144,11 +143,12 @@ extern uint16_t Detector_massive[120+1];
 #define max_fon_select 1
 #define dose_select 2
 
-#define doze_length_10m      1 // 10 минут
-#define doze_length_hour     6 // 1 час    интервалами по 10 минут 60/10
-#define doze_length_day    144 // 1 день   интервалами по 10 минут (60/10)*24
-#define doze_length_week  1008 // 1 недел€ интервалами по 10 минут (60/10)*24*7
-#define doze_length_month 4320 // 1 мес€ц  интервалами по 10 минут (60/10)*24*30
+#define doze_length_10m       1 // 10 минут
+#define doze_length_hour      6 // 1 час    интервалами по 10 минут 60/10
+#define doze_length_day     144 // 1 день   интервалами по 10 минут (60/10)*24
+#define doze_length_week   1008 // 1 недел€ интервалами по 10 минут (60/10)*24*7
+#define doze_length_month  4320 // 1 мес€ц  интервалами по 10 минут (60/10)*24*30
+#define doze_length_2month 8640 // 2 мес€ца интервалами по 10 минут (60/10)*24*30*2
 
 #define doze_length 32 // длинна массива в пам€ти (Ќ≈ “–ќ√ј“№! развилитс€ оптимизаци€ USB обмена!!)
 
@@ -162,6 +162,7 @@ extern uint32_t Doze_day_count;
 extern uint32_t Doze_hour_count;
 extern uint32_t Doze_week_count;
 extern uint32_t Doze_month_count;
+extern uint32_t Doze_2month_count;
 extern uint32_t Max_fon;
 extern uint8_t  main_menu_stat;
 extern uint32_t menu_select;
@@ -181,7 +182,7 @@ extern FunctionalState pump_on_impulse;
 extern FunctionalState hidden_menu;
 
 extern FunctionalState poweroff_state;
-
+extern FunctionalState licensed;
 extern uint32_t fullstop;
 extern FunctionalState Sound_key_pressed;
 extern FunctionalState Pump_on_alarm;

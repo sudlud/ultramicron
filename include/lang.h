@@ -102,11 +102,12 @@
 #define LANG_ALARM2   "alrm"
 #define LANG_USEC     "%usec"
 #define LANG_UMKR     "%uuRh"
-#define LANG_UMKZV    "%uuSv"
+#define LANG_UMKZV    "%4.2fusV"
 #define LANG_UHZ      "%u Hz"
 #define LANG_UV       "%uV"
 #define LANG_V4PUMP   "Pump"
 #define LANG_UV4PUMP  "%uT"
+#define LANG_UNITS    "Units"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////

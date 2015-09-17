@@ -78,9 +78,11 @@ WakeupDef Wakeup;
 
 // лицухи
 //----------------------------------------------------------------
-#define lic_num 1
+#define lic_num 2
 uint32_t license[lic_num] = {
-0x44B76AA7 // Shodan monitoring
+0x44B76AA7, // Shodan monitoring     0F473130 35383935 00380042
+0x42C86A97  // Shodan handmade black 0D473130 35383935 00380042
+
 };
 //----------------------------------------------------------------
 
@@ -96,6 +98,14 @@ FunctionalState check_license(void)
 	}
 	return DISABLE;
 
+}
+
+float convert_mkr_sv(uint32_t mkrn)
+{
+	float sv=0;
+	sv=mkrn;
+	sv*=0.0098;
+	return sv;
 }
 
 void sleep_mode(FunctionalState sleep)

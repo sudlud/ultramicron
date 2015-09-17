@@ -400,7 +400,7 @@ void keys_proccessing(void)
 		if(hidden_menu){
 			if(menu_select>max_struct_index)menu_select=max_struct_index;
 		}else{
-			if(menu_select>(max_string_count-start_offset))menu_select=(max_string_count-start_offset);
+			if(menu_select>max_public_string_count)menu_select=max_public_string_count;
 		}
 		
     key=0;
@@ -446,7 +446,7 @@ void keys_proccessing(void)
 		if(hidden_menu){
 			if(menu_select>max_struct_index)menu_select=0;
 		}else{
-		  if(menu_select>(max_string_count-start_offset))menu_select=0;
+		  if(menu_select>max_public_string_count)menu_select=0;
 		}
 
     key=0;

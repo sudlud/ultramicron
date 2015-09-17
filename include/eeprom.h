@@ -33,6 +33,7 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define EnergoEfficency_address                              		0x4C
 #define Vibro_address 					                             		0x50
 #define v4_target_pump_address 	                             		0x54
+#define units_address 	                             						0x58
 
 extern uint32_t NbrOfPage, Address;
   

@@ -84,6 +84,7 @@ typedef struct
   uint32_t USB;
 #endif
 	uint32_t v4_target_pump;
+	uint32_t units;
 	uint32_t Vibro;
 }SettingsDef;
 
@@ -200,5 +201,6 @@ extern uint32_t debug_wutr;
 extern uint8_t pump_count;
 
 void sleep_mode(FunctionalState sleep);
+float convert_mkr_sv(uint32_t);
 
 #endif

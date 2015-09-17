@@ -21,10 +21,12 @@
 #define LANG_ALARM2   "трев"
 #define LANG_USEC     "%uсек"
 #define LANG_UMKR     "%uмк–"
+#define LANG_UMKZV    "%4.2fмк«"
 #define LANG_UHZ      "%u √ц"
 #define LANG_UV       "%uB"
 #define LANG_V4PUMP   "Ќакачка"
 #define LANG_UV4PUMP  "%uтик"
+#define LANG_UNITS    "≈деницы"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
@@ -36,8 +38,10 @@
 #define LANG_DOSEWEEK   "ƒоза за неделю"
 #define LANG_DOSEMONTH  "ƒоза за мес€ц"
 #define LANG_DOSE2MONTH "ƒоза 2 мес€ца"
-#define LANG_DOSECALC   " *расчет* мк–"
+#define LANG_DOSECALC   "  *расчет*   "
+#define LANG_DOSECALCZV "  *расчет*   "
 #define LANG_9UMKR      "%9u мк–"
+#define LANG_9UMKZV     "%8.2f мк«в"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
@@ -72,6 +76,8 @@
 #define LANG_USBOFF   "USB  выключен"
 
 #define LANG_UR       "мк–"
+#define LANG_UZ       "мк«"
+#define LANG_UZV      "мк«в"
 #define LANG_H        " ч "
 ///////////////////////////////////////////////////////
 
@@ -96,6 +102,7 @@
 #define LANG_ALARM2   "alrm"
 #define LANG_USEC     "%usec"
 #define LANG_UMKR     "%uuRh"
+#define LANG_UMKZV    "%uuSv"
 #define LANG_UHZ      "%u Hz"
 #define LANG_UV       "%uV"
 #define LANG_V4PUMP   "Pump"
@@ -104,15 +111,17 @@
 
 ///////////////////////////////////////////////////////
 // Dose
-#define LANG_MAXFON   "Radiation max"
-#define LANG_DOSE10M  "10 min dose"
-#define LANG_DOSEHOUR "Hour dose"
-#define LANG_DOSE24H  "Day dose"
-#define LANG_DOSEWEEK "Week dose"
+#define LANG_MAXFON     "Radiation max"
+#define LANG_DOSE10M    "10 min dose"
+#define LANG_DOSEHOUR   "Hour dose"
+#define LANG_DOSE24H    "Day dose"
+#define LANG_DOSEWEEK   "Week dose"
 #define LANG_DOSE2MONTH "2 Month dose"
-#define LANG_DOSEMONTH "Month dose"
-#define LANG_DOSECALC " *CALC*   uR"
-#define LANG_9UMKR    "%9u uR"
+#define LANG_DOSEMONTH  "Month dose"
+#define LANG_DOSECALC   " *CALC*     "
+#define LANG_DOSECALCSV " *CALC*     "
+#define LANG_9UMKR      "%9u uR"
+#define LANG_9UMKZV     "%8.2f uSv"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
@@ -148,6 +157,8 @@
 #define LANG_USBOFF   "USB disabled"
 
 #define LANG_UR       "uR"
+#define LANG_UZ       "uSv"
+#define LANG_UZV      "uSv"
 #define LANG_H        " h "
 ///////////////////////////////////////////////////////
 

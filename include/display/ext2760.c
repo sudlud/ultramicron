@@ -483,13 +483,28 @@ void Draw_fon_digit(uint8_t line, uint8_t start_char, uint8_t seconds)
   
   
   i=(line*2)-1;
+  if(!Settings.units)
+	{
+		sprintf(lcd_buf,"%6i",fon_level);
+		LcdStringBold(start_char,i);
   
-  sprintf(lcd_buf,"%6i",fon_level);
-  LcdStringBold(start_char,i);
+  
+		sprintf(lcd_buf,LANG_UR);                            
+		LcdString(((start_char+6)*2),i);
+	} else 
+	{
+		if(fon_level<=100000)
+		{
+			sprintf(lcd_buf,"%6.2f",convert_mkr_sv(fon_level));
+		} else {
+			sprintf(lcd_buf,"%6.1f",convert_mkr_sv(fon_level));
+		}
+		LcdStringBold(start_char,i);
   
   
-  sprintf(lcd_buf,LANG_UR);                            
-  LcdString(((start_char+6)*2),i);                        
+		sprintf(lcd_buf,LANG_UZ);
+		LcdString(((start_char+6)*2),i);
+	}
   
   sprintf(lcd_buf,LANG_H);                            
   LcdString(((start_char+6)*2),i+1);

@@ -74,6 +74,7 @@ type
     RUSENG1: TMenuItem;
     Button3: TButton;
     SaveDialog1: TSaveDialog;
+    units: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -115,6 +116,7 @@ type
     procedure Timer4Timer(Sender: TObject);
     procedure RUSENG1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure unitsClick(Sender: TObject);
 
      private
     fBuf: TiaBuf;
@@ -184,6 +186,8 @@ var
   serial_active:  boolean = false;
   comport_number: uint = 1;
   USB_massive_loading: boolean = false;
+  Licensed_state: boolean = false;
+
   max_fon_massive: array[0..10080] of UInt32;
   doze_massive: array[0..10080] of UInt32;
   selected_point_massive: uint;
@@ -206,12 +210,16 @@ var
   time_offset:uint32;
   myDate : TDateTime;
   formattedDateTime : string;
+  Voltage_level: Integer;
 
-
-mr_lang: string =        'ћ–/„';
 mkr_lang: string =       ' мк–';
 mkr2_lang: string =      ' мк–/ч';
 mkr3_lang: string =      'мк–/ч]';
+
+mkzv_lang: string =       ' мк«в';
+mkzv2_lang: string =      ' мк«в/ч';
+mkzv3_lang: string =      'мк«в/ч]';
+
 dos_off_lang: string =   'ƒозиметр не подключен';
 normal_lang: string =    '[ нормальный фон ]';
 high_lang: string =      '[ повышенный фон ]';
@@ -231,6 +239,8 @@ avg_lang: string =       '—редний фон ';
 maxi2_lang: string =     'ћаксимальный фон ';
 avg2_lang: string =      '—редний фон 0 мк–/ч';
 maxi3_lang: string =     'ћаксимальный фон 0 мк–/ч';
+avg2zv_lang: string =    '—редний фон 0 мк«в/ч';
+maxi3zv_lang: string =   'ћаксимальный фон 0 мк«в/ч';
 time_lang: string =      '¬рем€ ';
 hours2_lang: string =    ' час(ов)   ';
 minutes2_lang: string =  ' минут';
@@ -245,6 +255,51 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+function Convert_to_usv(mkr: uint32): string;
+var
+  float : Double;
+begin
+  if(mainfrm.units.Checked = true) then
+  begin
+    float:=mkr*0.0098;
+    result := FloatToStrF(float,ffFixed,8,2);
+    if (lang_settings=false) then
+    begin
+      mainfrm.BlackBtn.Caption:=  '0.24 uSv/h';
+      mainfrm.WhiteBtn.Caption:=  '0.39 uSv/h';
+      mainfrm.GreenBtn.Caption:=  '1.18 uSv/h';
+      mainfrm.BlueBtn.Caption:=   '3.92 uSv/h';
+      mainfrm.FuchsiaBtn.Caption:='9.80 uSv/h';
+      mainfrm.N10001.Caption:=   '29.40 uSv/h';
+    end else begin
+      mainfrm.BlackBtn.Caption:=  '0.24 мк«в/ч';
+      mainfrm.WhiteBtn.Caption:=  '0.39 мк«в/ч';
+      mainfrm.GreenBtn.Caption:=  '1.18 мк«в/ч';
+      mainfrm.BlueBtn.Caption:=    '3.9 мк«в/ч';
+      mainfrm.FuchsiaBtn.Caption:='9.80 мк«в/ч';
+      mainfrm.N10001.Caption:=   '29.40 мк«в/ч';
+    end;
+  end else begin
+    result := IntToStr(mkr);
+    if (lang_settings=false) then
+    begin
+      mainfrm.BlackBtn.Caption:=    '25 uR/h';
+      mainfrm.WhiteBtn.Caption:=    '40 uR/h';
+      mainfrm.GreenBtn.Caption:=   '120 uR/h';
+      mainfrm.BlueBtn.Caption:=    '400 uR/h';
+      mainfrm.FuchsiaBtn.Caption:='1000 uR/h';
+      mainfrm.N10001.Caption:=    '3000 uR/h';
+    end else begin
+      mainfrm.BlackBtn.Caption:=    '25 мк–/ч';
+      mainfrm.WhiteBtn.Caption:=    '40 мк–/ч';
+      mainfrm.GreenBtn.Caption:=   '120 мк–/ч';
+      mainfrm.BlueBtn.Caption:=    '400 мк–/ч';
+      mainfrm.FuchsiaBtn.Caption:='1000 мк–/ч';
+      mainfrm.N10001.Caption:=    '3000 мк–/ч';
+    end;
+  end;
+end;
 
 
 procedure TmainFrm.WMSysCommand(var Message: TMessage);
@@ -291,6 +346,10 @@ begin
   reg.WriteBool('autorun', AutoStartup);
   reg.WriteBool('alarmenable', AlarmEnable);
   reg.WriteBool('lang', lang_settings);
+
+  if(Licensed_state<>true) then mainfrm.units.Checked:= false; // проверка лицензии
+  reg.WriteBool('units', mainfrm.units.Checked);
+
   reg.WriteInteger('alarmlevel', AlarmLevel);
   reg.WriteInteger('comport',comport_number);
   reg.CloseKey;                                          // «акрываем раздел
@@ -330,13 +389,13 @@ begin
       else
       begin // cv
         blinker:=true;
-        if (Fon < 41) and (Fon_units <> mr_lang) then
+        if (Fon < 41) then
         begin
           Panel1.Color := clGreen;
           Label7.Caption := normal_lang;
           ImageList1.GetIcon(2,MyTray.Icon);
         end
-        else if (Fon < 121) and (Fon_units <> mr_lang) then
+        else if (Fon < 121) then
         begin
           Panel1.Color := clOlive;
           Label7.Caption := high_lang;
@@ -410,6 +469,7 @@ begin
     end;
     begin
       Fon_units := mkr2_lang;
+      if(mainfrm.units.Checked = true) then      Fon_units := mkzv2_lang;
     end;
     Label22.Caption := IntToStr(divgraph);
     Label23.Caption := fon_units;
@@ -439,6 +499,7 @@ begin
     end;
     begin
       Fon_units := mkr2_lang;
+      if(mainfrm.units.Checked = true) then Fon_units := mkzv2_lang;
     end;
     Label22.Caption := IntToStr(divgraphminute);
     Label23.Caption := fon_units;
@@ -468,6 +529,7 @@ begin
     end;
     begin
       Fon_units := mkr2_lang;
+      if(mainfrm.units.Checked = true) then      Fon_units := mkzv2_lang;
     end;
     Label22.Caption := IntToStr(divgraphhour);
     Label23.Caption := fon_units;
@@ -482,9 +544,13 @@ end;
       doseadd := (fonpmm div 60);
     end else doseadd := 0;
     begin
-    Label5.Caption := summary_lang+IntToStr(dosefull+doseday+doseadd)+mkr_lang;
+      Label5.Caption := summary_lang+IntToStr(dosefull+doseday+doseadd)+mkr_lang;
+        if(mainfrm.units.Checked = true) then
+          Label5.Caption := summary_lang+Convert_to_usv(dosefull+doseday+doseadd)+mkzv_lang;
     end;
       Label6.Caption := maxi_lang+IntToStr(maxfon)+mkr2_lang;
+        if(mainfrm.units.Checked = true) then
+          Label6.Caption := maxi_lang+Convert_to_usv(maxfon)+mkzv2_lang;
 end;
 
 procedure TmainFrm.RefreshRAD;
@@ -542,6 +608,13 @@ begin
       comport_number := 1;
     end;
     try
+      if (not reg.valueexists('units')) then
+        reg.WriteBool('units', false);
+      mainfrm.units.Checked := reg.ReadBool('units');
+    except
+//      mainfrm.units.Checked := false;
+    end;
+    try
       AlarmEnable := reg.ReadBool('alarmenable');
     except
       AlarmEnable := false;
@@ -562,7 +635,10 @@ begin
       reg.WriteInteger('comport', 1);
     except
     end;
-
+    try
+      reg.WriteBool('units', false);
+    except
+    end;
     try
       reg.WriteBool('alarmenable', AlarmEnable);
     except
@@ -592,10 +668,12 @@ begin
   if (lang_settings=false) then
   begin
 
-    mr_lang:=        'mR/h';
     mkr_lang:=       ' uR';
     mkr2_lang:=      ' uR/h';
     mkr3_lang:=      'uR/h]';
+    mkzv_lang:=       ' uSv';
+    mkzv2_lang:=      ' uSv/h';
+    mkzv3_lang:=      'uSv/h]';
     dos_off_lang:=   'Dosimeter not connected';
     normal_lang:=    '[ normal radiation level ]';
     high_lang:=      '[ high radiation level ]';
@@ -615,6 +693,8 @@ begin
     maxi2_lang:=     'Max level ';
     avg2_lang:=      'Avg level 0 uR/h';
     maxi3_lang:=     'Max level 0 uR/h';
+    avg2zv_lang:=    'Avg level 0 uSv/h';
+    maxi3zv_lang:=   'Max level 0 uSv/h';
     time_lang:=      'Time ';
     hours2_lang:=    ' hours   ';
     minutes2_lang:=  ' minute';
@@ -642,19 +722,11 @@ begin
     AboutBtn.Caption:='About';
     ExitBtn.Caption:='Exit';
     AutoStartupBtn.Caption:='Autostart';
-
-    BlackBtn.Caption:='25 uR/h';
-    WhiteBtn.Caption:='40 uR/h';
-    GreenBtn.Caption:='120 uR/h';
-    BlueBtn.Caption:='400 uR/h';
-    FuchsiaBtn.Caption:='1000 uR/h';
-    N10001.Caption:='3000 uR/h';
     loading_lang:='Loading...';
 
   end
 
 end;
-
 
 procedure TmainFrm.COM11Click(Sender: TObject);
 begin
@@ -806,7 +878,9 @@ begin
     else
       MyTray.BalloonHint(curr_lang,IntToStr(Fon)+' '+fon_units,TBalloonType(2),5000,true);
 end;
-      AlarmEnableBtn.Caption := alarm_lang+IntToStr(alarmlevel)+mkr3_lang;
+    if(mainfrm.units.Checked = true) then
+    begin AlarmEnableBtn.Caption := alarm_lang+Convert_to_usv(alarmlevel)+mkzv3_lang; end
+    else AlarmEnableBtn.Caption := alarm_lang+IntToStr(alarmlevel)+mkr3_lang;
 end;
 
 procedure TmainFrm.N10001Click(Sender: TObject);
@@ -1039,19 +1113,30 @@ begin
 // если строка с заголовком не нужна, то можно эту строку удалить.
 
     WriteLn(F,
-        '"', 'Element', '";',
+        '"', 'Element'  , '";',
         '"', 'Timestamp', '";',
-        '"', 'Avg_Fon', '";',
-        '"', 'Max_Fon', '"');
+        '"', 'Avg_Fon'  , '";',
+        '"', 'Max_Fon'  , '";',
+        '"', 'Units'    , '"');
 
     for ix := 0 to 8640 do begin
      if doze_massive[ix]>0 then begin
        DateTimeToString(formattedDateTime, 'c', IncMinute(IncSecond(myDate, -(4*time_offset_device)), -(10*ix)));
-       WriteLn(F,
+       if(mainfrm.units.Checked = true) then
+       begin
+         WriteLn(F,
+          '"', IntToStr(ix), '";',
+          '"', formattedDateTime,      '";',
+          '"', Convert_to_usv((doze_massive[ix] * geiger_seconds_count) Div 600), '";',
+          '"', Convert_to_usv(max_fon_massive[ix]), '";',
+          '"', 'uSv/h', '"');
+       end else
+         WriteLn(F,
           '"', IntToStr(ix), '";',
           '"', formattedDateTime,      '";',
           '"', IntToStr((doze_massive[ix] * geiger_seconds_count) Div 600), '";',
-          '"', IntToStr(max_fon_massive[ix]), '"');
+          '"', IntToStr(max_fon_massive[ix]), '";',
+          '"', 'uR/h', '"');
        end;
     end;
   finally
@@ -1102,6 +1187,22 @@ if(USB_massive_loading = false) then begin
     if (RS232.Active)then
     begin
      DevPresent:=true;
+
+     device_serial_0:=0;
+     SetLength(vAns, 1);
+     vAns[0]:=$e0; // считать серийный номер ћ  U_ID_0
+     RS232.Send(vAns);
+     sleep(5);
+     device_serial_1:=0;
+     SetLength(vAns, 1);
+     vAns[0]:=$e1; // считать серийный номер ћ  U_ID_1
+     RS232.Send(vAns);
+     sleep(5);
+     device_serial_2:=0;
+     SetLength(vAns, 1);
+     vAns[0]:=$e2; // считать серийный номер ћ  U_ID_2
+     RS232.Send(vAns);
+     sleep(5);
      SetLength(vAns, 1);
      vAns[0]:=$d4;
      RS232.Send(vAns);
@@ -1153,9 +1254,20 @@ begin
     if ((((Image2.Width-foo.X) Div 5)>time_offset) or (Combobox1.ItemIndex <> 0)) then begin
       Label9.Caption:=avg_lang+    IntToStr(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   mkr2_lang;
       Label10.Caption:=maxi2_lang+IntToStr(max_fon_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset])+mkr2_lang;
+
+        if(mainfrm.units.Checked = true) then begin
+          Label9.Caption:=avg_lang+   Convert_to_usv(((doze_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset] * geiger_seconds_count) Div 600))+   mkzv2_lang;
+          Label10.Caption:=maxi2_lang+Convert_to_usv(max_fon_massive[((Image2.Width-foo.X) Div 5)+(144*(Combobox1.ItemIndex))-time_offset])+mkzv2_lang;
+        end;
+
     end else begin
-      Label9.Caption:=avg2_lang;
-      Label10.Caption:=maxi3_lang;
+      if(mainfrm.units.Checked = true) then
+      begin Label9.Caption:=avg2zv_lang;
+            Label10.Caption:=maxi3zv_lang;
+      end else
+      begin Label9.Caption:=avg2_lang;
+            Label10.Caption:=maxi3_lang;
+      end;
     end;
     Label11.Caption:=time_lang+IntToStr(hour)+hours2_lang+IntToStr(minute)+minutes2_lang;
 
@@ -1222,6 +1334,16 @@ if (DevPresent) then
     AIdHTTP.Disconnect;
     AIdHTTP.Free;
   end;
+end;
+
+procedure TmainFrm.unitsClick(Sender: TObject);
+begin
+  if(Licensed_state<>true) then
+  begin
+    mainfrm.units.Checked:= false; // проверка лицензии
+    showmessage('Registred device not connected!');
+  end;
+  SaveReg;
 end;
 
 procedure TmainFrm.AboutBtnClick(Sender: TObject);
@@ -1319,7 +1441,9 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'15'+mkr2_lang);
+      if(mainfrm.units.Checked = true) then
+      begin Image2.Canvas.TextOut(0,Image2.Height-graph_y,'0.15'+mkzv2_lang); end
+      else  Image2.Canvas.TextOut(0,Image2.Height-graph_y,'15'+mkr2_lang);
     end;
 
     graph_y:= (30 * always_multipiller) Div scale_factor; // лини€ 30 мкр/ч
@@ -1331,7 +1455,9 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'30'+mkr2_lang);
+      if(mainfrm.units.Checked = true) then
+      begin Image2.Canvas.TextOut(0,Image2.Height-graph_y,'0.30'+mkzv2_lang); end
+      else  Image2.Canvas.TextOut(0,Image2.Height-graph_y,'30'+mkr2_lang);
     end;
 
     graph_y:= (50 * always_multipiller) Div scale_factor; // лини€ 50 мкр/ч
@@ -1343,7 +1469,9 @@ MainFrm.Width:=1148;
     Image2.Canvas.Font.Size:=12;
     if graph_y<=Image2.Height then begin
       Image2.Canvas.Rectangle(Image2.Width, Image2.Height-graph_y, 0, Image2.Height-graph_y-1);
-      Image2.Canvas.TextOut(0,Image2.Height-graph_y,'50'+mkr2_lang);
+      if(mainfrm.units.Checked = true) then
+      begin Image2.Canvas.TextOut(0,Image2.Height-graph_y,'0.50'+mkzv2_lang); end
+      else Image2.Canvas.TextOut(0,Image2.Height-graph_y,'50'+mkr2_lang);
     end;
 
 end;
@@ -1358,7 +1486,6 @@ Var
   ss: String;
   vCount: Integer;
   vBufCount: Integer;
-  Voltage_level: Integer;
   massive_element: UInt32 ;
   vAns: TiaBuf;
   ix : uint32;
@@ -1376,7 +1503,7 @@ Var
 
 
 begin
-Voltage_level:=0;
+//Voltage_level:=0;
 packet_size:=7;
 aData_massive_pointer:=0;
 fBuf_pointer:=0;
@@ -1416,7 +1543,9 @@ if (fBuf[0] = $d1) then begin
   // обработчик тревоги
   if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
   begin
-    MyTray.BalloonHint(alarm2_lang,fonmax_lang+IntToStr(alarmlevel)+mkr2_lang,TBalloonType(3),5000,true);
+    if(mainfrm.units.Checked = true) then
+    begin MyTray.BalloonHint(alarm2_lang,fonmax_lang+Convert_to_usv(alarmlevel)+mkzv2_lang,TBalloonType(3),5000,true); end
+    else  MyTray.BalloonHint(alarm2_lang,fonmax_lang+IntToStr(alarmlevel)+mkr2_lang,TBalloonType(3),5000,true);
     PlaySound('alarm', hInstance, SND_RESOURCE);
   end;
 
@@ -1443,8 +1572,11 @@ if (fBuf[0] = $d1) then begin
   end;
   fonps[0] := 0;
   Fon_units := mkr2_lang;
+  if(mainfrm.units.Checked = true) then Fon_units := mkzv2_lang;
 
-  Label15.Caption := IntToStr(fon);
+
+  Licensed_state:=true;
+  Label15.Caption := Convert_to_usv(fon);
   Label18.Caption := fon_units;
 
   if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
@@ -1468,10 +1600,11 @@ end;
 if (fBuf[0] = $e0) then begin // —ерийника U_ID_0
 
   device_serial_0 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
 
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
-  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+  SetLength(vAns, 1);
+  vAns[0]:=$00;
 
 end;
 //-----------------------------------------------------------------------------------
@@ -1479,9 +1612,10 @@ end;
 if (fBuf[0] = $e1) then begin // —ерийника U_ID_1
 
   device_serial_1 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
-  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
+  SetLength(vAns, 1);
+  vAns[0]:=$00;
 
 end;
 //-----------------------------------------------------------------------------------
@@ -1489,9 +1623,10 @@ end;
 if (fBuf[0] = $e2) then begin // —ерийника U_ID_2
 
   device_serial_2 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; end
-  else begin               About_f.About.Edit2.Color := clRed; ShowMessage('Unlicensed device !!!') end;
+  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
+  SetLength(vAns, 1);
+  vAns[0]:=$00;
 
 end;
 

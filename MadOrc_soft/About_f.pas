@@ -19,10 +19,10 @@ type
     Label6: TLabel;
     Edit2: TEdit;
     Label7: TLabel;
-    Button2: TButton;
+    Timer1: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -50,43 +50,6 @@ begin
 About.Close;
 end;
 
-procedure TAbout.Button2Click(Sender: TObject);
-var
-  vAns: TiaBuf;
-begin
-
-if (main.mainFrm.RS232.Active = false) then
-begin
-  DevPresent:=false;
-  main.mainFrm.RS232.Properties.PortNum  := comport_number;
-  main.mainFrm.RS232.Properties.BaudRate := CBR_115200;
-  main.mainFrm.RS232.Properties.Parity   := NOPARITY;
-  main.mainFrm.RS232.Properties.StopBits := ONESTOPBIT;
-  main.mainFrm.RS232.Open;
-  main.mainFrm.RS232.StartListner;
-
-
-
-  if (main.mainFrm.RS232.Active)then
-  begin
-   DevPresent:=true;
-
-   SetLength(vAns, 1);
-   vAns[0]:=$e0; // считать серийный номер МК U_ID_0
-   main.mainFrm.RS232.Send(vAns);
-
-   SetLength(vAns, 1);
-   vAns[0]:=$e1; // считать серийный номер МК U_ID_1
-   main.mainFrm.RS232.Send(vAns);
-
-   SetLength(vAns, 1);
-   vAns[0]:=$e2; // считать серийный номер МК U_ID_2
-   main.mainFrm.RS232.Send(vAns);
-
-  end;
- end;
-end;
-
 procedure TAbout.FormCreate(Sender: TObject);
 var
   reg: TRegistry;
@@ -97,6 +60,11 @@ begin
   reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
   Edit1.Text := reg.ReadString('Reg_key');
   reg.CloseKey;                                          // Закрываем раздел
+end;
+
+procedure TAbout.Timer1Timer(Sender: TObject);
+begin
+ About_f.About.Edit2.Text := IntToHex(device_serial_0,8)+ ' ' +IntToHex(device_serial_1,8)+ ' ' +IntToHex(device_serial_2,8);
 end;
 
 end.

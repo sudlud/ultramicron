@@ -37102,11 +37102,10 @@ object mainFrm: TmainFrm
     ParentFont = False
     TabOrder = 0
     object Label18: TLabel
-      Left = 269
-      Top = 19
-      Width = 87
+      Left = 257
+      Top = 24
+      Width = 8
       Height = 33
-      Caption = #1084#1082#1056'/'#1095
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -27
@@ -37127,7 +37126,7 @@ object mainFrm: TmainFrm
       ParentFont = False
     end
     object Panel3: TPanel
-      Left = 33
+      Left = 21
       Top = 13
       Width = 230
       Height = 50
@@ -37691,8 +37690,8 @@ object mainFrm: TmainFrm
     Visibility = [tvAutoHide]
     OnClick = MyTrayClick
     OnDblClick = MyTrayDoubleClick
-    Left = 136
-    Top = 360
+    Left = 280
+    Top = 288
   end
   object TrayMenu: TPopupMenu
     Left = 64
@@ -38049,6 +38048,12 @@ object mainFrm: TmainFrm
       Checked = True
       OnClick = RUSENG1Click
     end
+    object units: TMenuItem
+      AutoCheck = True
+      Caption = #1084#1082#1056'/'#1084#1082#1047#1074
+      Checked = True
+      OnClick = unitsClick
+    end
     object AboutBtn: TMenuItem
       Bitmap.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -38129,20 +38134,20 @@ object mainFrm: TmainFrm
     end
   end
   object XPManifest1: TXPManifest
-    Left = 72
-    Top = 360
+    Left = 216
+    Top = 288
   end
   object MessTmr: TTimer
     Enabled = False
     OnTimer = MessTmrTimer
-    Left = 72
-    Top = 392
+    Left = 168
+    Top = 336
   end
   object ImageList1: TImageList
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C007C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C008C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38414,22 +38419,22 @@ object mainFrm: TmainFrm
       000000000000}
   end
   object Timer1: TTimer
-    Interval = 5000
+    Interval = 10000
     OnTimer = Timer1Timer
-    Left = 104
-    Top = 360
+    Left = 328
+    Top = 336
   end
   object Timer2: TTimer
     Enabled = False
     Interval = 30
     OnTimer = Timer2Timer
-    Left = 136
-    Top = 392
+    Left = 208
+    Top = 336
   end
   object Timer3: TTimer
     OnTimer = Timer3Timer
-    Left = 168
-    Top = 392
+    Left = 248
+    Top = 336
   end
   object SavePictureDialog1: TSavePictureDialog
     Filter = 'PNG (*.png)|*.png'
@@ -38450,19 +38455,19 @@ object mainFrm: TmainFrm
     Request.Ranges.Units = 'bytes'
     Request.Ranges = <>
     HTTPOptions = [hoForceEncodeParams]
-    Left = 224
+    Left = 248
     Top = 392
   end
   object Timer4: TTimer
     Interval = 60000
     OnTimer = Timer4Timer
-    Left = 256
-    Top = 392
+    Left = 288
+    Top = 336
   end
   object SaveDialog1: TSaveDialog
     Filter = 'CSV (*.CSV)|*.csv'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 168
-    Top = 359
+    Left = 336
+    Top = 287
   end
 end

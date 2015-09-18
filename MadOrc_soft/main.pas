@@ -722,6 +722,7 @@ begin
     AboutBtn.Caption:='About';
     ExitBtn.Caption:='Exit';
     AutoStartupBtn.Caption:='Autostart';
+    units.Caption:='uR/uSv';
     loading_lang:='Loading...';
 
   end

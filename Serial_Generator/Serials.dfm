@@ -68,6 +68,7 @@ object Form1: TForm1
     Top = 51
     Width = 65
     Height = 21
+    ReadOnly = True
     TabOrder = 1
   end
   object Button1: TButton
@@ -84,6 +85,7 @@ object Form1: TForm1
     Top = 78
     Width = 65
     Height = 21
+    ReadOnly = True
     TabOrder = 3
   end
   object Edit4: TEdit
@@ -91,6 +93,7 @@ object Form1: TForm1
     Top = 105
     Width = 65
     Height = 21
+    ReadOnly = True
     TabOrder = 4
   end
   object Edit5: TEdit
@@ -105,6 +108,7 @@ object Form1: TForm1
     Top = 78
     Width = 78
     Height = 21
+    ReadOnly = True
     TabOrder = 6
   end
 end

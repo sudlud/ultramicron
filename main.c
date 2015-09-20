@@ -78,10 +78,13 @@ WakeupDef Wakeup;
 
 // лицухи
 //----------------------------------------------------------------
-#define lic_num 12
+#define lic_num 15
 const uint32_t license[lic_num] = {
 0x44B76AA7, // Shodan monitoring     	0F473130 35383935 00380042
-0x42C86A97, // Shodan handmade black 	0D473130 35383935 00380042
+0x42C86A97, // Shodan handmade black 	0D473130 35383935 00490032
+0x43B26A93, // Shodan handmade black 	0E473130 35383935 0033002E
+0x44B26AAA, // Shodan handmade white 	0F473130 35383935 00330045
+0x43A86A98, // Shodan handmade white 	0E473130 35383935 00290033
 0x43A96A98, // Nusik1975             	0E473130 35383935 002A0033
 0x44C36A84, // Nusik1975 						 	0F473130 35383935 0044001F
 0x44AD6A8F, // Nusik1975 							0F473130 35383935 002E002A

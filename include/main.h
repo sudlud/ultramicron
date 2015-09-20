@@ -201,6 +201,7 @@ extern uint32_t debug_wutr;
 extern uint8_t pump_count;
 
 void sleep_mode(FunctionalState sleep);
+FunctionalState check_license(void);
 float convert_mkr_sv(uint32_t);
 
 #endif

@@ -1193,17 +1193,17 @@ if(USB_massive_loading = false) then begin
      SetLength(vAns, 1);
      vAns[0]:=$e0; // считать серийный номер МК U_ID_0
      RS232.Send(vAns);
-     sleep(5);
+     sleep(15);
      device_serial_1:=0;
      SetLength(vAns, 1);
      vAns[0]:=$e1; // считать серийный номер МК U_ID_1
      RS232.Send(vAns);
-     sleep(5);
+     sleep(15);
      device_serial_2:=0;
      SetLength(vAns, 1);
      vAns[0]:=$e2; // считать серийный номер МК U_ID_2
      RS232.Send(vAns);
-     sleep(5);
+     sleep(15);
      SetLength(vAns, 1);
      vAns[0]:=$d4;
      RS232.Send(vAns);

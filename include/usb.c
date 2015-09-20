@@ -9,6 +9,7 @@
 #include "keys.h"
 #include "clock.h"
 #include "flash_save.h"
+#include "eeprom.h"
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
@@ -263,7 +264,25 @@ void USB_work()
 						if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
 						Send_length=0;
 					}
+			} else 
+			{
+				if (Receive_length==5) // 0xE3 + 0x41 0xB7 0x6A 0x37
+				{
+					if (Receive_Buffer[0]==0xE3) // Если приняли ключ разблокировки
+					{
+						eeprom_write(unlock_0_address, Receive_Buffer[1]);
+						eeprom_write(unlock_1_address, Receive_Buffer[2]);
+						eeprom_write(unlock_2_address, Receive_Buffer[3]);
+						eeprom_write(unlock_3_address, Receive_Buffer[4]);
+						licensed=check_license(); // проверка лицензии
+					}
+				}
+
+				USB_not_active=0; // Сброс четчика неактивности USB 
+				Receive_length = 0;
+
 			}
+				
 		}
 // -----------------------------------------------------------------------------------------------------------------------
 	}

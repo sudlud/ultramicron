@@ -34,6 +34,11 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define Vibro_address 					                             		0x50
 #define v4_target_pump_address 	                             		0x54
 #define units_address 	                             						0x58
+// Лицензионный ключ тут
+#define unlock_0_address 	                           						0x5C
+#define unlock_1_address 	                           						0x60
+#define unlock_2_address 	                           						0x64
+#define unlock_3_address 	                           						0x68
 
 extern uint32_t NbrOfPage, Address;
   

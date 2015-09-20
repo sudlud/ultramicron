@@ -78,9 +78,8 @@ WakeupDef Wakeup;
 
 // лицухи
 //----------------------------------------------------------------
-#define lic_num 15
+#define lic_num 14
 const uint32_t license[lic_num] = {
-0x44B76AA7, // Shodan monitoring     	0F473130 35383935 00380042
 0x42C86A97, // Shodan handmade black 	0D473130 35383935 00490032
 0x43B26A93, // Shodan handmade black 	0E473130 35383935 0033002E
 0x44B26AAA, // Shodan handmade white 	0F473130 35383935 00330045
@@ -108,6 +107,15 @@ FunctionalState check_license(void)
 			return ENABLE;
 		}
 	}
+	
+	if(((U_ID_0+U_ID_1+U_ID_2) & 0xffffffff) 
+				== 
+			( eeprom_read(unlock_3_address)+
+			 (eeprom_read(unlock_2_address)<<8)+
+	     (eeprom_read(unlock_1_address)<<16)+
+	     (eeprom_read(unlock_0_address)<<24))
+	    ) return ENABLE;
+
 	return DISABLE;
 
 }

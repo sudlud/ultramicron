@@ -3,8 +3,8 @@ object About: TAbout
   Top = 0
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 334
-  ClientWidth = 268
+  ClientHeight = 374
+  ClientWidth = 258
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -240,7 +240,7 @@ object About: TAbout
   end
   object Label6: TLabel
     Left = 70
-    Top = 234
+    Top = 275
     Width = 120
     Height = 13
     Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1086#1085#1085#1099#1081' '#1082#1083#1102#1095
@@ -260,7 +260,7 @@ object About: TAbout
   end
   object Button1: TButton
     Left = 93
-    Top = 294
+    Top = 335
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -269,8 +269,8 @@ object About: TAbout
   end
   object Edit1: TEdit
     Left = 24
-    Top = 253
-    Width = 219
+    Top = 294
+    Width = 214
     Height = 32
     Color = clYellow
     Font.Charset = DEFAULT_CHARSET
@@ -284,7 +284,7 @@ object About: TAbout
   object Edit2: TEdit
     Left = 24
     Top = 192
-    Width = 219
+    Width = 214
     Height = 24
     Alignment = taCenter
     Font.Charset = DEFAULT_CHARSET
@@ -295,6 +295,38 @@ object About: TAbout
     ParentFont = False
     ReadOnly = True
     TabOrder = 2
+  end
+  object Edit3: TEdit
+    Left = 24
+    Top = 222
+    Width = 49
+    Height = 21
+    Alignment = taCenter
+    TabOrder = 3
+  end
+  object Edit4: TEdit
+    Left = 79
+    Top = 222
+    Width = 49
+    Height = 21
+    Alignment = taCenter
+    TabOrder = 4
+  end
+  object Edit5: TEdit
+    Left = 134
+    Top = 222
+    Width = 49
+    Height = 21
+    Alignment = taCenter
+    TabOrder = 5
+  end
+  object Edit6: TEdit
+    Left = 189
+    Top = 222
+    Width = 49
+    Height = 21
+    Alignment = taCenter
+    TabOrder = 6
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer

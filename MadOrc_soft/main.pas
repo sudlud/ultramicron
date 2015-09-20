@@ -327,6 +327,11 @@ if MyMessage.WParam = PBT_APMRESUMEAUTOMATIC then begin
 end
 else begin
     DevPresent:= false;
+    device_serial_0:=0;
+    device_serial_1:=0;
+    device_serial_2:=0;
+    About_f.About.Edit2.Color := clWhite;
+
     DenyCommunications:= true;
     RS232.StopListner;
     RS232.Close;
@@ -795,6 +800,10 @@ begin
   if(DevPresent=true) then
    begin
       DevPresent:=false;
+      device_serial_0:=0;
+      device_serial_1:=0;
+      device_serial_2:=0;
+      About_f.About.Edit2.Color := clWhite;
    end;
 
   needexit := true; // вежливо просим свалить из памяти
@@ -996,6 +1005,11 @@ time_offset:=144-(time_offset Div 10); //113
 if (RS232.Active = false) then
 begin
   DevPresent:=false;
+  device_serial_0:=0;
+  device_serial_1:=0;
+  device_serial_2:=0;
+  About_f.About.Edit2.Color := clWhite;
+
   RS232.Properties.PortNum  := comport_number;
   RS232.Properties.BaudRate := CBR_115200;
   RS232.Properties.Parity   := NOPARITY;
@@ -1189,21 +1203,18 @@ if(USB_massive_loading = false) then begin
     begin
      DevPresent:=true;
 
-     device_serial_0:=0;
      SetLength(vAns, 1);
      vAns[0]:=$e0; // считать серийный номер МК U_ID_0
      RS232.Send(vAns);
-     sleep(15);
-     device_serial_1:=0;
+     sleep(5);
      SetLength(vAns, 1);
      vAns[0]:=$e1; // считать серийный номер МК U_ID_1
      RS232.Send(vAns);
-     sleep(15);
-     device_serial_2:=0;
+     sleep(5);
      SetLength(vAns, 1);
      vAns[0]:=$e2; // считать серийный номер МК U_ID_2
      RS232.Send(vAns);
-     sleep(15);
+     sleep(5);
      SetLength(vAns, 1);
      vAns[0]:=$d4;
      RS232.Send(vAns);
@@ -1213,6 +1224,10 @@ if(USB_massive_loading = false) then begin
       if(DevPresent=true) then
       begin
         DevPresent:=false;
+        device_serial_0:=0;
+        device_serial_1:=0;
+        device_serial_2:=0;
+        About_f.About.Edit2.Color := clWhite;
       end;
       RS232.StopListner;
       RS232.Close;
@@ -1601,8 +1616,12 @@ end;
 if (fBuf[0] = $e0) then begin // Серийника U_ID_0
 
   device_serial_0 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
-  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
+  if device_serial_0 >0 then
+   if device_serial_1 >0 then
+    if device_serial_2 >0 then
+      if(fBuf[6]=1) then begin
+                  About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+      else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
 
   SetLength(vAns, 1);
   vAns[0]:=$00;
@@ -1613,8 +1632,13 @@ end;
 if (fBuf[0] = $e1) then begin // Серийника U_ID_1
 
   device_serial_1 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
-  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
+  if device_serial_0 >0 then
+   if device_serial_1 >0 then
+    if device_serial_2 >0 then
+      if(fBuf[6]=1) then begin
+                  About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+      else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
+
   SetLength(vAns, 1);
   vAns[0]:=$00;
 
@@ -1624,8 +1648,13 @@ end;
 if (fBuf[0] = $e2) then begin // Серийника U_ID_2
 
   device_serial_2 := (fBuf[4] shl 24)+(fBuf[3] shl 16)+(fBuf[2] shl 8)+fBuf[1]; // собираем 2 чара
-  if(fBuf[6]=1) then begin About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
-  else begin               About_f.About.Edit2.Color := clRed; Licensed_state:=false; end;
+  if device_serial_0 >0 then
+   if device_serial_1 >0 then
+    if device_serial_2 >0 then
+      if(fBuf[6]=1) then begin
+                  About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
+      else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
+
   SetLength(vAns, 1);
   vAns[0]:=$00;
 

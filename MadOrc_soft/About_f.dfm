@@ -329,6 +329,7 @@ object About: TAbout
     TabOrder = 6
   end
   object Timer1: TTimer
+    Interval = 5000
     OnTimer = Timer1Timer
     Left = 232
     Top = 8

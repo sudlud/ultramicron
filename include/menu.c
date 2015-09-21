@@ -50,6 +50,9 @@ MenuItem Menu_list[max_struct_index] = {
 
 void main_screen()
 {
+	RTC_TimeTypeDef RTC_TimeStructure;
+	RTC_DateTypeDef RTC_DateStructure;
+
   
   uint32_t battery_procent=0, i=0,x=0;
    
@@ -60,8 +63,8 @@ void main_screen()
   if(ADCData.Batt_voltage<3500){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
-	if (main_menu_stat>7)main_menu_stat=1;
-	if (main_menu_stat<1)main_menu_stat=7;
+	if (main_menu_stat>8)main_menu_stat=1;
+	if (main_menu_stat<1)main_menu_stat=8;
 
 	if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
 	{
@@ -87,10 +90,26 @@ void main_screen()
 			}
 		}
 	}
-		
+
 	switch (main_menu_stat)
 	{
 		case 0x01:
+			sprintf (lcd_buf, LANG_TIME); // Пишем в буфер значение счетчика
+			LcdString(1,4); // // Выводим обычным текстом содержание буфера
+			sprintf (lcd_buf, LANG_DATE); // Пишем в буфер значение счетчика
+			LcdString(1,5); // // Выводим обычным текстом содержание буфера
+		
+			RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
+			RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
+
+			sprintf(lcd_buf,"%0.2d.%0.2d.%0.2d", RTC_DateStructure.RTC_Date, RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Year);
+			LcdString(7,5); // // Выводим обычным текстом содержание буфера
+			sprintf(lcd_buf,"%0.2d:%0.2d:%0.2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+			LcdString(7,4); // // Выводим обычным текстом содержание буфера
+
+			break;
+	// -----------------------------------------
+		case 0x02:
 			sprintf (lcd_buf, LANG_MAXFON); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 			
@@ -103,7 +122,7 @@ void main_screen()
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
 	// -----------------------------------------
-		case 0x02:
+		case 0x03:
 			sprintf (lcd_buf, LANG_DOSE10M); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 			
@@ -122,7 +141,7 @@ void main_screen()
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
 		// -----------------------------------------
-		case 0x03:
+		case 0x04:
 			sprintf (lcd_buf, LANG_DOSEHOUR); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
@@ -140,7 +159,7 @@ void main_screen()
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------
-		case 0x04:
+		case 0x05:
 			sprintf (lcd_buf, LANG_DOSE24H); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера		
 			
@@ -159,7 +178,7 @@ void main_screen()
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------
-		case 0x05:
+		case 0x06:
 			sprintf (lcd_buf, LANG_DOSEWEEK); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
@@ -181,7 +200,7 @@ void main_screen()
 
 			
 // -----------------------------------------
-		case 0x06:
+		case 0x07:
 			sprintf (lcd_buf, LANG_DOSEMONTH); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
@@ -202,7 +221,7 @@ void main_screen()
   // -----------------------------------------
 			
 			// -----------------------------------------
-		case 0x07:
+		case 0x08:
 			sprintf (lcd_buf, LANG_DOSE2MONTH); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		

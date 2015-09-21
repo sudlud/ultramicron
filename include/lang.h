@@ -31,6 +31,8 @@
 
 ///////////////////////////////////////////////////////
 // Dose
+#define LANG_TIME 	    "Время"
+#define LANG_DATE 	    "Дата"
 #define LANG_MAXFON     "Максимум фона"
 #define LANG_DOSE10M    "Доза за 10мин"
 #define LANG_DOSEHOUR   "Доза за час"
@@ -112,6 +114,8 @@
 
 ///////////////////////////////////////////////////////
 // Dose
+#define LANG_TIME 	    "Time"
+#define LANG_DATE 	    "Date"
 #define LANG_MAXFON     "Radiation max"
 #define LANG_DOSE10M    "10 min dose"
 #define LANG_DOSEHOUR   "Hour dose"

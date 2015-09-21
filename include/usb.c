@@ -10,6 +10,7 @@
 #include "clock.h"
 #include "flash_save.h"
 #include "eeprom.h"
+#include "rtc.h"
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
@@ -19,7 +20,7 @@ uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
-#define send_blocks 64 // по сколько блоков слать
+#define send_blocks 255 // по сколько блоков слать
 
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
@@ -117,6 +118,45 @@ void USB_send_serial_data(int num)
 }
 // =========================================================================================
 
+void USB_set_time(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t min, uint32_t sec)
+{
+	RTC_TimeTypeDef RTC_TimeStructure;
+	RTC_DateTypeDef RTC_DateStructure;
+	
+	RTC_TimeStructInit(&RTC_TimeStructure);
+	RTC_TimeStructure.RTC_Hours = hour;
+  RTC_TimeStructure.RTC_Minutes = min;
+  RTC_TimeStructure.RTC_Seconds = sec;
+  /* Configure the RTC time register */
+  if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == ERROR)
+  {
+		//ERROR
+  } 
+  else
+  {
+		// OK
+  }
+
+	
+	
+	RTC_DateStructInit(&RTC_DateStructure);
+  RTC_DateStructure.RTC_Date = day;
+  RTC_DateStructure.RTC_Month = month;
+  RTC_DateStructure.RTC_Year = year;
+
+  if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == ERROR)
+  {
+		// error
+  } 
+  else
+  {
+    //ok
+  }
+
+	Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+}	
+// =========================================================================================
+
 void USB_send_time_offset_data()
 {
 //---------------------------------------------КомПорт для MadOrc------------------------------------
@@ -201,87 +241,99 @@ void USB_work()
 #endif				
 			{
 				/*Check to see if we have data yet */
-				if (Receive_length  == 1)
+				if (Receive_length==0x01)
 				{
-					// Предотвращение загрузки старых неверных блоков данных.
-					if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
+						// Предотвращение загрузки старых неверных блоков данных.
+						if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
 
-					USB_not_active=0; // Сброс четчика неактивности USB 
-					Receive_length = 0;
+						USB_not_active=0; // Сброс четчика неактивности USB 
+						Receive_length = 0;
 					
-					for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
-					{
-						
-						switch (Receive_Buffer[0])
+						for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
 						{
-							case 0xD4: 								// Отправка данных по запросу каждую минуту
-								USB_send_madorc_data();
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
+						
+							switch (Receive_Buffer[0])
+							{
+								case 0xD4: 								// Отправка данных по запросу каждую минуту
+									USB_send_madorc_data();
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
 							
 ////////////////////////////////////////////////////////////////////////////////
-							case 0xE0: 								// Отправка серийного номера МК
-								USB_send_serial_data(0);
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
-							case 0xE1: 								// Отправка серийного номера МК
-								USB_send_serial_data(1);
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
-							case 0xE2: 								// Отправка серийного номера МК
-								USB_send_serial_data(2);
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
+								case 0xE0: 								// Отправка серийного номера МК
+									USB_send_serial_data(0);
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
+								case 0xE1: 								// Отправка серийного номера МК
+									USB_send_serial_data(1);
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
+								case 0xE2: 								// Отправка серийного номера МК
+									USB_send_serial_data(2);
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
 ////////////////////////////////////////////////////////////////////////////////
 							
-							case 0xD5: 								// Отправка метки смещения времени
-								if(licensed==ENABLE)USB_send_time_offset_data();
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
+								case 0xD5: 								// Отправка метки смещения времени
+									if(licensed==ENABLE)USB_send_time_offset_data();
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
 
-							case 0x31: 								// передача массива максимального фона
-								Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1); // Подготовка массива данных к передаче
-								break;
+								case 0x31: 								// передача массива максимального фона
+									Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1); // Подготовка массива данных к передаче
+									if(USB_maxfon_massive_pointer>=FLASH_MAX_ELEMENT-1)i=send_blocks; 					// принудительное завершение цикла
+									break;
 
-							case 0x32: 								// передача массива дозы
-								Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3); // Подготовка массива данных к передаче
-								break;
+								case 0x32: 								// передача массива дозы
+									Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3); // Подготовка массива данных к передаче
+									if(USB_doze_massive_pointer>=FLASH_MAX_ELEMENT-1)i=send_blocks; 					// принудительное завершение цикла
+									break;
 
-							case 0x33: 								// передача настроек
-								USB_maxfon_massive_pointer=0;
-								USB_doze_massive_pointer=0;
-								USB_send_settings_data();
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
+								case 0x33: 								// передача настроек
+									USB_maxfon_massive_pointer=0;
+									USB_doze_massive_pointer=0;
+									USB_send_settings_data();
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
 
-							case 0x39: 								// завершение передачи
-								USB_maxfon_massive_pointer=0;
-								USB_doze_massive_pointer=0;
-								i=send_blocks; 					// принудительное завершение цикла
-								break;
+								case 0x39: 								// завершение передачи
+									USB_maxfon_massive_pointer=0;
+									USB_doze_massive_pointer=0;
+									i=send_blocks; 					// принудительное завершение цикла
+									break;
+							}
+							while(packet_sent != 1);
+							if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
+							Send_length=0;
 						}
-						while(packet_sent != 1);
-						if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
-						Send_length=0;
 					}
-			} else 
-			{
-				if (Receive_length==5) // 0xE3 + 0x41 0xB7 0x6A 0x37
-				{
-					if (Receive_Buffer[0]==0xE3) // Если приняли ключ разблокировки
+					if (Receive_length==0x07)
 					{
-						eeprom_write(unlock_0_address, Receive_Buffer[1]);
-						eeprom_write(unlock_1_address, Receive_Buffer[2]);
-						eeprom_write(unlock_2_address, Receive_Buffer[3]);
-						eeprom_write(unlock_3_address, Receive_Buffer[4]);
-						licensed=check_license(); // проверка лицензии
+						if (Receive_Buffer[0]==0xE4) // Если приняли ключ времени
+						{
+							if (licensed)
+								USB_set_time(Receive_Buffer[1], Receive_Buffer[2], Receive_Buffer[3], Receive_Buffer[4], Receive_Buffer[5], Receive_Buffer[6]);
+
+							USB_not_active=0; // Сброс четчика неактивности USB 
+							Receive_length = 0;
+						}
 					}
-				}
 
-				USB_not_active=0; // Сброс четчика неактивности USB 
-				Receive_length = 0;
+					if (Receive_length==0x05)
+					{
+						if (Receive_Buffer[0]==0xE3) // Если приняли ключ разблокировки
+						{
+							eeprom_write(unlock_0_address, Receive_Buffer[1]);
+							eeprom_write(unlock_1_address, Receive_Buffer[2]);
+							eeprom_write(unlock_2_address, Receive_Buffer[3]);
+							eeprom_write(unlock_3_address, Receive_Buffer[4]);
 
-			}
+							USB_not_active=0; // Сброс четчика неактивности USB 
+							Receive_length = 0;
+
+							licensed=check_license(); // проверка лицензии
+						}
+					}
 				
 		}
 // -----------------------------------------------------------------------------------------------------------------------

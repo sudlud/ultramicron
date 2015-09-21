@@ -126,12 +126,15 @@ type
     procedure DoOnSendedEvent(Sender: TObject; Const aData: TiaBuf;
       aCount: Cardinal);
 
+
     { Private declarations }
  protected
   public
     RS232: TiaRS232;
     procedure RefreshRAD;
     procedure SaveReg;
+    procedure SendDate;
+
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
     procedure WMSysCommand(var Message:TMessage);        message WM_SYSCOMMAND;
@@ -211,6 +214,8 @@ var
   myDate : TDateTime;
   formattedDateTime : string;
   Voltage_level: Integer;
+  serial_try: integer;
+  date_sent_flag:  boolean = false;
 
 mkr_lang: string =       ' мкР';
 mkr2_lang: string =      ' мкР/ч';
@@ -255,6 +260,37 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+procedure TmainFrm.SendDate;
+var
+  vAns: TiaBuf;
+  formattedDateTime:String;
+begin
+  SetLength(vAns, 7);
+  vAns[0]:=$e4;
+
+  DateTimeToString(formattedDateTime, 'y', Now);
+  vAns[1]:=StrToInt(formattedDateTime);
+
+  DateTimeToString(formattedDateTime, 'm', Now);
+  vAns[2]:=StrToInt(formattedDateTime);
+
+  DateTimeToString(formattedDateTime, 'd', Now);
+  vAns[3]:=StrToInt(formattedDateTime);
+
+  DateTimeToString(formattedDateTime, 'h', Now);
+  vAns[4]:=StrToInt(formattedDateTime);
+
+  DateTimeToString(formattedDateTime, 'n', Now);
+  vAns[5]:=StrToInt(formattedDateTime);
+
+  DateTimeToString(formattedDateTime, 's', Now);
+  vAns[6]:=StrToInt(formattedDateTime);
+
+  mainFrm.RS232.Send(vAns);
+  date_sent_flag:=true;
+
+end;
 
 function Convert_to_usv(mkr: uint32): string;
 var
@@ -327,6 +363,7 @@ if MyMessage.WParam = PBT_APMRESUMEAUTOMATIC then begin
 end
 else begin
     DevPresent:= false;
+    date_sent_flag:=false;
     device_serial_0:=0;
     device_serial_1:=0;
     device_serial_2:=0;
@@ -718,7 +755,7 @@ begin
     Radiobutton4.Caption:= 'dose/h';
     Radiobutton3.Caption:= 'dose/m';
     Radiobutton2.Caption:= 'dose/s';
-    Radiobutton1.Caption:= 'imp/10s';
+    Radiobutton1.Caption:= 'imp/4s';
 
     N1.Caption:='Dosimeter';
     TextColorBtn.Caption:='Alarm level';
@@ -800,6 +837,7 @@ begin
   if(DevPresent=true) then
    begin
       DevPresent:=false;
+      date_sent_flag:=false;
       device_serial_0:=0;
       device_serial_1:=0;
       device_serial_2:=0;
@@ -982,7 +1020,7 @@ Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
 RS232.StopListner;
 RS232.Close;
-Timer2.Enabled:=true;
+Timer3.Enabled:=true;
 doze_loading_flag:= false;
 maxfon_loading_flag:=false;
 address_last:=8640;
@@ -1005,6 +1043,7 @@ time_offset:=144-(time_offset Div 10); //113
 if (RS232.Active = false) then
 begin
   DevPresent:=false;
+  date_sent_flag:=false;
   device_serial_0:=0;
   device_serial_1:=0;
   device_serial_2:=0;
@@ -1025,6 +1064,7 @@ begin
 
   if (RS232.Active)then
   begin
+   if DevPresent=false then serial_try:=0;
    DevPresent:=true;
 
    SetLength(vAns, 1);
@@ -1049,7 +1089,7 @@ begin
    vAns[0]:=$31; // начать загрузку массива
    maxfon_loading_flag:=true;
    RS232.Send(vAns);
-   sleep(1);
+   //sleep(1);
    USB_massive_loading:=true;
 
 
@@ -1201,20 +1241,35 @@ if(USB_massive_loading = false) then begin
 
     if (RS232.Active)then
     begin
+     if DevPresent=false then serial_try:=0;
      DevPresent:=true;
 
-     SetLength(vAns, 1);
-     vAns[0]:=$e0; // считать серийный номер МК U_ID_0
-     RS232.Send(vAns);
-     sleep(5);
-     SetLength(vAns, 1);
-     vAns[0]:=$e1; // считать серийный номер МК U_ID_1
-     RS232.Send(vAns);
-     sleep(5);
-     SetLength(vAns, 1);
-     vAns[0]:=$e2; // считать серийный номер МК U_ID_2
-     RS232.Send(vAns);
-     sleep(5);
+    if (date_sent_flag=false) then SendDate;
+
+    if ((device_serial_0=0) and (serial_try < 5)) then
+    begin
+       serial_try:=serial_try+1;
+       SetLength(vAns, 1);
+       vAns[0]:=$e0; // считать серийный номер МК U_ID_0
+       RS232.Send(vAns);
+    end;
+
+    if ((device_serial_1=0) and (serial_try < 5)) then
+    begin
+      serial_try:=serial_try+1;
+      SetLength(vAns, 1);
+      vAns[0]:=$e1; // считать серийный номер МК U_ID_1
+      RS232.Send(vAns);
+    end;
+
+    if ((device_serial_2=0) and (serial_try < 5)) then
+    begin
+      serial_try:=serial_try+1;
+      SetLength(vAns, 1);
+      vAns[0]:=$e2; // считать серийный номер МК U_ID_2
+      RS232.Send(vAns);
+    end;
+
      SetLength(vAns, 1);
      vAns[0]:=$d4;
      RS232.Send(vAns);
@@ -1224,6 +1279,7 @@ if(USB_massive_loading = false) then begin
       if(DevPresent=true) then
       begin
         DevPresent:=false;
+        date_sent_flag:=false;
         device_serial_0:=0;
         device_serial_1:=0;
         device_serial_2:=0;
@@ -1232,11 +1288,6 @@ if(USB_massive_loading = false) then begin
       RS232.StopListner;
       RS232.Close;
     end;
-  end
-  else
-  begin
-      RS232.StopListner;
-      RS232.Close;
   end;
 end;
 end;
@@ -1296,15 +1347,18 @@ var
   iy: uint32;
 begin
 
-if(usb_send_try < 5) then
+if(usb_send_try < 10) then
  begin
    if (address = address_last) and (USB_massive_loading = true) then
    begin
     SetLength(vAns, 1);
     usb_send_try:=usb_send_try+1;
-    if(Fix_error_now = false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
-    if(doze_loading_flag = true) then vAns[0]:=$32;
-    if(maxfon_loading_flag=true) then vAns[0]:=$31;
+    if(Fix_error_now = false) then
+      Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
+    if(doze_loading_flag = true) then
+      vAns[0]:=$32;
+    if(maxfon_loading_flag=true) then
+      vAns[0]:=$31;
     RS232.Send(vAns);
    end
    else address_last:=address;
@@ -1622,7 +1676,7 @@ if (fBuf[0] = $e0) then begin // Серийника U_ID_0
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-
+  if device_serial_0 >0 then serial_try:=0;
   SetLength(vAns, 1);
   vAns[0]:=$00;
 
@@ -1638,7 +1692,7 @@ if (fBuf[0] = $e1) then begin // Серийника U_ID_1
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-
+  if device_serial_1 >0 then serial_try:=0;
   SetLength(vAns, 1);
   vAns[0]:=$00;
 
@@ -1654,7 +1708,7 @@ if (fBuf[0] = $e2) then begin // Серийника U_ID_2
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-
+  if device_serial_2 >0 then serial_try:=0;
   SetLength(vAns, 1);
   vAns[0]:=$00;
 
@@ -1679,7 +1733,8 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
       Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
+      if(max_fon_massive_ready[address]=false) then
+        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
     max_fon_massive[address]:=massive_element;
@@ -1694,6 +1749,7 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
       max_fon_massive_ready[address+1]:=true;
       max_fon_massive_ready[address+2]:=true;
       max_fon_massive_ready[address+3]:=true;
+      address:=address+3;
     end;
 
 
@@ -1731,7 +1787,8 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 86)+'%';
     end else
     begin
-      if(doze_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
+      if(doze_massive_ready[address]=false) then
+        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
     doze_massive[address]:=massive_element;
     doze_massive_ready[address]:=true;
@@ -1745,6 +1802,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
       doze_massive_ready[address+1]:=true;
       doze_massive_ready[address+2]:=true;
       doze_massive_ready[address+3]:=true;
+      address:=address+3;
     end;
 
 
@@ -1758,10 +1816,15 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     vAns[0]:=$39;
     StopRS232:=TRUE;
 
+    Timer3.Enabled:=false;
+    Timer2.Enabled:=true;
+
     Unit1.Form1.errors.Caption:='0';
     for iy := 0 to 8640-1 do begin
-      if(max_fon_massive_ready[iy]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
-      if(doze_massive_ready[iy]=false)    then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
+      if(max_fon_massive_ready[iy]=false) then
+        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
+      if(doze_massive_ready[iy]=false)    then
+        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
     end;
 
     if(StrToInt(Unit1.Form1.errors.Caption)=0) then
@@ -1816,7 +1879,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     end
     else
     begin
-      sleep(200);
+//      sleep(200);
       Fix_error_now:=true;
       SetLength(vAns, 1);
       vAns[0]:=$31;

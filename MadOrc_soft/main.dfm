@@ -37295,7 +37295,7 @@ object mainFrm: TmainFrm
     Top = 211
     Width = 86
     Height = 17
-    Caption = #1048#1084#1087'./10'#1089#1077#1082'.'
+    Caption = #1048#1084#1087'./4'#1089#1077#1082'.'
     Checked = True
     TabOrder = 3
     TabStop = True
@@ -38147,7 +38147,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C008C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00A40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38419,7 +38419,7 @@ object mainFrm: TmainFrm
       000000000000}
   end
   object Timer1: TTimer
-    Interval = 10000
+    Interval = 4000
     OnTimer = Timer1Timer
     Left = 328
     Top = 336
@@ -38432,6 +38432,8 @@ object mainFrm: TmainFrm
     Top = 336
   end
   object Timer3: TTimer
+    Enabled = False
+    Interval = 100
     OnTimer = Timer3Timer
     Left = 248
     Top = 336

@@ -75,6 +75,7 @@ type
     Button3: TButton;
     SaveDialog1: TSaveDialog;
     units: TMenuItem;
+    CloseTimer: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -117,6 +118,7 @@ type
     procedure RUSENG1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure unitsClick(Sender: TObject);
+    procedure CloseTimerTimer(Sender: TObject);
 
      private
     fBuf: TiaBuf;
@@ -289,6 +291,9 @@ begin
 
   mainFrm.RS232.Send(vAns);
   date_sent_flag:=true;
+  RS232.StopListner;
+  RS232.Close;
+
 
 end;
 
@@ -771,6 +776,26 @@ begin
 
 end;
 
+procedure TmainFrm.CloseTimerTimer(Sender: TObject);
+begin
+  if (RS232.Active = true) then
+    begin
+      if(DevPresent=true) then
+      begin
+        DevPresent:=false;
+        date_sent_flag:=false;
+        device_serial_0:=0;
+        device_serial_1:=0;
+        device_serial_2:=0;
+        About_f.About.Edit2.Color := clWhite;
+      end;
+      RS232.StopListner;
+      RS232.Close;
+      CloseTimer.Enabled:=false;
+      CloseTimer.interval:=100;
+    end;
+end;
+
 procedure TmainFrm.COM11Click(Sender: TObject);
 begin
 comport_number:=1;
@@ -1003,6 +1028,15 @@ var
 begin
 
 Unit1.Form1.Show;
+  if (RS232.Active=false)then
+  begin
+    RS232.Properties.PortNum  := comport_number;
+    RS232.Open;
+    RS232.StartListner;
+    CloseTimer.Enabled:=false;
+    CloseTimer.Interval:=100;
+    CloseTimer.Enabled:=true;
+  end;
 
   myDate:=Now;
 
@@ -1050,9 +1084,6 @@ begin
   About_f.About.Edit2.Color := clWhite;
 
   RS232.Properties.PortNum  := comport_number;
-  RS232.Properties.BaudRate := CBR_115200;
-  RS232.Properties.Parity   := NOPARITY;
-  RS232.Properties.StopBits := ONESTOPBIT;
   RS232.Open;
   RS232.StartListner;
   for ix := 0 to 8640 do begin
@@ -1228,68 +1259,55 @@ procedure TmainFrm.Timer1Timer(Sender: TObject);
 var
   vAns: TiaBuf;
 begin
+DevPresent:=false;
 if(DenyCommunications = false) then begin
 if(USB_massive_loading = false) then begin
-  if (RS232.Active = false) then
-  begin
     RS232.Properties.PortNum  := comport_number;
-    RS232.Properties.BaudRate := CBR_115200;
-    RS232.Properties.Parity   := NOPARITY;
-    RS232.Properties.StopBits := ONESTOPBIT;
     RS232.Open;
     RS232.StartListner;
-
+    CloseTimer.Enabled:=false;
+    CloseTimer.Interval:=100;
+    CloseTimer.Enabled:=true;
     if (RS232.Active)then
     begin
-     if DevPresent=false then serial_try:=0;
-     DevPresent:=true;
+      if DevPresent=false then serial_try:=0;
+      DevPresent:=true;
 
-    if (date_sent_flag=false) then SendDate;
-
-    if ((device_serial_0=0) and (serial_try < 5)) then
-    begin
-       serial_try:=serial_try+1;
-       SetLength(vAns, 1);
-       vAns[0]:=$e0; // считать серийный номер МК U_ID_0
-       RS232.Send(vAns);
-    end;
-
-    if ((device_serial_1=0) and (serial_try < 5)) then
-    begin
-      serial_try:=serial_try+1;
-      SetLength(vAns, 1);
-      vAns[0]:=$e1; // считать серийный номер МК U_ID_1
-      RS232.Send(vAns);
-    end;
-
-    if ((device_serial_2=0) and (serial_try < 5)) then
-    begin
-      serial_try:=serial_try+1;
-      SetLength(vAns, 1);
-      vAns[0]:=$e2; // считать серийный номер МК U_ID_2
-      RS232.Send(vAns);
-    end;
-
-     SetLength(vAns, 1);
-     vAns[0]:=$d4;
-     RS232.Send(vAns);
-    end
-    else
-    begin
-      if(DevPresent=true) then
+      if (date_sent_flag=false) then
       begin
-        DevPresent:=false;
-        date_sent_flag:=false;
-        device_serial_0:=0;
-        device_serial_1:=0;
-        device_serial_2:=0;
-        About_f.About.Edit2.Color := clWhite;
+        SendDate;
+      end else
+      begin
+        if ((device_serial_0=0) and (serial_try < 5)) then
+        begin
+           serial_try:=serial_try+1;
+           SetLength(vAns, 1);
+           vAns[0]:=$e0; // считать серийный номер МК U_ID_0
+           RS232.Send(vAns);
+        end;
+
+        if ((device_serial_1=0) and (serial_try < 5)) then
+        begin
+          serial_try:=serial_try+1;
+          SetLength(vAns, 1);
+          vAns[0]:=$e1; // считать серийный номер МК U_ID_1
+          RS232.Send(vAns);
+        end;
+
+        if ((device_serial_2=0) and (serial_try < 5)) then
+        begin
+          serial_try:=serial_try+1;
+          SetLength(vAns, 1);
+          vAns[0]:=$e2; // считать серийный номер МК U_ID_2
+          RS232.Send(vAns);
+        end;
+
+        SetLength(vAns, 1);
+        vAns[0]:=$d4;
+        RS232.Send(vAns);
       end;
-      RS232.StopListner;
-      RS232.Close;
     end;
   end;
-end;
 end;
 end;
 
@@ -1578,6 +1596,11 @@ packet_size:=7;
 aData_massive_pointer:=0;
 fBuf_pointer:=0;
 StopRS232:=FALSE;
+
+CloseTimer.Enabled:=false;
+CloseTimer.Interval:=100;
+CloseTimer.Enabled:=true;
+
 
 While used_len<(Length(aData)-1) do begin
 

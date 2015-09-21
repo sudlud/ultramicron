@@ -22,6 +22,8 @@ uint32_t packet_receive=1;
 
 #define send_blocks 255 // по сколько блоков слать
 
+#pragma O0
+
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
 {
@@ -118,44 +120,6 @@ void USB_send_serial_data(int num)
 }
 // =========================================================================================
 
-void USB_set_time(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t min, uint32_t sec)
-{
-	RTC_TimeTypeDef RTC_TimeStructure;
-	RTC_DateTypeDef RTC_DateStructure;
-	
-	RTC_TimeStructInit(&RTC_TimeStructure);
-	RTC_TimeStructure.RTC_Hours = hour;
-  RTC_TimeStructure.RTC_Minutes = min;
-  RTC_TimeStructure.RTC_Seconds = sec;
-  /* Configure the RTC time register */
-  if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == ERROR)
-  {
-		//ERROR
-  } 
-  else
-  {
-		// OK
-  }
-
-	
-	
-	RTC_DateStructInit(&RTC_DateStructure);
-  RTC_DateStructure.RTC_Date = day;
-  RTC_DateStructure.RTC_Month = month;
-  RTC_DateStructure.RTC_Year = year;
-
-  if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == ERROR)
-  {
-		// error
-  } 
-  else
-  {
-    //ok
-  }
-
-	Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
-}	
-// =========================================================================================
 
 void USB_send_time_offset_data()
 {
@@ -213,9 +177,6 @@ void USB_send_madorc_data()
 }
 // =========================================================================================
 
-
-
-#pragma O0
 void USB_on()
 {
 //---------------------------------------------Включение USB------------------------------------
@@ -232,9 +193,13 @@ void USB_on()
 void USB_work()
 {
 	uint32_t i; // по сколько блоков слать
+	RTC_TimeTypeDef RTC_TimeStructure;
+	RTC_DateTypeDef RTC_DateStructure;
+	
 //---------------------------------------------Передача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
-    {		
+    {	
+			delay_ms(1);
       CDC_Receive_DATA();
 #ifndef version_401 // Версия платы дозиметра 4.01+
 			if(Settings.USB == 1) // MadOrc
@@ -311,11 +276,35 @@ void USB_work()
 					{
 						if (Receive_Buffer[0]==0xE4) // Если приняли ключ времени
 						{
-							if (licensed)
-								USB_set_time(Receive_Buffer[1], Receive_Buffer[2], Receive_Buffer[3], Receive_Buffer[4], Receive_Buffer[5], Receive_Buffer[6]);
-
 							USB_not_active=0; // Сброс четчика неактивности USB 
 							Receive_length = 0;
+
+							if (licensed==ENABLE)
+							{
+								RTC_DateStructInit(&RTC_DateStructure);
+								RTC_TimeStructInit(&RTC_TimeStructure);
+
+								RTC_TimeStructure.RTC_Hours = Receive_Buffer[4] & 0xff;
+								RTC_TimeStructure.RTC_Minutes = Receive_Buffer[5] & 0xff;
+								RTC_TimeStructure.RTC_Seconds = Receive_Buffer[6] & 0xff;
+								RTC_DateStructure.RTC_Date = Receive_Buffer[3] & 0xff;
+								RTC_DateStructure.RTC_Month = Receive_Buffer[2] & 0xff;
+								RTC_DateStructure.RTC_Year = Receive_Buffer[1] & 0xff;
+
+								for (i=0;i<20;i++)
+								{
+									if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == SUCCESS)break;
+									delay_ms(100);
+								}
+								for (i=0;i<20;i++)
+								{
+									if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == SUCCESS)break;
+									delay_ms(100);
+								}
+
+								Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+
+							}
 						}
 					}
 

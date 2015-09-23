@@ -1098,31 +1098,17 @@ begin
    if DevPresent=false then serial_try:=0;
    DevPresent:=true;
 
-   SetLength(vAns, 1);
+   SetLength(vAns, 5);
    vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
-   RS232.Send(vAns);
+   vAns[1]:=$d5; // считать смещение времени
+   vAns[2]:=$33; // считать настройки
+   vAns[3]:=$39; // выполнить сброс счетчиков дозиметра
+   vAns[4]:=$31; // начать загрузку массива
 
-   SetLength(vAns, 1);
-   vAns[0]:=$d5; // считать смещение времени
-   RS232.Send(vAns);
-
-   SetLength(vAns, 1);
-   vAns[0]:=$33; // считать настройки
-   RS232.Send(vAns);
-
-
-   SetLength(vAns, 1);
-   vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
-   RS232.Send(vAns);
-
-
-   SetLength(vAns, 1);
-   vAns[0]:=$31; // начать загрузку массива
    maxfon_loading_flag:=true;
-   RS232.Send(vAns);
-   //sleep(1);
    USB_massive_loading:=true;
 
+   RS232.Send(vAns);
 
   end
   else

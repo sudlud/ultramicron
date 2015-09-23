@@ -38147,7 +38147,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C00B40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00C80110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38419,7 +38419,6 @@ object mainFrm: TmainFrm
       000000000000}
   end
   object Timer1: TTimer
-    Interval = 4000
     OnTimer = Timer1Timer
     Left = 328
     Top = 336
@@ -38478,5 +38477,11 @@ object mainFrm: TmainFrm
     OnTimer = CloseTimerTimer
     Left = 88
     Top = 343
+  end
+  object small_graph_timer: TTimer
+    Interval = 4000
+    OnTimer = small_graph_timerTimer
+    Left = 40
+    Top = 303
   end
 end

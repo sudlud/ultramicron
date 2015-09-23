@@ -56,14 +56,17 @@ try
       if (mainFrm.RS232.Active = false) then
        begin
         mainFrm.RS232.Properties.PortNum  := comport_number;
-        mainFrm.RS232.Properties.BaudRate := CBR_115200;
-        mainFrm.RS232.Properties.Parity   := NOPARITY;
-        mainFrm.RS232.Properties.StopBits := ONESTOPBIT;
         mainFrm.RS232.Open;
         mainFrm.RS232.StartListner;
+
+        mainFrm.CloseTimer.Enabled:=false;
+        mainFrm.CloseTimer.interval:=100;
+        mainFrm.CloseTimer.Enabled:=true;
+
+
         if (mainFrm.RS232.Active)then
         begin
-         DevPresent:=true;
+         //DevPresent:=true;
          SetLength(vAns, 5);
 
          vAns[0]:=$e3;
@@ -84,26 +87,13 @@ try
          tmp:=    tmp-StrToInt('$'+Copy(Edit6.Text, 3, 2));
          vAns[4]:=tmp-StrToInt('$'+Copy(Edit6.Text, 1, 2));
 
-
-//         vAns[1]:=StrToInt(Edit3.Text);
-//         vAns[2]:=StrToInt(Edit4.Text);
-//         vAns[3]:=StrToInt(Edit5.Text);
-//         vAns[4]:=StrToInt(Edit6.Text);
          mainFrm.RS232.Send(vAns);
-         sleep(100);
         end
         else
         begin
-          if(DevPresent=true) then
-          begin
-            DevPresent:=false;
-          end;
-          mainFrm.RS232.StopListner;
-          mainFrm.RS232.Close;
+          showmessage('Error 491: Port blocked');
         end;
     end;
-    mainFrm.RS232.StopListner;
-    mainFrm.RS232.Close;
     end;
 except
   on Exception : EConvertError do

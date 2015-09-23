@@ -76,6 +76,7 @@ type
     SaveDialog1: TSaveDialog;
     units: TMenuItem;
     CloseTimer: TTimer;
+    small_graph_timer: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -120,6 +121,11 @@ type
     procedure unitsClick(Sender: TObject);
     procedure CloseTimerTimer(Sender: TObject);
 
+    procedure Receive_current_data();
+
+    function Convert_to_usv(mkr: uint32): string;
+    procedure small_graph_timerTimer(Sender: TObject);
+
      private
     fBuf: TiaBuf;
     fBufCount: Integer;
@@ -135,7 +141,6 @@ type
     RS232: TiaRS232;
     procedure RefreshRAD;
     procedure SaveReg;
-    procedure SendDate;
 
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
@@ -263,41 +268,56 @@ implementation
 {$R sounds.res}
 uses Unit1;
 
-procedure TmainFrm.SendDate;
+// =============================================================================
+procedure TmainFrm.Receive_current_data;
 var
-  vAns: TiaBuf;
-  formattedDateTime:String;
+  ia:uint;
 begin
-  SetLength(vAns, 7);
-  vAns[0]:=$e4;
 
-  DateTimeToString(formattedDateTime, 'y', Now);
-  vAns[1]:=StrToInt(formattedDateTime);
+  Fon :=0;
+  IMPS :=0;
 
-  DateTimeToString(formattedDateTime, 'm', Now);
-  vAns[2]:=StrToInt(formattedDateTime);
+  count_validate := 0;
+  count_interval := 0;
+  IMPS := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
+  Fon := ((fBuf[3] shl 16)+(fBuf[4] shl 8))+fBuf[5]; // собираем 3 чара
+  Voltage_level := (fBuf[6]+300) *10; // собираем 2 чара
+  count_validate := 0;
+  count_interval := 30;
 
-  DateTimeToString(formattedDateTime, 'd', Now);
-  vAns[3]:=StrToInt(formattedDateTime);
+  // обработчик тревоги
+  if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
+  begin
+    if(mainfrm.units.Checked = true) then
+    begin MyTray.BalloonHint(alarm2_lang,fonmax_lang+Convert_to_usv(alarmlevel)+mkzv2_lang,TBalloonType(3),5000,true); end
+    else  MyTray.BalloonHint(alarm2_lang,fonmax_lang+IntToStr(alarmlevel)+mkr2_lang,TBalloonType(3),5000,true);
+    PlaySound('alarm', hInstance, SND_RESOURCE);
+  end;
 
-  DateTimeToString(formattedDateTime, 'h', Now);
-  vAns[4]:=StrToInt(formattedDateTime);
+  // обработчик тревоги
+  if maxfon < fon then maxfon:=fon;
 
-  DateTimeToString(formattedDateTime, 'n', Now);
-  vAns[5]:=StrToInt(formattedDateTime);
+  // вычисляем пределы импульсов
+  impps[0] := impps[0]+IMPS;
 
-  DateTimeToString(formattedDateTime, 's', Now);
-  vAns[6]:=StrToInt(formattedDateTime);
 
-  mainFrm.RS232.Send(vAns);
-  date_sent_flag:=true;
-  RS232.StopListner;
-  RS232.Close;
+//  Licensed_state:=true;
+  Label15.Caption := Convert_to_usv(fon);
+  Label18.Caption := fon_units;
 
+  if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
+
+//  SetLength(vAns, 1);
+//  if(doze_loading_flag = true) then vAns[0]:=$32;
+//  if(maxfon_loading_flag=true) then vAns[0]:=$31;
 
 end;
+// =============================================================================
 
-function Convert_to_usv(mkr: uint32): string;
+
+
+// =============================================================================
+function TmainFrm.Convert_to_usv(mkr: uint32): string;
 var
   float : Double;
 begin
@@ -341,8 +361,10 @@ begin
     end;
   end;
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.WMSysCommand(var Message: TMessage);
 begin
     if Message.WParam = SC_MAXIMIZE then begin
@@ -356,10 +378,10 @@ begin
         Message.Result := 0;
     end else inherited;
 end;
+// =============================================================================
 
 
-
-
+// =============================================================================
 procedure TmainFrm.WMPowerBroadcast(var MyMessage: TMessage);
 begin
 if MyMessage.Msg = WM_POWERBROADCAST then begin
@@ -381,8 +403,10 @@ end;
 end;
 inherited;
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.SaveReg;
 var
   reg: TRegistry;
@@ -408,10 +432,11 @@ begin
   reg.CloseKey;                                          // Закрываем раздел
   reg.Free;
 end;
+// =============================================================================
 
 
 
-
+// =============================================================================
 procedure TmainFrm.MakeIcon(f_fon: ulong);
 var
  ii: uint;
@@ -487,9 +512,9 @@ begin
     graph_x:=graph_x+5;
     end;
 
-      Fon_units := imps_lang;
+//      Fon_units := imps_lang;
     Label22.Caption := IntToStr(divgraphimp);
-    Label23.Caption := fon_units;
+    Label23.Caption := imps_lang;
 // граф ИМПУЛЬСОВ
 end
 else if RadioButton2.Checked then
@@ -599,7 +624,10 @@ end;
         if(mainfrm.units.Checked = true) then
           Label6.Caption := maxi_lang+Convert_to_usv(maxfon)+mkzv2_lang;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.RefreshRAD;
 begin
     MakeIcon(Fon);
@@ -775,27 +803,24 @@ begin
   end
 
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.CloseTimerTimer(Sender: TObject);
 begin
   if (RS232.Active = true) then
     begin
-      if(DevPresent=true) then
-      begin
-        DevPresent:=false;
-        date_sent_flag:=false;
-        device_serial_0:=0;
-        device_serial_1:=0;
-        device_serial_2:=0;
-        About_f.About.Edit2.Color := clWhite;
-      end;
       RS232.StopListner;
       RS232.Close;
       CloseTimer.Enabled:=false;
       CloseTimer.interval:=100;
     end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.COM11Click(Sender: TObject);
 begin
 comport_number:=1;
@@ -806,7 +831,10 @@ COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := false;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.COM21Click(Sender: TObject);
 begin
 comport_number:=2;
@@ -817,7 +845,10 @@ COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := false;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.COM31Click(Sender: TObject);
 begin
 comport_number:=3;
@@ -828,7 +859,10 @@ COM31.Checked := true;
 COM41.Checked := false;
 COM51.Checked := false;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.COM41Click(Sender: TObject);
 begin
 comport_number:=4;
@@ -839,7 +873,10 @@ COM31.Checked := false;
 COM41.Checked := true;
 COM51.Checked := false;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.COM51Click(Sender: TObject);
 begin
 comport_number:=5;
@@ -850,13 +887,18 @@ COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := true;
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.ComboBox1Change(Sender: TObject);
 begin
   Draw_massive();
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.ExitBtnClick(Sender: TObject);
 begin
   if(DevPresent=true) then
@@ -871,20 +913,29 @@ begin
 
   needexit := true; // вежливо просим свалить из памяти
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.OKBtnClick();
 begin
   MainFrm.Width:=400;
   Timer2.Enabled:=false;
   MyTray.HideApplication;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.AutoStartupBtnClick(Sender: TObject);
 begin
   AutoStartup := AutoStartupBtn.Checked;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.MessTmrTimer(Sender: TObject);
 var
 iz: uchar;
@@ -940,7 +991,10 @@ begin
     if needexit then
     application.Terminate;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.MyTrayClick(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -955,49 +1009,72 @@ end;
     begin AlarmEnableBtn.Caption := alarm_lang+Convert_to_usv(alarmlevel)+mkzv3_lang; end
     else AlarmEnableBtn.Caption := alarm_lang+IntToStr(alarmlevel)+mkr3_lang;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.N10001Click(Sender: TObject);
 begin
    alarmlevel:=3000;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.MyTrayDoubleClick(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   MyTray.ShowApplication;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.N1Click(Sender: TObject);
 begin
   MyTray.ShowApplication;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.AlarmEnableBtnClick(Sender: TObject);
 begin
   AlarmEnable := AlarmEnableBtn.Checked;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.BlackBtnClick(Sender: TObject);
 begin
   alarmlevel:=25;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.WhiteBtnClick(Sender: TObject);
 begin
   alarmlevel:=40;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.GreenBtnClick(Sender: TObject);
 begin
     alarmlevel:=120;
   SaveReg;
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.Image2Click(Sender: TObject);
 var
   foo: TPoint;
@@ -1018,8 +1095,10 @@ begin
 end;
 
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.Load_stat_btnClick();
 var
   vAns: TiaBuf;
@@ -1054,6 +1133,9 @@ Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
 RS232.StopListner;
 RS232.Close;
+
+Timer3.Enabled:=false;
+Timer3.Interval:=1000;
 Timer3.Enabled:=true;
 doze_loading_flag:= false;
 maxfon_loading_flag:=false;
@@ -1077,10 +1159,6 @@ time_offset:=144-(time_offset Div 10); //113
 if (RS232.Active = false) then
 begin
   DevPresent:=false;
-  date_sent_flag:=false;
-  device_serial_0:=0;
-  device_serial_1:=0;
-  device_serial_2:=0;
   About_f.About.Edit2.Color := clWhite;
 
   RS232.Properties.PortNum  := comport_number;
@@ -1108,7 +1186,7 @@ begin
    maxfon_loading_flag:=true;
    USB_massive_loading:=true;
 
-   RS232.Send(vAns);
+   if Length(vAns) > 0 then RS232.Send(vAns);
 
   end
   else
@@ -1116,8 +1194,10 @@ begin
     Fix_error_now:=false;
   end;
 end;
+// =============================================================================
 
 
+// =============================================================================
 procedure TmainFrm.BlueBtnClick(Sender: TObject);
 begin
     alarmlevel:=400;
@@ -1139,9 +1219,10 @@ for im := 0 to 61 do fonpermin[im] := 0;
 for im := 0 to 25 do fonperhour[im] :=0;
 
 end;
+// =============================================================================
 
 
-
+// =============================================================================
 procedure TmainFrm.Button2Click(Sender: TObject);
 begin
  bmp := TBitmap.Create;
@@ -1164,7 +1245,10 @@ bmp.Free;
 png.free;
 
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.Button3Click(Sender: TObject);
 var
   F: TextFile;
@@ -1216,87 +1300,172 @@ begin
   end;
  end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.FuchsiaBtnClick(Sender: TObject);
 begin
     alarmlevel:=1000;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.RedBtnClick(Sender: TObject);
 begin
   tempcol := clRed;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.YellowBtnClick(Sender: TObject);
 begin
   tempcol := clYellow;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.SilverBtnClick(Sender: TObject);
 begin
   tempcol := clSilver;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
+procedure TmainFrm.small_graph_timerTimer(Sender: TObject);
+var
+  ia: uint;
+begin
+  // вычисляем пределы импульсов
+  impps[0] := impps[0]+IMPS;
+  divgraphimp := 3;
+  for ia := 60 downto 1 do //?
+  begin
+    impps[ia] := impps[ia-1];
+    if impps[ia] > divgraphimp then divgraphimp := impps[ia];
+  end;
+  impps[0] := 0;
+
+  // вычисляем пределы фона
+  fonps[0] := fon;
+  divgraph := 6;
+  for ia := 61 downto 1 do
+  begin
+    fonps[ia] := fonps[ia-1];
+    if fonps[ia] > divgraph then divgraph := fonps[ia];
+  end;
+  fonps[0] := 0;
+  Fon_units := mkr2_lang;
+  if(mainfrm.units.Checked = true) then Fon_units := mkzv2_lang;
+
+end;
+// =============================================================================
+
+
+// =============================================================================
 procedure TmainFrm.Timer1Timer(Sender: TObject);
 var
   vAns: TiaBuf;
+  bytes_to_send: uint;
+  i: uint;
 begin
-DevPresent:=false;
+//DevPresent:=false;
 if(DenyCommunications = false) then begin
 if(USB_massive_loading = false) then begin
+
+ if (RS232.Active = false)then
+ begin
     RS232.Properties.PortNum  := comport_number;
     RS232.Open;
     RS232.StartListner;
     CloseTimer.Enabled:=false;
     CloseTimer.Interval:=100;
     CloseTimer.Enabled:=true;
+ end;
     if (RS232.Active)then
     begin
       if DevPresent=false then serial_try:=0;
       DevPresent:=true;
 
+      bytes_to_send:=0;
+      i:=0;
+
+      if ((device_serial_0=0) or (device_serial_1=0) or (device_serial_2=0)) then
+        bytes_to_send:=bytes_to_send+3;
+
+      if (date_sent_flag=false) then
+        bytes_to_send:=bytes_to_send+7;
+
+      bytes_to_send:=bytes_to_send+1; // + запрос текущего фона
+
+      SetLength(vAns, bytes_to_send);
+
+
       if (date_sent_flag=false) then
       begin
-        SendDate;
-      end else
+        vAns[0]:=$e4; i:=i+1;
+
+        DateTimeToString(formattedDateTime, 'y', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        DateTimeToString(formattedDateTime, 'm', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        DateTimeToString(formattedDateTime, 'd', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        DateTimeToString(formattedDateTime, 'h', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        DateTimeToString(formattedDateTime, 'n', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        DateTimeToString(formattedDateTime, 's', Now);
+        vAns[i]:=StrToInt(formattedDateTime); i:=i+1;
+
+        date_sent_flag:=true;
+      end;
+
+      if ((device_serial_0=0) or (device_serial_1=0) or (device_serial_2=0)) then
       begin
-        if ((device_serial_0=0) and (serial_try < 5)) then
-        begin
-           serial_try:=serial_try+1;
-           SetLength(vAns, 1);
-           vAns[0]:=$e0; // считать серийный номер МК U_ID_0
-           RS232.Send(vAns);
-        end;
+        vAns[i]:= $e0; i:=i+1; // считать серийный номер МК U_ID_0
+        vAns[i]:= $e1; i:=i+1; // считать серийный номер МК U_ID_1
+        vAns[i]:= $e2; i:=i+1; // считать серийный номер МК U_ID_2
+      end;
 
-        if ((device_serial_1=0) and (serial_try < 5)) then
-        begin
-          serial_try:=serial_try+1;
-          SetLength(vAns, 1);
-          vAns[0]:=$e1; // считать серийный номер МК U_ID_1
-          RS232.Send(vAns);
-        end;
+      vAns[i]:=$d4; i:=i+1; // считать текущие данные
 
-        if ((device_serial_2=0) and (serial_try < 5)) then
-        begin
-          serial_try:=serial_try+1;
-          SetLength(vAns, 1);
-          vAns[0]:=$e2; // считать серийный номер МК U_ID_2
-          RS232.Send(vAns);
-        end;
+      if Length(vAns) > 0 then RS232.Send(vAns);
 
-        SetLength(vAns, 1);
-        vAns[0]:=$d4;
-        RS232.Send(vAns);
+    end else begin
+      if(DevPresent=true) then
+      begin
+        DevPresent:=false;
+        date_sent_flag:=false;
+        device_serial_0:=0;
+        device_serial_1:=0;
+        device_serial_2:=0;
+        About_f.About.Edit2.Color := clWhite;
       end;
     end;
+
+
+
   end;
 end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.Timer2Timer(Sender: TObject);
 var
   foo: TPoint;
@@ -1344,7 +1513,10 @@ begin
 
 end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.Timer3Timer(Sender: TObject);
 var
   vAns: TiaBuf;
@@ -1363,7 +1535,7 @@ if(usb_send_try < 10) then
       vAns[0]:=$32;
     if(maxfon_loading_flag=true) then
       vAns[0]:=$31;
-    RS232.Send(vAns);
+    if Length(vAns) > 0 then RS232.Send(vAns);
    end
    else address_last:=address;
   end
@@ -1383,7 +1555,10 @@ if(usb_send_try < 10) then
 
   end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.Timer4Timer(Sender: TObject);
 var
  AIdHTTP: TIdHTTP;
@@ -1409,7 +1584,10 @@ if (DevPresent) then
     AIdHTTP.Free;
   end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.unitsClick(Sender: TObject);
 begin
   if(Licensed_state<>true) then
@@ -1419,7 +1597,10 @@ begin
   end;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.AboutBtnClick(Sender: TObject);
 begin
 try
@@ -1427,27 +1608,37 @@ About.ShowModal;
 except
 end;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.AquaBtnClick(Sender: TObject);
 begin
   tempcol := clAqua;
   SaveReg;
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.OliveBtnClick(Sender: TObject);
 begin
   tempcol := clOlive;
   SaveReg;
 end;
+// =============================================================================
 
 
-
+// =============================================================================
 procedure TmainFrm.FormDestroy(Sender: TObject);
 begin
   RS232.StopListner;
   FreeAndNil(RS232);
 end;
+// =============================================================================
 
+
+// =============================================================================
 procedure TmainFrm.Draw_massive();
 var
  ii: uint32;
@@ -1549,7 +1740,7 @@ MainFrm.Width:=1148;
     end;
 
 end;
-
+// =============================================================================
 
 
 //================================================================================================================
@@ -1569,7 +1760,7 @@ Var
   packet_size: uint32;
   aData_massive_pointer: uint32;
   fBuf_pointer: uint32;
-  StopRS232: Boolean;
+//  StopRS232: Boolean;
   AIdHTTP: TIdHTTP;
   reg: TRegistry;
   key: String;
@@ -1581,15 +1772,14 @@ begin
 packet_size:=7;
 aData_massive_pointer:=0;
 fBuf_pointer:=0;
-StopRS232:=FALSE;
+//StopRS232:=FALSE;
 
 CloseTimer.Enabled:=false;
-CloseTimer.Interval:=100;
+CloseTimer.Interval:=3000;
 CloseTimer.Enabled:=true;
 
-
 While used_len<(Length(aData)-1) do begin
-
+//sleep(1);
   // Заполнение массива пакета
    For F := aData_massive_pointer to aData_massive_pointer + packet_size - 1 do
      Begin
@@ -1608,63 +1798,7 @@ While used_len<(Length(aData)-1) do begin
 
 //-----------------------------------------------------------------------------------
 if (fBuf[0] = $d1) then begin
-  Fon :=0;
-  IMPS :=0;
-
-  count_validate := 0;
-  count_interval := 0;
-  IMPS := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
-  Fon := ((fBuf[3] shl 16)+(fBuf[4] shl 8))+fBuf[5]; // собираем 3 чара
-  Voltage_level := (fBuf[6]+300) *10; // собираем 2 чара
-  count_validate := 0;
-  count_interval := 30;
-
-  // обработчик тревоги
-  if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
-  begin
-    if(mainfrm.units.Checked = true) then
-    begin MyTray.BalloonHint(alarm2_lang,fonmax_lang+Convert_to_usv(alarmlevel)+mkzv2_lang,TBalloonType(3),5000,true); end
-    else  MyTray.BalloonHint(alarm2_lang,fonmax_lang+IntToStr(alarmlevel)+mkr2_lang,TBalloonType(3),5000,true);
-    PlaySound('alarm', hInstance, SND_RESOURCE);
-  end;
-
-  // обработчик тревоги
-  if maxfon < fon then maxfon:=fon;
-
-  // вычисляем пределы импульсов
-  impps[0] := IMPS;
-  divgraphimp := 3;
-  for ia := 60 downto 1 do //?
-  begin
-    impps[ia] := impps[ia-1];
-    if impps[ia] > divgraphimp then divgraphimp := impps[ia];
-  end;
-  impps[0] := 0;
-
-  // вычисляем пределы фона
-  fonps[0] := fon;
-  divgraph := 6;
-  for ia := 61 downto 1 do
-  begin
-    fonps[ia] := fonps[ia-1];
-    if fonps[ia] > divgraph then divgraph := fonps[ia];
-  end;
-  fonps[0] := 0;
-  Fon_units := mkr2_lang;
-  if(mainfrm.units.Checked = true) then Fon_units := mkzv2_lang;
-
-
-  Licensed_state:=true;
-  Label15.Caption := Convert_to_usv(fon);
-  Label18.Caption := fon_units;
-
-  if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
-
-  SetLength(vAns, 1);
-  if(doze_loading_flag = true) then vAns[0]:=$32;
-  if(maxfon_loading_flag=true) then vAns[0]:=$31;
-
-StopRS232:= TRUE;
+  Receive_current_data;        // Чтение данных каждые 4 секунды
 end;
 //-----------------------------------------------------------------------------------
 
@@ -1686,8 +1820,6 @@ if (fBuf[0] = $e0) then begin // Серийника U_ID_0
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
   if device_serial_0 >0 then serial_try:=0;
-  SetLength(vAns, 1);
-  vAns[0]:=$00;
 
 end;
 //-----------------------------------------------------------------------------------
@@ -1702,8 +1834,6 @@ if (fBuf[0] = $e1) then begin // Серийника U_ID_1
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
   if device_serial_1 >0 then serial_try:=0;
-  SetLength(vAns, 1);
-  vAns[0]:=$00;
 
 end;
 //-----------------------------------------------------------------------------------
@@ -1718,8 +1848,6 @@ if (fBuf[0] = $e2) then begin // Серийника U_ID_2
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
   if device_serial_2 >0 then serial_try:=0;
-  SetLength(vAns, 1);
-  vAns[0]:=$00;
 
 end;
 
@@ -1730,24 +1858,19 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
 
-  massive_element:=                 fBuf[3] shl 24;
-  massive_element:=massive_element+(fBuf[4] shl 16);
-  massive_element:=massive_element+(fBuf[5] shl 8);
-  massive_element:=massive_element+ fBuf[6];
+  if(Length(Unit1.Form1.max_fon.Caption)<4) then Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
 
-  if (address < 8640) then
-  begin
-    if Fix_error_now=false then
-    begin
-      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
-    end else
-    begin
-      if(max_fon_massive_ready[address]=false) then
-        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
+  if (address < 8640) then begin
+
+    if (fBuf[0] = $f1) then begin
+      massive_element:=                 fBuf[3] shl 24;
+      massive_element:=massive_element+(fBuf[4] shl 16);
+      massive_element:=massive_element+(fBuf[5] shl 8);
+      massive_element:=massive_element+ fBuf[6];
+
+      max_fon_massive[address]:=massive_element;
+      max_fon_massive_ready[address]:=true;
     end;
-
-    max_fon_massive[address]:=massive_element;
-    max_fon_massive_ready[address]:=true;
 
     if(fBuf[0] = $81) then begin
       max_fon_massive[address]:=  fBuf[6];
@@ -1761,19 +1884,20 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
       address:=address+3;
     end;
 
+  end else begin
 
-    SetLength(vAns, 1);
-    vAns[0]:=$31;
-    maxfon_loading_flag:=true;
-  end
-  else
-  begin
-    SetLength(vAns, 1);
-    vAns[0]:=$32;
     maxfon_loading_flag:=false;
     doze_loading_flag:=true;
-  end;
 
+    used_len:=Length(aData)-1;
+
+    Unit1.Form1.Refresh;
+
+    SetLength(vAns, 2);
+    vAns[0]:=$39;
+    vAns[1]:=$32;
+
+  end;
 end;
 //-----------------------------------------------------------------------------------
 
@@ -1815,15 +1939,15 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     end;
 
 
-    SetLength(vAns, 1);
-    vAns[0]:=$32;
+ //   SetLength(vAns, 1);
+//    vAns[0]:=$32;
     doze_loading_flag:=true;
   end
   else
   begin
     SetLength(vAns, 1);
     vAns[0]:=$39;
-    StopRS232:=TRUE;
+//    StopRS232:=TRUE;
 
     Timer3.Enabled:=false;
     Timer2.Enabled:=true;
@@ -1888,10 +2012,9 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     end
     else
     begin
-//      sleep(200);
-      Fix_error_now:=true;
-      SetLength(vAns, 1);
-      vAns[0]:=$31;
+//      Fix_error_now:=true;
+//      SetLength(vAns, 1);
+//      vAns[0]:=$31;
     end;
   end;
 
@@ -1911,17 +2034,18 @@ end;
 
 end;
 
-RS232.Send(vAns);
-if(StopRS232 = TRUE) then
-begin
-  RS232.StopListner;
-  RS232.Close;
-end;
+  if Length(vAns) > 0 then RS232.Send(vAns);
+
+  //if(StopRS232 = TRUE) then
+//begin
+//  RS232.StopListner;
+//  RS232.Close;
+//end;
 
 if(USB_massive_loading = false) then
 begin
-  RS232.StopListner;
-  RS232.Close;
+//  RS232.StopListner;
+//  RS232.Close;
   if((Voltage_level Div 10) Mod 100)>9 then
   begin
    Voltage.Caption:=voltage_lang+IntToStr(Voltage_level Div 1000)+'.'+IntToStr((Voltage_level Div 10) Mod 100)+' V';
@@ -1934,6 +2058,8 @@ end;
 end;
 //================================================================================================================
 
+
+// =============================================================================
 procedure TmainFrm.DoOnSendedEvent(Sender: TObject; const aData: TiaBuf;
   aCount: Cardinal);
 Var

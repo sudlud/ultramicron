@@ -224,12 +224,13 @@ void USB_work()
 	if (bDeviceState == CONFIGURED)
   {		
     CDC_Receive_DATA();
+		
 		//wait_count=0;
 		//while((packet_receive != 1) && (wait_count<=1000))wait_count++; // Ждем принятия пакета
+		
 #ifndef version_401 // Версия платы дозиметра 4.01+
 	  if(Settings.USB == 1) // MadOrc
 #endif	
-		//if (packet_receive == 1)
 		if(Receive_length != 0)
 		{
 			current_rcvd_pointer=0; // сброс счетчика текущей позиции приема
@@ -237,8 +238,6 @@ void USB_work()
 			// Предотвращение загрузки старых неверных блоков данных.
 			if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
 			USB_not_active=0; // Сброс четчика неактивности USB 
-			//for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
-			//Receive_length = 0; // наверное ненужно
 
 			while(Receive_length>current_rcvd_pointer)
 			{
@@ -314,8 +313,7 @@ void USB_work()
 				if(Send_length>0)	// Если пакет на передачу сформитован
 				{
 					wait_count=0;
-					//while((packet_sent != 1) && (wait_count<1000))wait_count++; // Проверяем передан ли прошлый пакет
-					while((packet_sent != 1) && (wait_count<=50))delay_ms(1); // Проверяем передан ли прошлый пакет
+					while((packet_sent != 1) && (wait_count<15000))wait_count++; // Проверяем передан ли прошлый пакет
 
 					CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
 					Send_length=0;
@@ -330,8 +328,11 @@ void USB_work()
 	if ((USB_not_active>60) && (Settings.USB == 1)) // если 4 минуты USB не активно, то отключаем его
 #endif
 	{
-		delay_ms(1);
-#ifndef version_401 
+
+		wait_count=0;
+		while((packet_sent != 1) && (wait_count<15000))wait_count++; // Проверяем передан ли прошлый пакет
+
+		#ifndef version_401 
 		Settings.USB=0;
 #endif
 		usb_deactivate(0x00);

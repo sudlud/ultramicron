@@ -20,10 +20,6 @@ uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
-#define send_blocks 255 // по сколько блоков слать
-
-#pragma O0
-
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key) // Подготовка массива данных к передаче
 {
@@ -39,6 +35,12 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 	
 	while(used_lenght <= (VIRTUAL_COM_PORT_DATA_SIZE-7))
 	{
+		if(*massive_pointer>=FLASH_MAX_ELEMENT-1-4)
+		{
+			*massive_pointer=FLASH_MAX_ELEMENT-1;
+			return used_lenght;
+		}
+
 		address_lo =  *massive_pointer       & 0xff;	
 		address_hi = (*massive_pointer >> 8) & 0xff;	
 
@@ -72,13 +74,6 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 		Send_Buffer[used_lenght+6]=fon_1_4;                                    // передать по УСАПП 
 		
 		used_lenght+=7;
-
-		if(*massive_pointer>=FLASH_MAX_ELEMENT-1)
-		{
-			*massive_pointer=FLASH_MAX_ELEMENT-1;
-			//*massive_pointer=0;
-			return used_lenght;
-		}
 	}
 	return used_lenght;
 }
@@ -119,7 +114,6 @@ void USB_send_serial_data(int num)
 	Send_length=7;
 }
 // =========================================================================================
-
 
 void USB_send_time_offset_data()
 {
@@ -176,7 +170,38 @@ void USB_send_madorc_data()
 	Send_length=7;
 }
 // =========================================================================================
+#pragma O0
+void time_loading(uint32_t current_rcvd_pointer)
+{
+	RTC_TimeTypeDef RTC_TimeStructure;
+	RTC_DateTypeDef RTC_DateStructure;
+	uint8_t i;
 
+	if (licensed==ENABLE)
+	{
+		RTC_DateStructInit(&RTC_DateStructure);
+		RTC_TimeStructInit(&RTC_TimeStructure);
+
+		RTC_TimeStructure.RTC_Hours = Receive_Buffer[current_rcvd_pointer+4] & 0xff;
+		RTC_TimeStructure.RTC_Minutes = Receive_Buffer[current_rcvd_pointer+5] & 0xff;
+		RTC_TimeStructure.RTC_Seconds = Receive_Buffer[current_rcvd_pointer+6] & 0xff;
+		RTC_DateStructure.RTC_Date = Receive_Buffer[current_rcvd_pointer+3] & 0xff;
+		RTC_DateStructure.RTC_Month = Receive_Buffer[current_rcvd_pointer+2] & 0xff;
+		RTC_DateStructure.RTC_Year = Receive_Buffer[current_rcvd_pointer+1] & 0xff;
+
+		for (i=0;i<20;i++)
+		{
+			if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == SUCCESS)break;
+		}
+		for (i=0;i<20;i++)
+		{
+			if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == SUCCESS)break;
+		}
+		Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+	}
+}
+
+#pragma O0
 void USB_on()
 {
 //---------------------------------------------Включение USB------------------------------------
@@ -192,148 +217,120 @@ void USB_on()
 
 void USB_work()
 {
-	uint32_t i; // по сколько блоков слать
-	RTC_TimeTypeDef RTC_TimeStructure;
-	RTC_DateTypeDef RTC_DateStructure;
+	uint32_t wait_count;
+	uint32_t current_rcvd_pointer=0;
 	
 //---------------------------------------------Передача данных------------------------------------
 	if (bDeviceState == CONFIGURED)
-    {	
-			delay_ms(1);
-      CDC_Receive_DATA();
+  {		
+    CDC_Receive_DATA();
+		//wait_count=0;
+		//while((packet_receive != 1) && (wait_count<=1000))wait_count++; // Ждем принятия пакета
 #ifndef version_401 // Версия платы дозиметра 4.01+
-			if(Settings.USB == 1) // MadOrc
-#endif				
+	  if(Settings.USB == 1) // MadOrc
+#endif	
+		//if (packet_receive == 1)
+		if(Receive_length != 0)
+		{
+			current_rcvd_pointer=0; // сброс счетчика текущей позиции приема
+			
+			// Предотвращение загрузки старых неверных блоков данных.
+			if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
+			USB_not_active=0; // Сброс четчика неактивности USB 
+			//for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
+			//Receive_length = 0; // наверное ненужно
+
+			while(Receive_length>current_rcvd_pointer)
 			{
-				/*Check to see if we have data yet */
-				if (Receive_length==0x01)
+				switch (Receive_Buffer[current_rcvd_pointer])
 				{
-						// Предотвращение загрузки старых неверных блоков данных.
-						if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
-
-						USB_not_active=0; // Сброс четчика неактивности USB 
-						Receive_length = 0;
-					
-						for(i=0;i<send_blocks;i++) // По 16 блоков 64 байта за 1 запроc
-						{
-						
-							switch (Receive_Buffer[0])
-							{
-								case 0xD4: 								// Отправка данных по запросу каждую минуту
-									USB_send_madorc_data();
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
+					case 0xD4: 								// Отправка данных по запросу каждую минуту (RCV 1 байт)
+							USB_send_madorc_data();
+							current_rcvd_pointer++;
+							break;
 							
-////////////////////////////////////////////////////////////////////////////////
-								case 0xE0: 								// Отправка серийного номера МК
-									USB_send_serial_data(0);
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
-								case 0xE1: 								// Отправка серийного номера МК
-									USB_send_serial_data(1);
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
-								case 0xE2: 								// Отправка серийного номера МК
-									USB_send_serial_data(2);
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
-////////////////////////////////////////////////////////////////////////////////
+					case 0xE0: 								// Отправка серийного номера МК (RCV 1 байт)
+							USB_send_serial_data(0);
+							current_rcvd_pointer++;
+							break;
+
+					case 0xE1: 								// Отправка серийного номера МК (RCV 1 байт)
+							USB_send_serial_data(1);
+							current_rcvd_pointer++;
+							break;
+
+					case 0xE2: 								// Отправка серийного номера МК (RCV 1 байт)
+							USB_send_serial_data(2);
+							current_rcvd_pointer++;
+							break;
 							
-								case 0xD5: 								// Отправка метки смещения времени
-									if(licensed==ENABLE)USB_send_time_offset_data();
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
+					case 0xD5: 								// Отправка метки смещения времени (RCV 1 байт)
+							if(licensed==ENABLE)USB_send_time_offset_data();
+							current_rcvd_pointer++;
+							break;
 
-								case 0x31: 								// передача массива максимального фона
-									Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1); // Подготовка массива данных к передаче
-									if(USB_maxfon_massive_pointer>=FLASH_MAX_ELEMENT-1)i=send_blocks; 					// принудительное завершение цикла
-									break;
+					case 0x31: 								// передача массива максимального фона (RCV 1 байт)
+							Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1); // Подготовка массива данных к передаче
+							if (Send_length == 0) current_rcvd_pointer++; // Если массив исчерпан
+							break;
 
-								case 0x32: 								// передача массива дозы
-									Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3); // Подготовка массива данных к передаче
-									if(USB_doze_massive_pointer>=FLASH_MAX_ELEMENT-1)i=send_blocks; 					// принудительное завершение цикла
-									break;
+					case 0x32: 								// передача массива дозы (RCV 1 байт)
+							Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3); // Подготовка массива данных к передаче
+							if (Send_length == 0) current_rcvd_pointer++; // Если массив исчерпан
+							break;
 
-								case 0x33: 								// передача настроек
-									USB_maxfon_massive_pointer=0;
-									USB_doze_massive_pointer=0;
-									USB_send_settings_data();
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
+					case 0x33: 								// передача настроек (RCV 1 байт)
+							USB_maxfon_massive_pointer=0;
+							USB_doze_massive_pointer=0;
+							USB_send_settings_data();
+							current_rcvd_pointer++;
+							break;
 
-								case 0x39: 								// завершение передачи
-									USB_maxfon_massive_pointer=0;
-									USB_doze_massive_pointer=0;
-									i=send_blocks; 					// принудительное завершение цикла
-									break;
-							}
-							while(packet_sent != 1);
-							if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
-							Send_length=0;
-						}
-					}
-					if (Receive_length==0x07)
-					{
-						if (Receive_Buffer[0]==0xE4) // Если приняли ключ времени
-						{
-							USB_not_active=0; // Сброс четчика неактивности USB 
-							Receive_length = 0;
+					case 0x39: 								// завершение передачи (RCV 1 байт)
+							USB_maxfon_massive_pointer=0;
+							USB_doze_massive_pointer=0;
+							current_rcvd_pointer++;
+							break;
 
-							if (licensed==ENABLE)
-							{
-								RTC_DateStructInit(&RTC_DateStructure);
-								RTC_TimeStructInit(&RTC_TimeStructure);
+					case 0xE4: 								// Загрузка времкни (RCV 7 байт)
+							time_loading(current_rcvd_pointer);
+							current_rcvd_pointer+=7;
+							break;
 
-								RTC_TimeStructure.RTC_Hours = Receive_Buffer[4] & 0xff;
-								RTC_TimeStructure.RTC_Minutes = Receive_Buffer[5] & 0xff;
-								RTC_TimeStructure.RTC_Seconds = Receive_Buffer[6] & 0xff;
-								RTC_DateStructure.RTC_Date = Receive_Buffer[3] & 0xff;
-								RTC_DateStructure.RTC_Month = Receive_Buffer[2] & 0xff;
-								RTC_DateStructure.RTC_Year = Receive_Buffer[1] & 0xff;
-
-								for (i=0;i<20;i++)
-								{
-									if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == SUCCESS)break;
-									delay_ms(100);
-								}
-								for (i=0;i<20;i++)
-								{
-									if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == SUCCESS)break;
-									delay_ms(100);
-								}
-
-								Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
-
-							}
-						}
-					}
-
-					if (Receive_length==0x05)
-					{
-						if (Receive_Buffer[0]==0xE3) // Если приняли ключ разблокировки
-						{
-							eeprom_write(unlock_0_address, Receive_Buffer[1]);
-							eeprom_write(unlock_1_address, Receive_Buffer[2]);
-							eeprom_write(unlock_2_address, Receive_Buffer[3]);
-							eeprom_write(unlock_3_address, Receive_Buffer[4]);
-
-							USB_not_active=0; // Сброс четчика неактивности USB 
-							Receive_length = 0;
-
+					case 0xE3: 								// Ключ разблокировки (RCV 5 байт)
+							eeprom_write(unlock_0_address, Receive_Buffer[current_rcvd_pointer+1]);
+							eeprom_write(unlock_1_address, Receive_Buffer[current_rcvd_pointer+2]);
+							eeprom_write(unlock_2_address, Receive_Buffer[current_rcvd_pointer+3]);
+							eeprom_write(unlock_3_address, Receive_Buffer[current_rcvd_pointer+4]);
+							current_rcvd_pointer+=5;
 							licensed=check_license(); // проверка лицензии
-						}
-					}
-				
+							break;
+
+					default: 
+							current_rcvd_pointer++;					
+							break;
+				}
+
+				if(Send_length>0)	// Если пакет на передачу сформитован
+				{
+					wait_count=0;
+					//while((packet_sent != 1) && (wait_count<1000))wait_count++; // Проверяем передан ли прошлый пакет
+					while((packet_sent != 1) && (wait_count<=50))delay_ms(1); // Проверяем передан ли прошлый пакет
+
+					CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
+					Send_length=0;
+				}
+			}
 		}
-// -----------------------------------------------------------------------------------------------------------------------
 	}
+	
 #ifdef version_401
 	if (!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9)) // если 5В на USB не подается, то отключаем его
 #else
 	if ((USB_not_active>60) && (Settings.USB == 1)) // если 4 минуты USB не активно, то отключаем его
 #endif
 	{
-		delay_ms(100);
+		delay_ms(1);
 #ifndef version_401 
 		Settings.USB=0;
 #endif

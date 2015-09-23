@@ -221,7 +221,6 @@ var
   myDate : TDateTime;
   formattedDateTime : string;
   Voltage_level: Integer;
-  serial_try: integer;
   date_sent_flag:  boolean = false;
 
 mkr_lang: string =       ' мкР';
@@ -451,7 +450,10 @@ begin
     begin
 
 
-  MyTray.Hint := 'USB Geiger: '+IntToStr(Fon)+' '+fon_units;
+//  MyTray.Hint := 'USB Geiger: '+IntToStr(Fon)+' '+fon_units;
+    if(mainfrm.units.Checked = true) then
+    begin MyTray.Hint := 'USB Geiger: '+Convert_to_usv(fon)+' '+fon_units;
+    end else  MyTray.Hint := 'USB Geiger: '+IntToStr(Fon)+' '+fon_units;
 
       if ((count_validate >0) and blinker) then
       begin
@@ -1003,7 +1005,9 @@ begin
   if (not DevPresent) then
       MyTray.BalloonHint(error_lang,dos_off_lang,TBalloonType(3),5000,true)
     else
-      MyTray.BalloonHint(curr_lang,IntToStr(Fon)+' '+fon_units,TBalloonType(2),5000,true);
+      if(mainfrm.units.Checked = true) then
+      begin MyTray.BalloonHint(curr_lang,Convert_to_usv(Fon)+fon_units,TBalloonType(2),5000,true); end
+      else  MyTray.BalloonHint(curr_lang,IntToStr(Fon)+      fon_units,TBalloonType(2),5000,true);
 end;
     if(mainfrm.units.Checked = true) then
     begin AlarmEnableBtn.Caption := alarm_lang+Convert_to_usv(alarmlevel)+mkzv3_lang; end
@@ -1113,7 +1117,7 @@ Unit1.Form1.Show;
     RS232.Open;
     RS232.StartListner;
     CloseTimer.Enabled:=false;
-    CloseTimer.Interval:=100;
+    CloseTimer.Interval:=500;
     CloseTimer.Enabled:=true;
   end;
 
@@ -1159,7 +1163,7 @@ time_offset:=144-(time_offset Div 10); //113
 if (RS232.Active = false) then
 begin
   DevPresent:=false;
-  About_f.About.Edit2.Color := clWhite;
+//  About_f.About.Edit2.Color := clWhite;
 
   RS232.Properties.PortNum  := comport_number;
   RS232.Open;
@@ -1173,7 +1177,6 @@ begin
 
   if (RS232.Active)then
   begin
-   if DevPresent=false then serial_try:=0;
    DevPresent:=true;
 
    SetLength(vAns, 5);
@@ -1392,7 +1395,6 @@ if(USB_massive_loading = false) then begin
  end;
     if (RS232.Active)then
     begin
-      if DevPresent=false then serial_try:=0;
       DevPresent:=true;
 
       bytes_to_send:=0;
@@ -1775,7 +1777,7 @@ fBuf_pointer:=0;
 //StopRS232:=FALSE;
 
 CloseTimer.Enabled:=false;
-CloseTimer.Interval:=3000;
+CloseTimer.Interval:=1000;
 CloseTimer.Enabled:=true;
 
 While used_len<(Length(aData)-1) do begin
@@ -1819,8 +1821,6 @@ if (fBuf[0] = $e0) then begin // Серийника U_ID_0
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-  if device_serial_0 >0 then serial_try:=0;
-
 end;
 //-----------------------------------------------------------------------------------
 
@@ -1833,8 +1833,6 @@ if (fBuf[0] = $e1) then begin // Серийника U_ID_1
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-  if device_serial_1 >0 then serial_try:=0;
-
 end;
 //-----------------------------------------------------------------------------------
 
@@ -1847,8 +1845,6 @@ if (fBuf[0] = $e2) then begin // Серийника U_ID_2
       if(fBuf[6]=1) then begin
                   About_f.About.Edit2.Color := clGreen; Licensed_state:=true; end
       else begin  About_f.About.Edit2.Color := clRed;   Licensed_state:=false; end;
-  if device_serial_2 >0 then serial_try:=0;
-
 end;
 
 

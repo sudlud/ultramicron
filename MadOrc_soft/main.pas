@@ -77,6 +77,7 @@ type
     units: TMenuItem;
     CloseTimer: TTimer;
     small_graph_timer: TTimer;
+    HW_Label: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -198,16 +199,18 @@ var
   USB_massive_loading: boolean = false;
   Licensed_state: boolean = false;
 
-  max_fon_massive: array[0..10080] of UInt32;
-  doze_massive: array[0..10080] of UInt32;
+  max_address: uint = 8640;
+
+  max_fon_massive: array[0..8640] of UInt32;
+  doze_massive: array[0..8640] of UInt32;
   selected_point_massive: uint;
 
   device_serial_0:UInt32;
   device_serial_1:UInt32;
   device_serial_2:UInt32;
 
-  max_fon_massive_ready: array[0..10080] of boolean;
-  doze_massive_ready: array[0..10080] of boolean;
+  max_fon_massive_ready: array[0..8640] of boolean;
+  doze_massive_ready: array[0..8640] of boolean;
 
   geiger_seconds_count: uint32 = 1;
   address: UInt32 = 0;
@@ -216,12 +219,15 @@ var
   maxfon_loading_flag:  boolean = false;
   lang_settings:  boolean = false;
   usb_send_try: UInt32 = 0;
-  Fix_error_now: boolean = false;
+//  Fix_error_now: boolean = false;
   time_offset:uint32;
   myDate : TDateTime;
   formattedDateTime : string;
   Voltage_level: Integer;
   date_sent_flag:  boolean = false;
+
+  firmware_date: string;
+  hardware_version: string;
 
 mkr_lang: string =       ' мкР';
 mkr2_lang: string =      ' мкР/ч';
@@ -1111,39 +1117,34 @@ var
 begin
 
 Unit1.Form1.Show;
-  if (RS232.Active=false)then
-  begin
-    RS232.Properties.PortNum  := comport_number;
-    RS232.Open;
-    RS232.StartListner;
-    CloseTimer.Enabled:=false;
-    CloseTimer.Interval:=500;
-    CloseTimer.Enabled:=true;
-  end;
+myDate:=Now;
 
-  myDate:=Now;
-
-  if (lang_settings=false) then
-  begin
-    Unit1.Form1.Label5.Caption:='Dont stop the process. Dont turn off device!';
-    Unit1.Form1.Label1.Caption:='Loading maximum radiation array:';
-    Unit1.Form1.Label2.Caption:='Loading average radiation array:';
-    Unit1.Form1.Label4.Caption:='Loading to web service:';
-  end;
-
+if (lang_settings=false) then
+begin
+  Unit1.Form1.Label1.Caption:='Loading maximum radiation array:';
+  Unit1.Form1.Label2.Caption:='Loading average radiation array:';
+  Unit1.Form1.Label4.Caption:='Loading to web service:';
+end;
 
 Unit1.Form1.max_fon.Caption:='0%';
 Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
-RS232.StopListner;
-RS232.Close;
+
+for ibx := 0 to max_address do
+begin
+  max_fon_massive[ibx]:=0;
+  doze_massive[ibx]:=0;
+  max_fon_massive_ready[ibx]:=false;
+  doze_massive_ready[ibx]:=false;
+end;
+
 
 Timer3.Enabled:=false;
-Timer3.Interval:=1000;
+Timer3.Interval:=3000;
 Timer3.Enabled:=true;
 doze_loading_flag:= false;
 maxfon_loading_flag:=false;
-address_last:=8640;
+address_last:=max_address;
 
 ComboBox1.Items.Clear;
 for ibx := 0 to 60 do
@@ -1160,15 +1161,16 @@ DateTimeToString(formattedDateTime, 'n', IncSecond(myDate, -(4*time_offset_devic
 time_offset:=time_offset+StrToInt(formattedDateTime);
 time_offset:=144-(time_offset Div 10); //113
 
-if (RS232.Active = false) then
 begin
-  DevPresent:=false;
-//  About_f.About.Edit2.Color := clWhite;
+//  DevPresent:=false;
 
-  RS232.Properties.PortNum  := comport_number;
   RS232.Open;
   RS232.StartListner;
-  for ix := 0 to 8640 do begin
+  CloseTimer.Enabled:=false;
+  CloseTimer.Interval:=1500;
+  CloseTimer.Enabled:=true;
+
+  for ix := 0 to max_address do begin
     doze_massive[ix]:=0;
     max_fon_massive[ix]:=0;
     doze_massive_ready[ix]:=false;
@@ -1194,7 +1196,7 @@ begin
   end
   else
     Unit1.Form1.Close;
-    Fix_error_now:=false;
+//    Fix_error_now:=false;
   end;
 end;
 // =============================================================================
@@ -1278,7 +1280,7 @@ begin
         '"', 'Max_Fon'  , '";',
         '"', 'Units'    , '"');
 
-    for ix := 0 to 8640 do begin
+    for ix := 0 to max_address do begin
      if doze_massive[ix]>0 then begin
        DateTimeToString(formattedDateTime, 'c', IncMinute(IncSecond(myDate, -(4*time_offset_device)), -(10*ix)));
        if(mainfrm.units.Checked = true) then
@@ -1406,7 +1408,7 @@ if(USB_massive_loading = false) then begin
       if (date_sent_flag=false) then
         bytes_to_send:=bytes_to_send+7;
 
-      bytes_to_send:=bytes_to_send+1; // + запрос текущего фона
+      bytes_to_send:=bytes_to_send+3; // + запрос текущего фона, версии железа и прошивки
 
       SetLength(vAns, bytes_to_send);
 
@@ -1444,6 +1446,9 @@ if(USB_massive_loading = false) then begin
       end;
 
       vAns[i]:=$d4; i:=i+1; // считать текущие данные
+
+      vAns[i]:=$e5; i:=i+1; // считать дату прошивки
+      vAns[i]:=$e6; i:=i+1; // считать дату прошивки
 
       if Length(vAns) > 0 then RS232.Send(vAns);
 
@@ -1531,8 +1536,8 @@ if(usb_send_try < 10) then
    begin
     SetLength(vAns, 1);
     usb_send_try:=usb_send_try+1;
-    if(Fix_error_now = false) then
-      Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
+//    if(Fix_error_now = false) then
+//      Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
     if(doze_loading_flag = true) then
       vAns[0]:=$32;
     if(maxfon_loading_flag=true) then
@@ -1549,7 +1554,7 @@ if(usb_send_try < 10) then
     RS232.StopListner;
     RS232.Close;
     Unit1.Form1.Close;
-    Fix_error_now:=false;
+//    Fix_error_now:=false;
     //Load_stat_btn.Caption:='Ошибка чтения';
     USB_massive_loading:=false;
     doze_loading_flag:=false;
@@ -1849,14 +1854,42 @@ end;
 
 
 //-----------------------------------------------------------------------------------
+if (fBuf[0] = $e5) then begin // Дата прошивки
+
+  firmware_date:=Char(Ord(fBuf[1]))+
+                 Char(Ord(fBuf[2]))+
+                 ' '+
+                 Char(Ord(fBuf[3]))+
+                 Char(Ord(fBuf[4]))+
+                 Char(Ord(fBuf[5]))+
+                 ' 201'+
+                 Char(Ord(fBuf[6]));
+HW_Label.Caption:='Ultra-Micron HW:'+hardware_version+'  FW:'+firmware_date;
+end;
+
+
+//-----------------------------------------------------------------------------------
+if (fBuf[0] = $e6) then begin // Версия железа
+
+  hardware_version:=Char(Ord(fBuf[1]))+
+                    Char(Ord(fBuf[2]))+
+                    Char(Ord(fBuf[3]))+
+                    Char(Ord(fBuf[4]))+
+                    Char(Ord(fBuf[5]));
+HW_Label.Caption:='Ultra-Micron HW:'+hardware_version+'  FW:'+firmware_date;
+end;
+
+
+//-----------------------------------------------------------------------------------
 if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива максимального фона
 
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
 
-  if(Length(Unit1.Form1.max_fon.Caption)<4) then Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
+//  if(Length(Unit1.Form1.max_fon.Caption)<4) then
+    Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 86)+'%';
 
-  if (address < 8640) then begin
+  if (address < max_address) then begin
 
     if (fBuf[0] = $f1) then begin
       massive_element:=                 fBuf[3] shl 24;
@@ -1909,16 +1942,16 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
   massive_element:=massive_element+ fBuf[6];
 
 
-  if (address < 8640) then
+  if (address < max_address) then
   begin
-    if Fix_error_now=false then
-    begin
+//    if Fix_error_now=false then
+//    begin
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 86)+'%';
-    end else
-    begin
-      if(doze_massive_ready[address]=false) then
-        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
-    end;
+//    end else
+//    begin
+//      if(doze_massive_ready[address]=false) then
+//        Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
+//    end;
     doze_massive[address]:=massive_element;
     doze_massive_ready[address]:=true;
 
@@ -1949,7 +1982,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     Timer2.Enabled:=true;
 
     Unit1.Form1.errors.Caption:='0';
-    for iy := 0 to 8640-1 do begin
+    for iy := 0 to max_address-1 do begin
       if(max_fon_massive_ready[iy]=false) then
         Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
       if(doze_massive_ready[iy]=false)    then
@@ -1978,7 +2011,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
         AIdHTTP.HandleRedirects := true;
         try
           // добавляем нужные параметры
-          for ix := 0 to 8640 do begin
+          for ix := 0 to max_address do begin
             if doze_massive[ix]>0 then
               data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
           end;
@@ -2004,7 +2037,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
 
       maxfon_loading_flag:=false;
       doze_loading_flag:=false;
-      Fix_error_now:=false;
+//      Fix_error_now:=false;
     end
     else
     begin

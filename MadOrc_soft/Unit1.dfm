@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = []
   BorderStyle = bsToolWindow
   Caption = #1055#1077#1088#1077#1076#1072#1095#1072' '#1076#1072#1085#1085#1099#1093
-  ClientHeight = 159
-  ClientWidth = 586
+  ClientHeight = 118
+  ClientWidth = 568
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object Form1: TForm1
   TextHeight = 13
   object Label1: TLabel
     Left = 32
-    Top = 50
+    Top = 8
     Width = 386
     Height = 25
     Alignment = taRightJustify
@@ -32,7 +32,7 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 133
-    Top = 81
+    Top = 39
     Width = 285
     Height = 25
     Alignment = taRightJustify
@@ -46,7 +46,7 @@ object Form1: TForm1
   end
   object Label4: TLabel
     Left = 168
-    Top = 112
+    Top = 70
     Width = 250
     Height = 25
     Alignment = taRightJustify
@@ -60,7 +60,7 @@ object Form1: TForm1
   end
   object max_fon: TLabel
     Left = 460
-    Top = 50
+    Top = 8
     Width = 32
     Height = 25
     Alignment = taRightJustify
@@ -74,7 +74,7 @@ object Form1: TForm1
   end
   object impulses: TLabel
     Left = 460
-    Top = 81
+    Top = 39
     Width = 32
     Height = 25
     Alignment = taRightJustify
@@ -88,8 +88,8 @@ object Form1: TForm1
   end
   object Loading: TLabel
     Left = 436
-    Top = 112
-    Width = 101
+    Top = 70
+    Width = 7
     Height = 25
     BiDiMode = bdLeftToRight
     Font.Charset = DEFAULT_CHARSET
@@ -102,26 +102,13 @@ object Form1: TForm1
   end
   object errors: TLabel
     Left = 16
-    Top = 128
+    Top = 86
     Width = 10
     Height = 23
     Caption = '0'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
     Font.Height = -19
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label5: TLabel
-    Left = 8
-    Top = 8
-    Width = 570
-    Height = 28
-    Caption = #1053#1077' '#1086#1090#1082#1083#1102#1095#1072#1081#1090#1077' '#1091#1089#1090#1088#1086#1081#1089#1090#1074#1086' '#1080' '#1085#1077' '#1087#1088#1077#1088#1099#1074#1072#1081#1090#1077' '#1087#1088#1086#1094#1077#1089#1089'!'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clRed
-    Font.Height = -23
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False

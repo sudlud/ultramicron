@@ -37280,6 +37280,21 @@ object mainFrm: TmainFrm
       Font.Style = [fsBold]
       ParentFont = False
     end
+    object HW_Label: TLabel
+      Left = 5
+      Top = 127
+      Width = 19
+      Height = 13
+      Caption = 'HW'
+      Color = clScrollBar
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clActiveBorder
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+    end
     object Button1: TButton
       Left = 281
       Top = 112
@@ -38147,7 +38162,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C00C80110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00D40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

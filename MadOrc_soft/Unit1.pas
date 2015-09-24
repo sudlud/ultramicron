@@ -15,7 +15,6 @@ type
     impulses: TLabel;
     Loading: TLabel;
     errors: TLabel;
-    Label5: TLabel;
   private
     { Private declarations }
   public

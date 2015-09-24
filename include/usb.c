@@ -190,10 +190,10 @@ void time_loading(uint32_t current_rcvd_pointer)
 		RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
 		if(
-				(RTC_TimeStructure.RTC_Hours            != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) |
-				(RTC_TimeStructure.RTC_Minutes          != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) |
+				( RTC_TimeStructure.RTC_Hours           != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) |
+				( RTC_TimeStructure.RTC_Minutes         != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) |
 		  	((RTC_TimeStructure.RTC_Seconds & 0xf8) != (Receive_Buffer[current_rcvd_pointer+6] & 0xf8)) )
-		{ // Если время не совпадает, устанавливаем новое (маска +-4 секунды)
+		{ // Если время не совпадает, устанавливаем новое (маска +-8 секунд)
 			RTC_TimeStructInit(&RTC_TimeStructure);
 
 			RTC_TimeStructure.RTC_Hours   = Receive_Buffer[current_rcvd_pointer+4] & 0xff;

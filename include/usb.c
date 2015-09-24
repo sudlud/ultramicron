@@ -1,6 +1,6 @@
 #include "usb.h"
 #include "main.h"
-#include "delay.h"
+//#include "delay.h"
 #include "hw_config.h"
 #include "usb_lib.h"
 #include "usb_desc.h"
@@ -175,29 +175,59 @@ void time_loading(uint32_t current_rcvd_pointer)
 {
 	RTC_TimeTypeDef RTC_TimeStructure;
 	RTC_DateTypeDef RTC_DateStructure;
-	uint8_t i;
+	FunctionalState need_update_wakeup=DISABLE;
+	
 
 	if (licensed==ENABLE)
 	{
-		RTC_DateStructInit(&RTC_DateStructure);
+
+		//-----------------------------------------------------------------------------------------
+
+		
+    // Проверка и установка времени
+		//-----------------------------------------------------------------------------------------
 		RTC_TimeStructInit(&RTC_TimeStructure);
+		RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
-		RTC_TimeStructure.RTC_Hours = Receive_Buffer[current_rcvd_pointer+4] & 0xff;
-		RTC_TimeStructure.RTC_Minutes = Receive_Buffer[current_rcvd_pointer+5] & 0xff;
-		RTC_TimeStructure.RTC_Seconds = Receive_Buffer[current_rcvd_pointer+6] & 0xff;
-		RTC_DateStructure.RTC_Date = Receive_Buffer[current_rcvd_pointer+3] & 0xff;
-		RTC_DateStructure.RTC_Month = Receive_Buffer[current_rcvd_pointer+2] & 0xff;
-		RTC_DateStructure.RTC_Year = Receive_Buffer[current_rcvd_pointer+1] & 0xff;
+		if(
+				(RTC_TimeStructure.RTC_Hours            != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) |
+				(RTC_TimeStructure.RTC_Minutes          != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) |
+		  	((RTC_TimeStructure.RTC_Seconds & 0xf8) != (Receive_Buffer[current_rcvd_pointer+6] & 0xf8)) )
+		{ // Если время не совпадает, устанавливаем новое (маска +-4 секунды)
+			RTC_TimeStructInit(&RTC_TimeStructure);
 
-		for (i=0;i<20;i++)
-		{
-			if(RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure) == SUCCESS)break;
+			RTC_TimeStructure.RTC_Hours   = Receive_Buffer[current_rcvd_pointer+4] & 0xff;
+			RTC_TimeStructure.RTC_Minutes = Receive_Buffer[current_rcvd_pointer+5] & 0xff;
+			RTC_TimeStructure.RTC_Seconds = Receive_Buffer[current_rcvd_pointer+6] & 0xff;
+
+			need_update_wakeup=ENABLE;
+			RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure);
 		}
-		for (i=0;i<20;i++)
-		{
-			if(RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure) == SUCCESS)break;
+		//-----------------------------------------------------------------------------------------
+
+
+    // Проверка и установка даты
+		//-----------------------------------------------------------------------------------------
+		RTC_DateStructInit(&RTC_DateStructure);
+		RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
+
+		if(
+				(RTC_DateStructure.RTC_Date  != (Receive_Buffer[current_rcvd_pointer+3] & 0xff)) |
+				(RTC_DateStructure.RTC_Month != (Receive_Buffer[current_rcvd_pointer+2] & 0xff)) |
+				(RTC_DateStructure.RTC_Year  != (Receive_Buffer[current_rcvd_pointer+1] & 0xff)) )
+		{ // Если дата не совпадает, устанавливаем новую
+			RTC_DateStructInit(&RTC_DateStructure);
+
+			RTC_DateStructure.RTC_Date  = Receive_Buffer[current_rcvd_pointer+3] & 0xff;
+			RTC_DateStructure.RTC_Month = Receive_Buffer[current_rcvd_pointer+2] & 0xff;
+			RTC_DateStructure.RTC_Year  = Receive_Buffer[current_rcvd_pointer+1] & 0xff;
+
+			need_update_wakeup=ENABLE;
+			RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure);
 		}
-		Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+		//-----------------------------------------------------------------------------------------
+		
+		if(need_update_wakeup==ENABLE)Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 	}
 }
 
@@ -291,7 +321,7 @@ void USB_work()
 							current_rcvd_pointer++;
 							break;
 
-					case 0xE4: 								// Загрузка времкни (RCV 7 байт)
+					case 0xE4: 								// Загрузка времени (RCV 7 байт)
 							time_loading(current_rcvd_pointer);
 							current_rcvd_pointer+=7;
 							break;
@@ -313,7 +343,7 @@ void USB_work()
 				if(Send_length>0)	// Если пакет на передачу сформитован
 				{
 					wait_count=0;
-					while((packet_sent != 1) && (wait_count<15000))wait_count++; // Проверяем передан ли прошлый пакет
+					while((packet_sent != 1) && (wait_count<1500))wait_count++; // Проверяем передан ли прошлый пакет
 
 					CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
 					Send_length=0;
@@ -330,7 +360,7 @@ void USB_work()
 	{
 
 		wait_count=0;
-		while((packet_sent != 1) && (wait_count<15000))wait_count++; // Проверяем передан ли прошлый пакет
+		while((packet_sent != 1) && (wait_count<1500))wait_count++; // Проверяем передан ли прошлый пакет
 
 		#ifndef version_401 
 		Settings.USB=0;

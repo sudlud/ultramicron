@@ -215,11 +215,8 @@ var
   geiger_seconds_count: uint32 = 1;
   address: UInt32 = 0;
   address_last: UInt32 = 0;
-  doze_loading_flag:  boolean = false;
-  maxfon_loading_flag:  boolean = false;
   lang_settings:  boolean = false;
   usb_send_try: UInt32 = 0;
-//  Fix_error_now: boolean = false;
   time_offset:uint32;
   myDate : TDateTime;
   formattedDateTime : string;
@@ -312,9 +309,6 @@ begin
 
   if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
 
-//  SetLength(vAns, 1);
-//  if(doze_loading_flag = true) then vAns[0]:=$32;
-//  if(maxfon_loading_flag=true) then vAns[0]:=$31;
 
 end;
 // =============================================================================
@@ -1142,8 +1136,6 @@ end;
 Timer3.Enabled:=false;
 Timer3.Interval:=3000;
 Timer3.Enabled:=true;
-doze_loading_flag:= false;
-maxfon_loading_flag:=false;
 address_last:=max_address;
 
 ComboBox1.Items.Clear;
@@ -1181,14 +1173,15 @@ begin
   begin
    DevPresent:=true;
 
-   SetLength(vAns, 5);
+   SetLength(vAns, 7);
    vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
    vAns[1]:=$d5; // считать смещение времени
    vAns[2]:=$33; // считать настройки
    vAns[3]:=$39; // выполнить сброс счетчиков дозиметра
    vAns[4]:=$31; // начать загрузку массива
+   vAns[5]:=$32; // начать загрузку массива
+   vAns[6]:=$39; // выполнить сброс счетчиков дозиметра
 
-   maxfon_loading_flag:=true;
    USB_massive_loading:=true;
 
    if Length(vAns) > 0 then RS232.Send(vAns);
@@ -1536,12 +1529,6 @@ if(usb_send_try < 10) then
    begin
     SetLength(vAns, 1);
     usb_send_try:=usb_send_try+1;
-//    if(Fix_error_now = false) then
-//      Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
-    if(doze_loading_flag = true) then
-      vAns[0]:=$32;
-    if(maxfon_loading_flag=true) then
-      vAns[0]:=$31;
     if Length(vAns) > 0 then RS232.Send(vAns);
    end
    else address_last:=address;
@@ -1554,11 +1541,7 @@ if(usb_send_try < 10) then
     RS232.StopListner;
     RS232.Close;
     Unit1.Form1.Close;
-//    Fix_error_now:=false;
-    //Load_stat_btn.Caption:='Ошибка чтения';
     USB_massive_loading:=false;
-    doze_loading_flag:=false;
-    maxfon_loading_flag:=false;
 
   end;
 end;
@@ -1915,16 +1898,8 @@ if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива
 
   end else begin
 
-    maxfon_loading_flag:=false;
-    doze_loading_flag:=true;
-
-    used_len:=Length(aData)-1;
-
     Unit1.Form1.Refresh;
 
-    SetLength(vAns, 2);
-    vAns[0]:=$39;
-    vAns[1]:=$32;
 
   end;
 end;
@@ -1968,9 +1943,6 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     end;
 
 
- //   SetLength(vAns, 1);
-//    vAns[0]:=$32;
-    doze_loading_flag:=true;
   end
   else
   begin
@@ -2033,17 +2005,6 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
 
       Draw_massive();
       Unit1.Form1.Close;
-
-
-      maxfon_loading_flag:=false;
-      doze_loading_flag:=false;
-//      Fix_error_now:=false;
-    end
-    else
-    begin
-//      Fix_error_now:=true;
-//      SetLength(vAns, 1);
-//      vAns[0]:=$31;
     end;
   end;
 

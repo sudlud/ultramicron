@@ -1,6 +1,6 @@
 #include "usb.h"
 #include "main.h"
-//#include "delay.h"
+#include "ext2760.h"
 #include "hw_config.h"
 #include "usb_lib.h"
 #include "usb_desc.h"
@@ -190,10 +190,16 @@ void time_loading(uint32_t current_rcvd_pointer)
 		RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
 		if(
-				( RTC_TimeStructure.RTC_Hours           != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) |
-				( RTC_TimeStructure.RTC_Minutes         != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) |
-		  	((RTC_TimeStructure.RTC_Seconds & 0xf8) != (Receive_Buffer[current_rcvd_pointer+6] & 0xf8)) )
-		{ // Если время не совпадает, устанавливаем новое (маска +-8 секунд)
+				( RTC_TimeStructure.RTC_Hours           != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) ||
+				( RTC_TimeStructure.RTC_Minutes         != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) ||
+		  	(
+		      !(
+		        ((RTC_TimeStructure.RTC_Seconds+1) >= Receive_Buffer[current_rcvd_pointer+6]) &&
+    		    ((RTC_TimeStructure.RTC_Seconds-1) <= Receive_Buffer[current_rcvd_pointer+6])
+		       )
+				)
+		  )
+		{ // Если время не совпадает, устанавливаем новое (+-1 секунда)
 			RTC_TimeStructInit(&RTC_TimeStructure);
 
 			RTC_TimeStructure.RTC_Hours   = Receive_Buffer[current_rcvd_pointer+4] & 0xff;
@@ -201,6 +207,10 @@ void time_loading(uint32_t current_rcvd_pointer)
 			RTC_TimeStructure.RTC_Seconds = Receive_Buffer[current_rcvd_pointer+6] & 0xff;
 
 			need_update_wakeup=ENABLE;
+
+			RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+	    RTC_ClearFlag(RTC_FLAG_ALRAF);
+
 			RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure);
 		}
 		//-----------------------------------------------------------------------------------------
@@ -212,8 +222,8 @@ void time_loading(uint32_t current_rcvd_pointer)
 		RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
 
 		if(
-				(RTC_DateStructure.RTC_Date  != (Receive_Buffer[current_rcvd_pointer+3] & 0xff)) |
-				(RTC_DateStructure.RTC_Month != (Receive_Buffer[current_rcvd_pointer+2] & 0xff)) |
+				(RTC_DateStructure.RTC_Date  != (Receive_Buffer[current_rcvd_pointer+3] & 0xff)) ||
+				(RTC_DateStructure.RTC_Month != (Receive_Buffer[current_rcvd_pointer+2] & 0xff)) ||
 				(RTC_DateStructure.RTC_Year  != (Receive_Buffer[current_rcvd_pointer+1] & 0xff)) )
 		{ // Если дата не совпадает, устанавливаем новую
 			RTC_DateStructInit(&RTC_DateStructure);
@@ -223,28 +233,27 @@ void time_loading(uint32_t current_rcvd_pointer)
 			RTC_DateStructure.RTC_Year  = Receive_Buffer[current_rcvd_pointer+1] & 0xff;
 
 			need_update_wakeup=ENABLE;
+
+			RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+	    RTC_ClearFlag(RTC_FLAG_ALRAF);
+
 			RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure);
 		}
 		//-----------------------------------------------------------------------------------------
 		
-		if(need_update_wakeup==ENABLE)Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+		if(need_update_wakeup==ENABLE)
+		{
+			RTC_WaitForSynchro();
+			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+			LcdClear_massive();
+			LcdUpdate();
+		}
 	}
 }
 
+
+//-----------------------------------------------------------------------------------------
 #pragma O0
-void USB_on()
-{
-//---------------------------------------------Включение USB------------------------------------
-	set_pll_for_usb();
-	Set_System();
-  Set_USBClock();
-  USB_Interrupts_Config();
-  USB_Init();
-  SYSCFG->PMC |= (uint32_t) SYSCFG_PMC_USB_PU; // Connect internal pull-up on USB DP line
-	Power.USB_active=ENABLE;
-}
-
-
 void USB_work()
 {
 	uint32_t wait_count;
@@ -292,6 +301,37 @@ void USB_work()
 							USB_send_serial_data(2);
 							current_rcvd_pointer++;
 							break;
+					case 0xE5: 								// Отправка даты прошивки (RCV 1 байт)
+							if(licensed==ENABLE)
+							{
+								Send_Buffer[0]=0xE5;                                  // передать ключ
+								Send_Buffer[1]=__DATE__[4];  // день
+								Send_Buffer[2]=__DATE__[5];  // день
+								Send_Buffer[3]=__DATE__[0];  // месяц
+								Send_Buffer[4]=__DATE__[1];  // месяц
+								Send_Buffer[5]=__DATE__[2];  // месяц
+								Send_Buffer[6]=__DATE__[10]; // год
+
+								Send_length=7;
+							}
+							current_rcvd_pointer++;
+							break;
+							
+					case 0xE6: 								// Отправка версии железа (RCV 1 байт)
+							if(licensed==ENABLE)
+							{
+								Send_Buffer[0]=0xE6;                                  // передать ключ
+								Send_Buffer[1]=HW_REVISION[0];
+								Send_Buffer[2]=HW_REVISION[1];
+								Send_Buffer[3]=HW_REVISION[2];
+								Send_Buffer[4]=HW_REVISION[3];
+								Send_Buffer[5]=HW_REVISION[4];
+								Send_Buffer[6]=0x00;
+
+								Send_length=7;
+							}
+							current_rcvd_pointer++;
+							break;
 							
 					case 0xD5: 								// Отправка метки смещения времени (RCV 1 байт)
 							if(licensed==ENABLE)USB_send_time_offset_data();
@@ -322,17 +362,27 @@ void USB_work()
 							break;
 
 					case 0xE4: 								// Загрузка времени (RCV 7 байт)
-							time_loading(current_rcvd_pointer);
-							current_rcvd_pointer+=7;
+							if((current_rcvd_pointer+7)<=Receive_length) // Проверка длинны принятого участка
+							{
+								time_loading(current_rcvd_pointer);
+								current_rcvd_pointer+=7;
+							} else {
+								current_rcvd_pointer=Receive_length; // Принято меньше чем должно быть, завершаем цикл
+							}
 							break;
 
 					case 0xE3: 								// Ключ разблокировки (RCV 5 байт)
-							eeprom_write(unlock_0_address, Receive_Buffer[current_rcvd_pointer+1]);
-							eeprom_write(unlock_1_address, Receive_Buffer[current_rcvd_pointer+2]);
-							eeprom_write(unlock_2_address, Receive_Buffer[current_rcvd_pointer+3]);
-							eeprom_write(unlock_3_address, Receive_Buffer[current_rcvd_pointer+4]);
-							current_rcvd_pointer+=5;
-							licensed=check_license(); // проверка лицензии
+							if((current_rcvd_pointer+5)<=Receive_length) // Проверка длинны принятого участка
+							{
+								eeprom_write(unlock_0_address, Receive_Buffer[current_rcvd_pointer+1]);
+								eeprom_write(unlock_1_address, Receive_Buffer[current_rcvd_pointer+2]);
+								eeprom_write(unlock_2_address, Receive_Buffer[current_rcvd_pointer+3]);
+								eeprom_write(unlock_3_address, Receive_Buffer[current_rcvd_pointer+4]);
+								current_rcvd_pointer+=5;
+								licensed=check_license(); // проверка лицензии
+							} else {
+								current_rcvd_pointer=Receive_length; // Принято меньше чем должно быть, завершаем цикл
+							}
 							break;
 
 					default: 
@@ -394,7 +444,7 @@ void USB_send_settings_data()
 }
 
 
-
+#pragma O0
 void USB_off()
 {
 //---------------------------------------------Отключение USB------------------------------------
@@ -402,6 +452,8 @@ void USB_off()
 	PowerOff();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
 	set_msi();
+
+	SystemCoreClockUpdate();
 
 	// Приводим в порядок систему тактирования (заплатка)
 	sleep_mode(ENABLE);
@@ -414,3 +466,16 @@ void USB_off()
 }
 
 
+#pragma O0
+void USB_on()
+{
+//---------------------------------------------Включение USB------------------------------------
+	set_pll_for_usb();
+	Set_System();
+	SystemCoreClockUpdate();
+  Set_USBClock();
+  USB_Interrupts_Config();
+  USB_Init();
+  SYSCFG->PMC |= (uint32_t) SYSCFG_PMC_USB_PU; // Connect internal pull-up on USB DP line
+	Power.USB_active=ENABLE;
+}

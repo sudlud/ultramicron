@@ -183,6 +183,7 @@ void minus_500(uint32_t *param) // -500
 // перезагрузка и выключение
 void plus_reboot(uint32_t *param) // перезагрузка
 {
+	if(licensed  && Power.USB_active)USB_off();
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_REBOOTPR); // Пишем в буфер значение счетчика
 	LcdString(1,5); // // Выводим обычным текстом содержание буфера
@@ -206,7 +207,7 @@ void minus_poweroff(uint32_t *param) // выключение
 {
   NVIC_InitTypeDef NVIC_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
-
+	if(licensed  && Power.USB_active)USB_off(); 		
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_POWEROFF); // Пишем в буфер значение счетчика
 	LcdString(1,5); // // Выводим обычным текстом содержание буфера

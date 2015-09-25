@@ -167,7 +167,7 @@ void check_wakeup_keys()
 
 	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
 	{
-		sound_activate();
+		if(Settings.Sound == 1 | Settings.Sound == 2)sound_activate();
     Power.sleep_time=Settings.Sleep_time;
 		Power.led_sleep_time=Settings.Sleep_time-3;
 	}
@@ -245,7 +245,7 @@ void EXTI9_5_IRQHandler(void)
 					Pump_now(ENABLE);
 				} else last_count_pump_on_impulse++;
 			}
-			if(Settings.Sound && !(Alarm.Alarm_active && !Alarm.User_cancel))
+			if(Settings.Sound == 1 && !(Alarm.Alarm_active && !Alarm.User_cancel))
 			{
 				if(Power.Display_active)
 				{

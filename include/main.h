@@ -13,6 +13,19 @@
 	#define debug // отладка
 #endif
 
+#ifdef version_401
+	#define HW_REVISION  "4.02+"
+#endif
+
+#ifdef version_300
+	#define HW_REVISION  "3.00+"
+#endif
+
+#ifdef version_204
+	#define HW_REVISION  "2.04 "
+#endif
+
+
 typedef struct
 {
   FunctionalState Need_batt_voltage_update;    // Необходимо обновить данные по напряжению батарейки

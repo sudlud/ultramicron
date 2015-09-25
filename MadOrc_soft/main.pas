@@ -1139,19 +1139,10 @@ Timer3.Enabled:=true;
 address_last:=max_address;
 
 ComboBox1.Items.Clear;
-for ibx := 0 to 60 do
+for ibx := 0 to 59 do
 begin
 Combobox1.AddItem(DateToStr(Date-ibx), nil);
 end;
-
-Combobox1.ItemIndex := 0;
-
-
-DateTimeToString(formattedDateTime, 'h', IncSecond(myDate, -(4*time_offset_device)));
-time_offset:=StrToInt(formattedDateTime)*60;
-DateTimeToString(formattedDateTime, 'n', IncSecond(myDate, -(4*time_offset_device)));
-time_offset:=time_offset+StrToInt(formattedDateTime);
-time_offset:=144-(time_offset Div 10); //113
 
 begin
 //  DevPresent:=false;
@@ -1173,18 +1164,15 @@ begin
   begin
    DevPresent:=true;
 
-   SetLength(vAns, 7);
-   vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
-   vAns[1]:=$d5; // считать смещение времени
-   vAns[2]:=$33; // считать настройки
-   vAns[3]:=$39; // выполнить сброс счетчиков дозиметра
-   vAns[4]:=$31; // начать загрузку массива
-   vAns[5]:=$32; // начать загрузку массива
-   vAns[6]:=$39; // выполнить сброс счетчиков дозиметра
+   SetLength(vAns, 5);
+   vAns[0]:=$d5; // считать смещение времени
+   vAns[1]:=$33; // считать настройки
+   vAns[2]:=$39; // выполнить сброс счетчиков дозиметра
+   vAns[3]:=$31; // начать загрузку массива
+   vAns[4]:=$32; // начать загрузку массива
+   RS232.Send(vAns);
 
    USB_massive_loading:=true;
-
-   if Length(vAns) > 0 then RS232.Send(vAns);
 
   end
   else
@@ -1952,6 +1940,14 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
 
     Timer3.Enabled:=false;
     Timer2.Enabled:=true;
+
+    Combobox1.ItemIndex := 0;
+//    showmessage(IntToStr(time_offset_device));
+    DateTimeToString(formattedDateTime, 'h', IncSecond(myDate, -(4*time_offset_device)));
+    time_offset:=StrToInt(formattedDateTime)*60;
+    DateTimeToString(formattedDateTime, 'n', IncSecond(myDate, -(4*time_offset_device)));
+    time_offset:=time_offset+StrToInt(formattedDateTime);
+    time_offset:=144-(time_offset Div 10); //113
 
     Unit1.Form1.errors.Caption:='0';
     for iy := 0 to max_address-1 do begin

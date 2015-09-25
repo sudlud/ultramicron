@@ -399,6 +399,7 @@ void USB_work()
 					Send_length=0;
 				}
 			}
+			Receive_length=0;
 		}
 	}
 	

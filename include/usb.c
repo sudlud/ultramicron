@@ -170,7 +170,6 @@ void USB_send_madorc_data()
 	Send_length=7;
 }
 // =========================================================================================
-#pragma O0
 void time_loading(uint32_t current_rcvd_pointer)
 {
 	RTC_TimeTypeDef RTC_TimeStructure;
@@ -253,7 +252,6 @@ void time_loading(uint32_t current_rcvd_pointer)
 
 
 //-----------------------------------------------------------------------------------------
-#pragma O0
 void USB_work()
 {
 	uint32_t wait_count;
@@ -445,7 +443,6 @@ void USB_send_settings_data()
 }
 
 
-#pragma O0
 void USB_off()
 {
 //---------------------------------------------Отключение USB------------------------------------
@@ -467,7 +464,6 @@ void USB_off()
 }
 
 
-#pragma O0
 void USB_on()
 {
 //---------------------------------------------Включение USB------------------------------------

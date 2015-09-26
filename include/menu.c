@@ -74,19 +74,20 @@ void main_screen()
 		Doze_week_count=0;
 		Doze_month_count=0;
 		Doze_hour_count=0;		
+		Doze_2month_count=0;
 		
 		for(i=doze_length_2month;i>0;i--)		
 		{
 			if(i<doze_length_hour ) Doze_hour_count+= flash_read_massive(i,dose_select);    // расчет недельной дозы
 			if(i<doze_length_day  ) Doze_day_count+=  flash_read_massive(i,dose_select);// расчет дневной дозы
-			if(i<doze_length_month) Doze_month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
 			if(i<doze_length_week ){Doze_week_count+= flash_read_massive(i,dose_select);// расчет недельной дозы
 															x=flash_read_massive(i,max_fon_select);
 															if(x>Max_fon)Max_fon=x;                      // расчет максимального фона
 														 }
 			if(licensed==ENABLE)
 			{
-				if(i<doze_length_2month) Doze_2month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
+				if(i<doze_length_month) Doze_month_count+= flash_read_massive(i,dose_select);// расчет месячной дозы
+				if(i<doze_length_2month)Doze_2month_count+=flash_read_massive(i,dose_select);// расчет месячной дозы
 			}
 		}
 	}

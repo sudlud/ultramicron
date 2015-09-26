@@ -38050,6 +38050,10 @@ object mainFrm: TmainFrm
         Caption = 'COM5'
         OnClick = COM51Click
       end
+      object Auto1: TMenuItem
+        Caption = 'AUTO'
+        OnClick = Auto1Click
+      end
     end
     object AutoStartupBtn: TMenuItem
       AutoCheck = True
@@ -38162,7 +38166,7 @@ object mainFrm: TmainFrm
     Left = 104
     Top = 392
     Bitmap = {
-      494C010105008C00D80110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00E00110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38498,5 +38502,11 @@ object mainFrm: TmainFrm
     OnTimer = small_graph_timerTimer
     Left = 40
     Top = 303
+  end
+  object Com_detect: TTimer
+    Interval = 500
+    OnTimer = Com_detectTimer
+    Left = 32
+    Top = 359
   end
 end

@@ -61,6 +61,11 @@ FunctionalState hidden_menu=DISABLE;
 FunctionalState Pump_on_alarm=DISABLE;
 FunctionalState licensed=DISABLE;
 
+uint32_t unlock_0_serial=0;
+uint32_t unlock_1_serial=0;
+uint32_t unlock_2_serial=0;
+uint32_t unlock_3_serial=0;
+
 uint32_t working_days=0;
 
 uint32_t madorc_impulse=0;
@@ -78,46 +83,67 @@ WakeupDef Wakeup;
 
 // лицухи
 //----------------------------------------------------------------
-#define lic_num 14
-const uint32_t license[lic_num] = {
-0x42C86A97, // Shodan handmade black 	0D473130 35383935 00490032
-0x43B26A93, // Shodan handmade black 	0E473130 35383935 0033002E
-0x44B26AAA, // Shodan handmade white 	0F473130 35383935 00330045
-0x43A86A98, // Shodan handmade white 	0E473130 35383935 00290033
-0x43A96A98, // Nusik1975             	0E473130 35383935 002A0033
-0x44C36A84, // Nusik1975 						 	0F473130 35383935 0044001F
-0x44AD6A8F, // Nusik1975 							0F473130 35383935 002E002A
-0x41F062A9, // Nusik1975 							18473034 29313236 0078003F
-0x47A06C84, // FullName 							13473330 34363934 00230020
-0x4AC46791, // FullName 							17473334 33353436 00480027	
-0x4AC46790, // FullName 							17473334 33353436 00480026
-0x4A9E67AC, // FullName 							17473334 33353436 00220042
-0x47A06C88, // FullName 							13473330 34363934 00230024
-0x42C06A9E  // Ivanjust              	0D473130 35383935 00410039
-};
-//----------------------------------------------------------------
-
 FunctionalState check_license(void)
 {
-	int i;
-	for (i=0;i<lic_num;i++)
+	#define lic_num 14
+	const uint32_t license[lic_num] = {
+																0x42C86A97, // Shodan handmade black 	0D473130 35383935 00490032
+																0x43B26A93, // Shodan handmade black 	0E473130 35383935 0033002E
+																0x44B26AAA, // Shodan handmade white 	0F473130 35383935 00330045
+																0x43A86A98, // Shodan handmade white 	0E473130 35383935 00290033
+																0x43A96A98, // Nusik1975             	0E473130 35383935 002A0033
+																0x44C36A84, // Nusik1975 						 	0F473130 35383935 0044001F
+																0x44AD6A8F, // Nusik1975 							0F473130 35383935 002E002A
+																0x41F062A9, // Nusik1975 							18473034 29313236 0078003F
+																0x47A06C84, // FullName 							13473330 34363934 00230020
+																0x4AC46791, // FullName 							17473334 33353436 00480027	
+																0x4AC46790, // FullName 							17473334 33353436 00480026
+																0x4A9E67AC, // FullName 							17473334 33353436 00220042
+																0x47A06C88, // FullName 							13473330 34363934 00230024
+																0x42C06A9E  // Ivanjust              	0D473130 35383935 00410039
+															 };
+
+	uint32_t i=0;
+	uint32_t CPU_serial=0;
+	uint32_t EEPROM_serial=0;
+	uint32_t tmp=0;
+	FunctionalState found=DISABLE;
+	
+	CPU_serial+=U_ID_0;
+	CPU_serial+=U_ID_1;
+	CPU_serial+=U_ID_2;
+	//CPU_serial&=0xffffffff;
+
+	tmp=Settings.serial0 & 0xff;
+	tmp=tmp<<24;
+	EEPROM_serial+=tmp;
+
+	tmp=Settings.serial1 & 0xff;
+	tmp=tmp<<16;
+	EEPROM_serial+=tmp;
+
+	tmp=Settings.serial2 & 0xff;
+	tmp=tmp<<8;
+	EEPROM_serial+=tmp;
+
+	tmp=Settings.serial3 & 0xff;
+	EEPROM_serial+=tmp;
+
+	//EEPROM_serial+=0x01;
+	
+	if (CPU_serial == EEPROM_serial)
 	{
-		if(((U_ID_0+U_ID_1+U_ID_2) & 0xffffffff) == license[i])
-		{
-			return ENABLE;
-		}
+		found=ENABLE;
+	} 
+	else
+	{
+		for (i=0;i<lic_num;i++) if( CPU_serial == license[i]) found=ENABLE;
 	}
 	
-	if(((U_ID_0+U_ID_1+U_ID_2) & 0xffffffff) 
-				== 
-			( eeprom_read(unlock_3_address)+
-			 (eeprom_read(unlock_2_address)<<8)+
-	     (eeprom_read(unlock_1_address)<<16)+
-	     (eeprom_read(unlock_0_address)<<24))
-	    ) return ENABLE;
-
-	return DISABLE;
-
+	return found;
+	
+//return ENABLE;
+//return DISABLE;
 }
 
 float convert_mkr_sv(uint32_t mkrn)

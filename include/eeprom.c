@@ -115,6 +115,10 @@ void eeprom_read_settings(void)
 	Settings.Geiger_voltage=				eeprom_read(Geiger_voltage_address);
 	Settings.v4_target_pump=				eeprom_read(v4_target_pump_address);
 	Settings.units=		          		eeprom_read(units_address);
+	Settings.serial0=	          		eeprom_read(unlock_0_address);
+	Settings.serial1=	          		eeprom_read(unlock_1_address);
+	Settings.serial2=	          		eeprom_read(unlock_2_address);
+	Settings.serial3=	          		eeprom_read(unlock_3_address);
 	Power.led_sleep_time=Settings.Sleep_time-3;
 }
 

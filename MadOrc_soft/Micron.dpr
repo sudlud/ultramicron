@@ -1,4 +1,5 @@
-program Geiger;
+
+program Micron;
 
 uses
   Forms,

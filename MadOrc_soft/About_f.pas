@@ -62,7 +62,7 @@ try
         mainFrm.CloseTimer.Enabled:=false;
         mainFrm.CloseTimer.interval:=100;
         mainFrm.CloseTimer.Enabled:=true;
-
+      end;
 
         if (mainFrm.RS232.Active)then
         begin
@@ -94,7 +94,7 @@ try
           showmessage('Error 491: Port blocked');
         end;
     end;
-    end;
+//    end;
 except
   on Exception : EConvertError do
     sleep(100);
@@ -102,7 +102,7 @@ except
 
   reg := TRegistry.Create;                               // Открываем реестр
   reg.RootKey := HKEY_CURRENT_USER;                      // Для текущего пользователя
-  reg.OpenKey('Software\USB_Geiger\USB_Geiger', true); // Открываем раздел
+  reg.OpenKey('Software\Micron\Ultra-Micron', true); // Открываем раздел
   reg.WriteString('Reg_key', Edit1.Text);
   reg.CloseKey;                                          // Закрываем раздел
   reg.Free;
@@ -117,7 +117,7 @@ begin
 
   reg := TRegistry.Create;                              // Открываем реестр
   reg.RootKey := HKEY_CURRENT_USER;
-  reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+  reg.OpenKey('Software\Micron\Ultra-Micron', true); // Открываем раздел
   Edit1.Text := reg.ReadString('Reg_key');
   reg.CloseKey;                                          // Закрываем раздел
 end;

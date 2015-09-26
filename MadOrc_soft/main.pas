@@ -78,6 +78,8 @@ type
     CloseTimer: TTimer;
     small_graph_timer: TTimer;
     HW_Label: TLabel;
+    Com_detect: TTimer;
+    Auto1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
@@ -126,6 +128,8 @@ type
 
     function Convert_to_usv(mkr: uint32): string;
     procedure small_graph_timerTimer(Sender: TObject);
+    procedure Com_detectTimer(Sender: TObject);
+    procedure Auto1Click(Sender: TObject);
 
      private
     fBuf: TiaBuf;
@@ -142,13 +146,14 @@ type
     RS232: TiaRS232;
     procedure RefreshRAD;
     procedure SaveReg;
-
+    function GetMyVersion:uint;
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
     procedure WMSysCommand(var Message:TMessage);        message WM_SYSCOMMAND;
 end;
 
 var
+  Need_build: string = '26 Sep 2015';
   mainFrm: TmainFrm;
   FeatureReportLen: integer = 0;
   DevPresent: boolean = false;
@@ -195,6 +200,7 @@ var
   d_day: ulong = 0;
   maxfon: ulong = 0;
   serial_active:  boolean = false;
+  comport_number_select: uint = 6;
   comport_number: uint = 1;
   USB_massive_loading: boolean = false;
   Licensed_state: boolean = false;
@@ -269,6 +275,27 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+function TmainFrm.GetMyVersion:uint;
+type
+  TVerInfo=packed record
+    Nevazhno: array[0..47] of byte; // ненужные нам 48 байт
+    Minor,Major,Build,Release: word; // а тут версия
+  end;
+var
+  s:TResourceStream;
+  v:TVerInfo;
+begin
+  result:=0;
+  try
+    s:=TResourceStream.Create(HInstance,'#1',RT_VERSION); // достаём ресурс
+    if s.Size>0 then begin
+      s.Read(v,SizeOf(v)); // читаем нужные нам байты
+      result:=v.Build;
+    end;
+  s.Free;
+  except; end;
+end;
 
 // =============================================================================
 procedure TmainFrm.Receive_current_data;
@@ -412,7 +439,7 @@ var
 begin
   reg := TRegistry.Create;                               // Открываем реестр
   reg.RootKey := HKEY_CURRENT_USER;                      // Для текущего пользователя
-  reg.OpenKey('Software\USB_Geiger\USB_Geiger', true); // Открываем раздел
+  reg.OpenKey('Software\Micron\Ultra-Micron', true); // Открываем раздел
   reg.WriteBool('autorun', AutoStartup);
   reg.WriteBool('alarmenable', AlarmEnable);
   reg.WriteBool('lang', lang_settings);
@@ -421,13 +448,13 @@ begin
   reg.WriteBool('units', mainfrm.units.Checked);
 
   reg.WriteInteger('alarmlevel', AlarmLevel);
-  reg.WriteInteger('comport',comport_number);
+  reg.WriteInteger('comport',comport_number_select);
   reg.CloseKey;                                          // Закрываем раздел
   reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', true);  // Открываем раздел
   if AutoStartup then
-    reg.WriteString('USB_Geiger', application.ExeName)       // Записываем
+    reg.WriteString('Micron', application.ExeName)       // Записываем
   else
-    reg.DeleteValue('USB_Geiger');                          // или удаляем информацию
+    reg.DeleteValue('Micron');                          // или удаляем информацию
   reg.CloseKey;                                          // Закрываем раздел
   reg.Free;
 end;
@@ -450,10 +477,9 @@ begin
     begin
 
 
-//  MyTray.Hint := 'USB Geiger: '+IntToStr(Fon)+' '+fon_units;
     if(mainfrm.units.Checked = true) then
-    begin MyTray.Hint := 'USB Geiger: '+Convert_to_usv(fon)+' '+fon_units;
-    end else  MyTray.Hint := 'USB Geiger: '+IntToStr(Fon)+' '+fon_units;
+    begin MyTray.Hint := 'Micron: '+Convert_to_usv(fon)+' '+fon_units;
+    end else  MyTray.Hint := 'Micron: '+IntToStr(Fon)+' '+fon_units;
 
       if ((count_validate >0) and blinker) then
       begin
@@ -646,7 +672,7 @@ var
   reg: TRegistry;
 begin
 
-
+mainFrm.Caption:='Micron build:'+IntToStr(GetMyVersion);
    Windows.EnableMenuItem( GetSystemMenu( Handle, false ), SC_CLOSE, MF_DISABLED or MF_GRAYED );
    GetSystemMenu( Handle, false );
    Perform( WM_NCPAINT, Handle, 0 );
@@ -667,7 +693,7 @@ begin
   MessTmr.Enabled := true;
   reg := TRegistry.Create;                              // Открываем реестр
   reg.RootKey := HKEY_CURRENT_USER;
-  if reg.OpenKey('Software\USB_Geiger\USB_Geiger', false) then
+  if reg.OpenKey('Software\Micron\Ultra-Micron', false) then
   begin
     try
       AutoStartup := reg.ReadBool('autorun');
@@ -680,9 +706,9 @@ begin
       lang_settings := false;
     end;
     try
-      comport_number := reg.ReadInteger('comport');
+      comport_number_select := reg.ReadInteger('comport');
     except
-      comport_number := 1;
+      comport_number_select := 6;
     end;
     try
       if (not reg.valueexists('units')) then
@@ -702,7 +728,7 @@ begin
       AlarmLevel := 40;
     end;
   end else begin    // если нет раздела -> прога еще не запускалась -> ставим на автозагрузку
-    reg.OpenKey('Software\USB_Geiger\USB_Geiger', true);
+    reg.OpenKey('Software\Micron\Ultra-Micron', true);
     AutoStartup := true;
     try
       reg.WriteBool('autorun', AutoStartup);
@@ -717,6 +743,10 @@ begin
     except
     end;
     try
+      reg.WriteBool('lang', false);
+    except
+    end;
+    try
       reg.WriteBool('alarmenable', AlarmEnable);
     except
     end;
@@ -727,7 +757,7 @@ begin
     reg.CloseKey;                                          // Закрываем раздел
     try
       reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', true); // Открываем раздел
-      reg.WriteString('USB_Geiger', application.ExeName)       // Записываем
+      reg.WriteString('Micron', application.ExeName)       // Записываем
     except
     end;
   end;
@@ -736,11 +766,13 @@ begin
   AutoStartupBtn.Checked := AutoStartup;
   RUSENG1.Checked := lang_settings;
   AlarmEnableBtn.Checked := AlarmEnable;
-  if(comport_number=1)then COM11.Checked := true;
-  if(comport_number=2)then COM21.Checked := true;
-  if(comport_number=3)then COM31.Checked := true;
-  if(comport_number=4)then COM41.Checked := true;
-  if(comport_number=5)then COM51.Checked := true;
+    if(comport_number_select=1)then COM11.Checked := true;
+    if(comport_number_select=2)then COM21.Checked := true;
+    if(comport_number_select=3)then COM31.Checked := true;
+    if(comport_number_select=4)then COM41.Checked := true;
+    if(comport_number_select=5)then COM51.Checked := true;
+    if(comport_number_select=6)then Auto1.Checked := true;
+
 
   if (lang_settings=false) then
   begin
@@ -825,13 +857,14 @@ end;
 // =============================================================================
 procedure TmainFrm.COM11Click(Sender: TObject);
 begin
-comport_number:=1;
+comport_number_select:=1;
 SaveReg;
 COM11.Checked := true;
 COM21.Checked := false;
 COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := false;
+Auto1.Checked := false;
 end;
 // =============================================================================
 
@@ -839,13 +872,14 @@ end;
 // =============================================================================
 procedure TmainFrm.COM21Click(Sender: TObject);
 begin
-comport_number:=2;
+comport_number_select:=2;
 SaveReg;
 COM11.Checked := false;
 COM21.Checked := true;
 COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := false;
+Auto1.Checked := false;
 end;
 // =============================================================================
 
@@ -853,13 +887,14 @@ end;
 // =============================================================================
 procedure TmainFrm.COM31Click(Sender: TObject);
 begin
-comport_number:=3;
+comport_number_select:=3;
 SaveReg;
 COM11.Checked := false;
 COM21.Checked := false;
 COM31.Checked := true;
 COM41.Checked := false;
 COM51.Checked := false;
+Auto1.Checked := false;
 end;
 // =============================================================================
 
@@ -867,13 +902,14 @@ end;
 // =============================================================================
 procedure TmainFrm.COM41Click(Sender: TObject);
 begin
-comport_number:=4;
+comport_number_select:=4;
 SaveReg;
 COM11.Checked := false;
 COM21.Checked := false;
 COM31.Checked := false;
 COM41.Checked := true;
 COM51.Checked := false;
+Auto1.Checked := false;
 end;
 // =============================================================================
 
@@ -881,13 +917,14 @@ end;
 // =============================================================================
 procedure TmainFrm.COM51Click(Sender: TObject);
 begin
-comport_number:=5;
+comport_number_select:=5;
 SaveReg;
 COM11.Checked := false;
 COM21.Checked := false;
 COM31.Checked := false;
 COM41.Checked := false;
 COM51.Checked := true;
+Auto1.Checked := false;
 end;
 // =============================================================================
 
@@ -897,6 +934,46 @@ procedure TmainFrm.ComboBox1Change(Sender: TObject);
 begin
   Draw_massive();
 end;
+
+
+procedure TmainFrm.Com_detectTimer(Sender: TObject);
+var
+reg : TRegistry;
+tstrSubKeys : TStringList;
+strParentKey: String;
+q:uint;
+ixi:uint;
+begin
+if (Auto1.Checked = true) then
+begin
+  reg := TRegistry.Create;                              // Открываем реестр
+  tstrSubKeys:= TStringList.Create;
+  reg.RootKey := HKEY_LOCAL_MACHINE;
+  if reg.OpenKey('HARDWARE\DEVICEMAP\SERIALCOMM', False) then begin
+    reg.GetValueNames(tstrSubKeys);
+    if tstrSubKeys.Count > 0 then
+    begin
+      q:=tstrSubKeys.Count-1;
+      for ixi := 0 to q do
+      begin
+        if (Pos('USBSER',tstrSubKeys[ixi])>0) then
+        begin
+          comport_number:= StrToInt(
+            Copy(reg.ReadString(
+                                tstrSubKeys[ixi]
+                                ), 4, 3));
+        end;
+      end;
+    end;
+  end;
+  reg.CloseKey;
+  reg.Free;
+  tstrSubKeys.Free;
+end else begin
+comport_number:=comport_number_select;
+end;
+end;
+
 // =============================================================================
 
 
@@ -929,6 +1006,18 @@ end;
 
 
 // =============================================================================
+procedure TmainFrm.Auto1Click(Sender: TObject);
+begin
+comport_number_select:=6;
+SaveReg;
+COM11.Checked := false;
+COM21.Checked := false;
+COM31.Checked := false;
+COM41.Checked := false;
+COM51.Checked := false;
+Auto1.Checked := true;
+end;
+
 procedure TmainFrm.AutoStartupBtnClick(Sender: TObject);
 begin
   AutoStartup := AutoStartupBtn.Checked;
@@ -1547,7 +1636,7 @@ if (DevPresent) then
   begin
     reg := TRegistry.Create;                              // Открываем реестр
     reg.RootKey := HKEY_CURRENT_USER;
-    reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+    reg.OpenKey('Software\Micron\Ultra-Micron', false);
     key := reg.ReadString('Reg_key');
     reg.CloseKey;                                          // Закрываем раздел
     AIdHTTP := TIdHTTP.Create(nil);
@@ -1835,7 +1924,9 @@ if (fBuf[0] = $e5) then begin // Дата прошивки
                  Char(Ord(fBuf[5]))+
                  ' 201'+
                  Char(Ord(fBuf[6]));
-HW_Label.Caption:='Ultra-Micron HW:'+hardware_version+'  FW:'+firmware_date;
+  HW_Label.Caption:='Ultra-Micron HW:'+hardware_version+'  FW:'+firmware_date;
+  if(Need_build<>firmware_date) then
+    showmessage('Unsupported device detected! Reload firmeare NOW!');
 end;
 
 
@@ -1969,7 +2060,7 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     begin
       reg := TRegistry.Create;                              // Открываем реестр
       reg.RootKey := HKEY_CURRENT_USER;
-      reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+      reg.OpenKey('Software\Micron\Ultra-Micron', false);
       key := reg.ReadString('Reg_key');
       reg.CloseKey;                                          // Закрываем раздел
       if key <> '' then

@@ -99,6 +99,10 @@ typedef struct
 	uint32_t v4_target_pump;
 	uint32_t units;
 	uint32_t Vibro;
+	uint32_t serial0;
+	uint32_t serial1;
+	uint32_t serial2;
+	uint32_t serial3;
 }SettingsDef;
 
 
@@ -192,6 +196,13 @@ extern uint32_t madorc_impulse;
 extern uint32_t USB_not_active;
 extern uint32_t last_count_pump_on_impulse;
 extern FunctionalState pump_on_impulse;
+
+extern uint32_t unlock_0_serial;
+extern uint32_t unlock_1_serial;
+extern uint32_t unlock_2_serial;
+extern uint32_t unlock_3_serial;
+
+
 
 extern FunctionalState hidden_menu;
 

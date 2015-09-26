@@ -378,6 +378,8 @@ void USB_work()
 								eeprom_write(unlock_3_address, Receive_Buffer[current_rcvd_pointer+4]);
 								current_rcvd_pointer+=5;
 								licensed=check_license(); // проверка лицензии
+			LcdClear_massive();
+			LcdUpdate();
 							} else {
 								current_rcvd_pointer=Receive_length; // Принято меньше чем должно быть, завершаем цикл
 							}

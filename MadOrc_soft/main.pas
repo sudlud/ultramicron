@@ -153,7 +153,7 @@ type
 end;
 
 var
-  Need_build: string = '26 Sep 2015';
+  Need_build: string = '27 Sep 2015';
   mainFrm: TmainFrm;
   FeatureReportLen: integer = 0;
   DevPresent: boolean = false;
@@ -845,6 +845,12 @@ procedure TmainFrm.CloseTimerTimer(Sender: TObject);
 begin
   if (RS232.Active = true) then
     begin
+//      DevPresent:=false;
+//      date_sent_flag:=false;
+//      device_serial_0:=0;
+//      device_serial_1:=0;
+//     device_serial_2:=0;
+//      About_f.About.Edit2.Color := clWhite;
       RS232.StopListner;
       RS232.Close;
       CloseTimer.Enabled:=false;
@@ -1617,6 +1623,13 @@ if(usb_send_try < 10) then
     usb_send_try:=0;
     RS232.StopListner;
     RS232.Close;
+    DevPresent:= false;
+    date_sent_flag:=false;
+    device_serial_0:=0;
+    device_serial_1:=0;
+    device_serial_2:=0;
+    About_f.About.Edit2.Color := clWhite;
+
     Unit1.Form1.Close;
     USB_massive_loading:=false;
 

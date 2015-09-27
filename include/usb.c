@@ -393,7 +393,7 @@ void USB_work()
 				if(Send_length>0)	// Если пакет на передачу сформитован
 				{
 					wait_count=0;
-					while((packet_sent != 1) && (wait_count<1500))wait_count++; // Проверяем передан ли прошлый пакет
+					while((packet_sent != 1) && (wait_count<0xFFFF))wait_count++; // Проверяем передан ли прошлый пакет
 
 					CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
 					Send_length=0;
@@ -411,7 +411,7 @@ void USB_work()
 	{
 
 		wait_count=0;
-		while((packet_sent != 1) && (wait_count<1500))wait_count++; // Проверяем передан ли прошлый пакет
+		while((packet_sent != 1) && (wait_count<0xFFFF))wait_count++; // Проверяем передан ли прошлый пакет
 
 		#ifndef version_401 
 		Settings.USB=0;

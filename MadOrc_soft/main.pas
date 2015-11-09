@@ -12,6 +12,23 @@ uses
   IdSSLOpenSSL, IdMultipartFormData, System.DateUtils, About_f;
 
 type
+  TForm1 = class(TForm)
+    IdHTTP1: TIdHTTP;
+//    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+//Здесь необходимо описать класс TMyThread:
+  TMyThread = class(TThread)
+    private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
   TmainFrm = class(TForm)
     MyTray: TJvTrayIcon;
     TrayMenu: TPopupMenu;
@@ -147,6 +164,7 @@ type
     procedure RefreshRAD;
     procedure SaveReg;
     function GetMyVersion:uint;
+    function PosR2L(const FindS, SrcS: string): Integer;
     procedure MakeIcon(f_fon: ulong);
     procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
     procedure WMSysCommand(var Message:TMessage);        message WM_SYSCOMMAND;
@@ -155,6 +173,7 @@ end;
 var
   Need_build: string = '27 Sep 2015';
   mainFrm: TmainFrm;
+  MyThread: TMyThread;
   FeatureReportLen: integer = 0;
   DevPresent: boolean = false;
   DenyCommunications: boolean = false;
@@ -276,6 +295,85 @@ implementation
 {$R sounds.res}
 uses Unit1;
 
+
+procedure TMyThread.Execute;
+var
+ AIdHTTP: TIdHTTP;
+ reg: TRegistry;
+ key: String;
+ data: TIdMultiPartFormDataStream;
+ ix: uint32;
+
+begin
+ reg := TRegistry.Create;                              // Открываем реестр
+ reg.RootKey := HKEY_CURRENT_USER;
+ reg.OpenKey('Software\Micron\Ultra-Micron', false);
+ key := reg.ReadString('Reg_key');
+ reg.CloseKey;                                          // Закрываем раздел
+ if key <> '' then
+ begin
+   data := TIdMultiPartFormDataStream.Create;
+   AIdHTTP := TIdHTTP.Create(nil);
+   AIdHTTP.HandleRedirects := true;
+   try
+     // добавляем нужные параметры
+     for ix := 0 to max_address do begin
+       if doze_massive[ix]>0 then
+         data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
+     end;
+     AIdHTTP.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key,'&devoffset=',Inttostr(time_offset_device)), data);
+   except
+    begin
+    end;
+   end;
+   AIdHTTP.Disconnect;
+   AIdHTTP.Free;
+   data.Free;
+ end;
+end;
+
+function TmainFrm.PosR2L(const FindS, SrcS: string): Integer;
+{Функция возвращает начало последнего вхождения
+ подстроки FindS в строку SrcS, т.е. первое с конца.
+ Если возвращает ноль, то подстрока не найдена.
+ Можно использовать в текстовых редакторах
+ при поиске текста вверх от курсора ввода.}
+
+  function InvertS(const S: string): string;
+    {Инверсия строки S}
+  var
+    i, Len: Integer;
+  begin
+    Len := Length(S);
+    SetLength(Result, Len);
+    for i := 1 to Len do
+      Result[i] := S[Len - i + 1];
+  end;
+
+var
+  ps: Integer;
+begin
+  {Например: нужно найти последнее вхождение
+   строки 'ро' в строке 'пирожок в коробке'.
+   Инвертируем обе строки и получаем
+     'ор' и 'екборок в кожорип',
+   а затем ищем первое вхождение с помощью стандартной
+   функции Pos(Substr, S: string): string;
+   Если подстрока Substr есть в строке S, то
+   эта функция возвращает позицию первого вхождения,
+   а иначе возвращает ноль.}
+  ps := Pos(InvertS(FindS), InvertS(SrcS));
+  {Если подстрока найдена определяем её истинное положение
+   в строке, иначе возвращаем ноль}
+  if ps <> 0 then
+    Result := Length(SrcS) - Length(FindS) - ps + 2
+  else
+    Result := 0;
+end;
+
+
+
+/////////////////////////////////////////////////////
 function TmainFrm.GetMyVersion:uint;
 type
   TVerInfo=packed record
@@ -436,6 +534,9 @@ end;
 procedure TmainFrm.SaveReg;
 var
   reg: TRegistry;
+  dir:string;
+  exe:string;
+  f:TextFile;
 begin
   reg := TRegistry.Create;                               // Открываем реестр
   reg.RootKey := HKEY_CURRENT_USER;                      // Для текущего пользователя
@@ -451,10 +552,23 @@ begin
   reg.WriteInteger('comport',comport_number_select);
   reg.CloseKey;                                          // Закрываем раздел
   reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', true);  // Открываем раздел
-  if AutoStartup then
-    reg.WriteString('Micron', application.ExeName)       // Записываем
+  if AutoStartup then begin
+    dir:=copy(application.ExeName,1,PosR2L('\',application.ExeName));
+    exe:=copy(application.ExeName,PosR2L('\',application.ExeName)+1,40);
+
+    if FileExists(dir+'Micron.cmd') then begin
+      AssignFile(f,dir+'Micron.cmd');
+      Rewrite(f);
+      Writeln(f,'runas /savecred /user:Administrator "'+dir+exe+'"');
+      Flush(f);
+      CloseFile(f);
+      reg.WriteString('Micron', '"'+dir+'Micron.cmd"'); // Если батник загружен
+    end else begin
+      reg.WriteString('Micron', application.ExeName); // Если не загружен
+    end;
+  end
   else
-    reg.DeleteValue('Micron');                          // или удаляем информацию
+  reg.DeleteValue('Micron');                          // или удаляем информацию
   reg.CloseKey;                                          // Закрываем раздел
   reg.Free;
 end;
@@ -670,6 +784,10 @@ end;
 procedure TmainFrm.FormCreate(Sender: TObject);
 var
   reg: TRegistry;
+  dir:string;
+  exe:string;
+  f:textfile;
+
 begin
 
 mainFrm.Caption:='Micron build:'+IntToStr(GetMyVersion);
@@ -757,7 +875,17 @@ mainFrm.Caption:='Micron build:'+IntToStr(GetMyVersion);
     reg.CloseKey;                                          // Закрываем раздел
     try
       reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', true); // Открываем раздел
-      reg.WriteString('Micron', application.ExeName)       // Записываем
+    dir:=copy(application.ExeName,1,PosR2L('\',application.ExeName));
+    exe:=copy(application.ExeName,PosR2L('\',application.ExeName)+1,40);
+
+    if FileExists(dir+'Micron.cmd') then begin
+      AssignFile(f,dir+'Micron.cmd');
+      Rewrite(f);
+      Writeln(f,'runas /savecred /user:Administrator "'+dir+exe+'"');
+      Flush(f);
+      CloseFile(f);
+      reg.WriteString('Micron', '"'+dir+'Micron.cmd"'); // Если батник загружен    end else begin
+    end;
     except
     end;
   end;
@@ -1212,7 +1340,6 @@ if (lang_settings=false) then
 begin
   Unit1.Form1.Label1.Caption:='Loading maximum radiation array:';
   Unit1.Form1.Label2.Caption:='Loading average radiation array:';
-  Unit1.Form1.Label4.Caption:='Loading to web service:';
 end;
 
 Unit1.Form1.max_fon.Caption:='0%';
@@ -2065,42 +2192,15 @@ if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива 
     begin
       USB_massive_loading:=false;
 
-      Unit1.Form1.Loading.Caption:=loading_lang;
       Unit1.Form1.Refresh;
 
 /////////////////////////////////////////////////////////////////////////////////////
   // Загрузка данных на сервер
-    begin
-      reg := TRegistry.Create;                              // Открываем реестр
-      reg.RootKey := HKEY_CURRENT_USER;
-      reg.OpenKey('Software\Micron\Ultra-Micron', false);
-      key := reg.ReadString('Reg_key');
-      reg.CloseKey;                                          // Закрываем раздел
-      if key <> '' then
-      begin
-        data := TIdMultiPartFormDataStream.Create;
-        AIdHTTP := TIdHTTP.Create(nil);
-        AIdHTTP.HandleRedirects := true;
-        try
-          // добавляем нужные параметры
-          for ix := 0 to max_address do begin
-            if doze_massive[ix]>0 then
-              data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
-          end;
-          IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key,'&devoffset=',Inttostr(time_offset_device)), data);
-          used_len:=(Length(aData)-1); // принудительно завершаем цикл
-        except
-          begin
-          end;
-        end;
-        AIdHTTP.Disconnect;
-        AIdHTTP.Free;
-        data.Free;
-      end;
-    end;
+      used_len:=(Length(aData)-1); // принудительно завершаем цикл
+      MyThread:=TMyThread.Create(False);
+      MyThread.Priority:=tpNormal;
 /////////////////////////////////////////////////////////////////////////////////////
 
-      Unit1.Form1.Loading.Caption:='';
       Unit1.Form1.Refresh;
 
       Draw_massive();

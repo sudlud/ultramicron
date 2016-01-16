@@ -234,12 +234,13 @@ void minus_poweroff(uint32_t *param) // выключение
   
   // Описываем канал прерывания
   NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;           // канал
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
 // =======================================================
   NVIC_InitStructure.NVIC_IRQChannel = COMP_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -266,7 +267,7 @@ void minus_poweroff(uint32_t *param) // выключение
   
   /* Enable the RTC Alarm Interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -281,7 +282,7 @@ void minus_poweroff(uint32_t *param) // выключение
   
   // Enable the RTC Wakeup Interrupt
   NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);

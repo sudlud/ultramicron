@@ -103,9 +103,9 @@ void main_screen()
 			RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
 			RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
-			sprintf(lcd_buf,"%0.2d.%0.2d.%0.2d", RTC_DateStructure.RTC_Date, RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Year);
+			sprintf(lcd_buf,"%2d.%2d.%2d", RTC_DateStructure.RTC_Date, RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Year);
 			LcdString(7,5); // // Выводим обычным текстом содержание буфера
-			sprintf(lcd_buf,"%0.2d:%0.2d:%0.2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+			sprintf(lcd_buf,"%2d:%2d:%2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
 			LcdString(7,4); // // Выводим обычным текстом содержание буфера
 
 			break;
@@ -307,17 +307,17 @@ void menu_screen()
     // вычисляем значение параметра "10сек"
     switch(*Menu_list[menu_struct_index].Parameter_value)
     {
-    case 0:  // если значение параметра равно нулю, ищем нет ли макроподстановки на этот случай
-      if(Menu_list[menu_struct_index].Param_is_0[0] != '\0')
-      { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_0); break;}
+      case 0:  // если значение параметра равно нулю, ищем нет ли макроподстановки на этот случай
+        if(Menu_list[menu_struct_index].Param_is_0[0] != '\0')
+        { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_0); break;}
       
-    case 1:  // если значение параметра равен еденице, ищем нет ли макроподстановки на этот случай
-      if(Menu_list[menu_struct_index].Param_is_1[0] != '\0')
-      { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_1);  break;}
+      case 1:  // если значение параметра равен еденице, ищем нет ли макроподстановки на этот случай
+        if(Menu_list[menu_struct_index].Param_is_1[0] != '\0')
+        { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_1);  break;}
       
-    default:  // во всех остальных случиях выводим по шаблону
-      sprintf (para_string,  Menu_list[menu_struct_index].Param_is_N, *Menu_list[menu_struct_index].Parameter_value); 
-      break;
+      default:  // во всех остальных случиях выводим по шаблону
+        sprintf (para_string,  Menu_list[menu_struct_index].Param_is_N, *Menu_list[menu_struct_index].Parameter_value); 
+        break;
     }
     
 		// Заплатка на мкЗв

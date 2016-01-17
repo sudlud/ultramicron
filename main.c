@@ -1,9 +1,3 @@
-#define USE_STDPERIPH_DRIVER
-#define USE_STM32L152_EVAL
-#define STM32L1XX_MD
-//#define version_401
-#define version_300
-
 #include <stdio.h>
 #include <stdint.h>
 #include "STM32L1xx.h"                  // Device header

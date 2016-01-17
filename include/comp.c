@@ -64,6 +64,6 @@ void comp_init()
   NVIC_Init(&NVIC_InitStructure);
 
 
-	while(!(COMP->CSR  & COMP_CSR_INSEL)); // ждем пока не включиться компаратор
+	while(!(COMP->CSR  & COMP_CSR_INSEL)){} // ждем пока не включиться компаратор
 }
 

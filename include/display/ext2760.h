@@ -32,13 +32,13 @@
 
 #define LCD_X_RES               96	// разрешение экрана    
 #define LCD_Y_RES               72    
-#define LCD_CACHSIZE          LCD_X_RES*LCD_Y_RES>>3  
+#define LCD_CACHSIZE          (LCD_X_RES*LCD_Y_RES)>>3  
 //#define LCD_CACHSIZE          LCD_X_RES*LCD_Y_RES/8  
 
 #define Cntr_X_RES              96    	// разрешение контроллера
 #define Cntr_Y_RES              72   
 //#define Cntr_buf_size           Cntr_X_RES*Cntr_Y_RES/8
-#define Cntr_buf_size           Cntr_X_RES*Cntr_Y_RE>>3
+#define Cntr_buf_size           (Cntr_X_RES*Cntr_Y_RE)>>3
 
 #define lcd_CMD 1
 #define lcd_DATA 2

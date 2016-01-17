@@ -54,7 +54,7 @@ void main_screen()
 	RTC_DateTypeDef RTC_DateStructure;
 
   
-  uint32_t battery_procent=0, i=0,x=0;
+  uint32_t battery_procent, i=0,x=0;
    
   //Рачсет процента батарейки 3.5В = 0% 4.0В = 100%
   battery_procent=ADCData.Batt_voltage;
@@ -63,11 +63,11 @@ void main_screen()
   if(ADCData.Batt_voltage<3500){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
-	if (main_menu_stat>8)main_menu_stat=1;
-	if (main_menu_stat<1)main_menu_stat=8;
+  if (main_menu_stat>8)main_menu_stat=1;
+  if (main_menu_stat<1)main_menu_stat=8;
 
-	if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
-	{
+  if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
+  {
 		DataUpdate.Need_update_mainscreen_counters=DISABLE;
 		Max_fon=0;
 		Doze_day_count=0;
@@ -92,7 +92,7 @@ void main_screen()
 		}
 	}
 
-	switch (main_menu_stat)
+  switch (main_menu_stat)
 	{
 		case 0x01:
 			sprintf (lcd_buf, LANG_TIME); // Пишем в буфер значение счетчика
@@ -292,10 +292,10 @@ void menu_screen()
 	
   for(i=0;i<(max_string_count-start_offset);i++)
   {
-    uint8_t fill_len=0; 
-    uint8_t para_len=0; 
-    uint8_t text_len=0; 
-    uint8_t menu_struct_index=0; 
+    uint32_t fill_len=0; 
+    uint32_t para_len=0; 
+    uint32_t text_len=0; 
+    uint32_t menu_struct_index=0; 
     
     menu_struct_index=(menu_page*(max_string_count-start_offset))+i; // вычисление адеса в структуре
     if (menu_struct_index>=max_struct_index)break; // если меню кончилось

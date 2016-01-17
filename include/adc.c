@@ -4,10 +4,6 @@
 #include "timers.h"
 #include "dac.h"
 
-#define  ADC_CCR_ADCPRE                      ((uint32_t)0x00030000)        /*!< ADC prescaler*/
-#define  ADC_CCR_ADCPRE_0                    ((uint32_t)0x00010000)        /*!< Bit 0 */
-#define  ADC_CCR_ADCPRE_1                    ((uint32_t)0x00020000)        /*!< Bit 1 */ 
-
 //************************************************************************************************************
 void adc_check_event(void)
 {
@@ -25,7 +21,7 @@ void adc_check_event(void)
 		reset_TIM_prescallers_and_Compare();
 
     DataUpdate.Need_batt_voltage_update=DISABLE;
- }
+  }
 // -----------
 }
 
@@ -42,10 +38,10 @@ void adc_calibration(void)
   
   ADC_Cmd(ADC1, ENABLE); // ВКЛ!
 
-  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_ADONS) == RESET);  // Тупо ждем запуска АЦП
+  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_ADONS) == RESET){}  // Тупо ждем запуска АЦП
   ADC_SoftwareStartConv(ADC1); // Стартуем преобразование
 
-  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET); // Тупо ждем завершения преобразования
+  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET){} // Тупо ждем завершения преобразования
 		
   ADCData.Calibration_bit_voltage=(1220000/ADC_GetConversionValue(ADC1)); // битовое значение соотв. напряжению референса 1.22в, из него вычисляем скольким микровольтам соответствует 1 бит.
   ADCData.Power_voltage=((ADCData.Calibration_bit_voltage * 4095)/1000);
@@ -64,7 +60,7 @@ void adc_init(void)
 
   RCC_HSICmd(ENABLE); // Включаем HSI
 
-  while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET);   // Ждем пока запустатися HSI
+  while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET){}   // Ждем пока запустатися HSI
 
 	
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);  // Разрешаем тактирование ADC
@@ -116,7 +112,7 @@ void ADC_Batt_Read (void)
 
   GPIO_ResetBits(GPIOB,GPIO_Pin_15);// Подключаем токосемник
   ADC_SoftwareStartConv(ADC1); // Стартуем преобразование
-  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET); // Тупо ждем завершения преобразования
+  while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET){} // Тупо ждем завершения преобразования
   ADCData.Batt_voltage_raw=ADC_GetConversionValue(ADC1);
   // ===============================================================================================  
   // Отключаем токосемную цепь

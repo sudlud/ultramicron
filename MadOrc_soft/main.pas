@@ -171,7 +171,7 @@ type
 end;
 
 var
-  Need_build: string = '27 Sep 2015';
+  Need_build: string = '16 Jan 2016';
   mainFrm: TmainFrm;
   MyThread: TMyThread;
   FeatureReportLen: integer = 0;

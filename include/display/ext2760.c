@@ -175,13 +175,13 @@ void LcdClear_massive (void)    //Clears the display
 
 void LcdPixel (unsigned char x, unsigned char y, unsigned char mode)     //Displays a pixel at given absolute (x, y) location, mode -> Off, On or Xor
 {
-  int index=0;
-  unsigned char offset=0, data=0;
+  unsigned int index;
+  unsigned char offset, data;
   
-  if ( x > LCD_X_RES ) return;	//если передали в функцию муть - выходим
-  if ( y > LCD_Y_RES ) return;
+  if ( x >= LCD_X_RES ) return;	//если передали в функцию муть - выходим
+  if ( y >= LCD_Y_RES ) return;
   
-	index = (((int)(y)>>3)*96)+x;    //считаем номер байта в массиве памяти дисплея
+  index = (((int)(y)>>3)*96)+x;    //считаем номер байта в массиве памяти дисплея
   offset  = y-((y>>3)<<3);          //считаем номер бита в этом байте
   
   data = LcdCache[index];         //берем байт по найденному индексу
@@ -268,11 +268,12 @@ void clean_lcd_buf (void)	//очистка текстового буфера
 void LcdChr (int ch)	//Displays a character at current cursor location and increment cursor location
 {
   char i=0;
-  if(ch>0x7f)
+  if(ch>0xBF)
   {
     for ( i = 0; i < 5; i++ ) LcdCache[LcdCacheIdx++] = lcd_font_table_rus[(ch*5+(i)-0x3C0)];	//выделяем байт-столбик из символа и грузим в массив - 5 раз
   }else{
-    for ( i = 0; i < 5 ; i++ ) LcdCache[LcdCacheIdx++] = lcd_font_table[(ch*5+(i)-0xA0)];	//выделяем байт-столбик из символа и грузим в массив - 5 раз        
+		if(ch<=0x7f)
+      for ( i = 0; i < 5 ; i++ ) LcdCache[LcdCacheIdx++] = lcd_font_table[(ch*5+(i)-0xA0)];	//выделяем байт-столбик из символа и грузим в массив - 5 раз        
   }
   LcdCache[LcdCacheIdx++] = 0x00;	//добавляем пробел между символами
 }
@@ -280,11 +281,12 @@ void LcdChr (int ch)	//Displays a character at current cursor location and incre
 void LcdChrInv (int ch)	//Displays a character at current cursor location and increment cursor location
 {
   unsigned char i=0;
-  if(ch>0x7f)
+  if(ch>0xBF)
   {     	
     for ( i = 0; i < 5; i++ ) LcdCache[LcdCacheIdx++] = ~(lcd_font_table_rus[(ch*5+i-0x3C0)]);	//выделяем байт-столбик из символа и грузим в массив - 5 раз
   }else{
-    for ( i = 0; i < 5; i++ ) LcdCache[LcdCacheIdx++] = ~(lcd_font_table[(ch*5+i-0xA0)]);	//выделяем байт-столбик из символа и грузим в массив - 5 раз        
+		if(ch<=0x7f)
+			for ( i = 0; i < 5; i++ ) LcdCache[LcdCacheIdx++] = ~(lcd_font_table[(ch*5+i-0xA0)]);	//выделяем байт-столбик из символа и грузим в массив - 5 раз        
   }
   LcdCache[LcdCacheIdx++] = 0xFF;	//добавляем пробел между символами
 }
@@ -316,11 +318,12 @@ void LcdChrBold (int ch)	//Displays a bold character at current cursor location 
   
   for ( i = 0; i < 5; i++ )
   {
-    if(ch>0x7f)
+    if(ch>0xBF)
     {
       c = lcd_font_table_rus[(ch*5+i-0x3C0)];		//выделяем столбец из символа
     }else{
-      c = lcd_font_table[(ch*5+i-0xA0)];		//выделяем столбец из символа                
+			if(ch<=0x7f)
+        c = lcd_font_table[(ch*5+i-0xA0)];		//выделяем столбец из символа                
     }
     
     b =  (c & 0x01) * 3;            //"растягиваем" столбец на два байта 
@@ -360,11 +363,12 @@ void LcdChrBig (int ch)	//Displays a character at current cursor location and in
   
   for ( i = 0; i < 5; i++ )
   {
-    if(ch>0x7f)
+    if(ch>0xBF)
     {
       c = lcd_font_table_rus[(ch*5+i-0x3C0)];		//выделяем столбец из символа     	            
     }else{
-      c = lcd_font_table[(ch*5+i-0xA0)];		//выделяем столбец из символа
+			if(ch<=0x7f)
+        c = lcd_font_table[(ch*5+i-0xA0)];		//выделяем столбец из символа
     }
     
     b =  (c & 0x01) * 3;            //"растягиваем" столбец на два байта 

@@ -12,7 +12,7 @@ __IO TestStatus MemoryProgramStatus_eeprom = PASSED;
 //////////////////////////////////////////////////////////////////////////////////////
 void full_erase_flash(void) // Erase full dataflash
 {  
-	uint32_t j = 0, Address = 0, NbrOfPage = 0;
+	uint32_t j, Address, NbrOfPage;
 
   /* Unlock the FLASH Program memory */ 
   FLASH_Unlock();
@@ -105,7 +105,7 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
                     | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
   } 
 
-	Address+=FLASH_PAGE_SIZE>>1;
+  Address+=FLASH_PAGE_SIZE>>1;
   /* Write the FLASH Program memory using HalfPage operation */
   FLASHStatus_eeprom = FLASH_ProgramHalfPage(Address, ram_max_fon_massive);
 
@@ -164,7 +164,7 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE >> 1) + (page << 8) + (index << 2); // вычисляем адрес начала страницы
 		if(mode == dose_select)    Address = FLASH_START_ADDR +                          (page << 8) + (index << 2); // вычисляем адрес начала страницы
 
-		return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+		return 	(*(__IO uint32_t*)Address);
 	}
 	return 0;
 }

@@ -167,7 +167,7 @@ void check_wakeup_keys()
 
 	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
 	{
-		if(Settings.Sound == 1 | Settings.Sound == 2)sound_activate();
+		if((Settings.Sound == 1) || (Settings.Sound == 2))sound_activate();
     Power.sleep_time=Settings.Sleep_time;
 		Power.led_sleep_time=Settings.Sleep_time-3;
 	}
@@ -223,9 +223,7 @@ void EXTI4_IRQHandler(void)
 // Прерывание по импульсу от датчикав 1 и кнопки 2
 void EXTI9_5_IRQHandler(void)
 {
-	extern __IO uint8_t Receive_Buffer[64];
-  extern __IO  uint32_t Receive_length ;
-  extern __IO  uint32_t length ;
+
 #ifdef debug
 		Wakeup.sensor_wakeup++;
 #endif
@@ -373,7 +371,7 @@ void recalculate_fon()
 	tmp=tmp*auto_speedup_factor;
 	tmp=tmp+(((tmp/recalc_len)/auto_speedup_factor)*(massive_len % auto_speedup_factor)); // ячейка 24000/6=4000; остаток от деления 8
 																																												// (4000/9*)8=3552; 24000+3552=27552
-	fon_level=tmp;
+	fon_level=(uint32_t)tmp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

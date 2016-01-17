@@ -14,18 +14,18 @@
 // Изменение порога тревоги
 void  plus_alarm(uint32_t *param) // +
 {
-  if((*Menu_list[*param-1].Parameter_value  >= 1000)&(*Menu_list[*param-1].Parameter_value  < 9999)) *Menu_list[*param-1].Parameter_value+= 500;
-  if((*Menu_list[*param-1].Parameter_value  >=  100)&(*Menu_list[*param-1].Parameter_value  < 1000)) *Menu_list[*param-1].Parameter_value+= 100;
-  if(                                                 *Menu_list[*param-1].Parameter_value  <  100)  *Menu_list[*param-1].Parameter_value+=  25;
-  if(*Menu_list[*param-1].Parameter_value   >  9999)                                                 *Menu_list[*param-1].Parameter_value=    0;
+  if((*Menu_list[*param-1].Parameter_value  >= 1000)&&(*Menu_list[*param-1].Parameter_value  < 9999)) *Menu_list[*param-1].Parameter_value+= 500;
+  if((*Menu_list[*param-1].Parameter_value  >=  100)&&(*Menu_list[*param-1].Parameter_value  < 1000)) *Menu_list[*param-1].Parameter_value+= 100;
+  if(                                                  *Menu_list[*param-1].Parameter_value  <  100)  *Menu_list[*param-1].Parameter_value+=  25;
+  if(*Menu_list[*param-1].Parameter_value   >  9999)                                                  *Menu_list[*param-1].Parameter_value=    0;
   
 }
 void minus_alarm(uint32_t *param) // -
 {
-  if( *Menu_list[*param-1].Parameter_value  <=  100)                                                  *Menu_list[*param-1].Parameter_value-=   25;
-  if((*Menu_list[*param-1].Parameter_value  >   100)&(*Menu_list[*param-1].Parameter_value <= 1000))  *Menu_list[*param-1].Parameter_value-=  100;
-  if((*Menu_list[*param-1].Parameter_value  >  1000)&(*Menu_list[*param-1].Parameter_value <  9999))  *Menu_list[*param-1].Parameter_value-=  500;
-  if( *Menu_list[*param-1].Parameter_value  >  9999)                                                  *Menu_list[*param-1].Parameter_value=  9500;
+  if( *Menu_list[*param-1].Parameter_value  <=  100)                                                   *Menu_list[*param-1].Parameter_value-=   25;
+  if((*Menu_list[*param-1].Parameter_value  >   100)&&(*Menu_list[*param-1].Parameter_value <= 1000))  *Menu_list[*param-1].Parameter_value-=  100;
+  if((*Menu_list[*param-1].Parameter_value  >  1000)&&(*Menu_list[*param-1].Parameter_value <  9999))  *Menu_list[*param-1].Parameter_value-=  500;
+  if( *Menu_list[*param-1].Parameter_value  >  9999)                                                   *Menu_list[*param-1].Parameter_value=  9500;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

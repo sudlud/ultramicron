@@ -1068,7 +1068,8 @@
       <TargetName>Ultra-Micron 4.02+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
+      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -4243,7 +4244,8 @@
       <TargetName>Ultra-Micron 4.02+ EN</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
+      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>

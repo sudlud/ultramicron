@@ -103,9 +103,9 @@ void main_screen()
 			RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
 			RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
-			sprintf(lcd_buf,"%2d.%2d.%2d", RTC_DateStructure.RTC_Date, RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Year);
+			sprintf(lcd_buf,"%0.2d.%0.2d.%0.2d", RTC_DateStructure.RTC_Date, RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Year);
 			LcdString(7,5); // // Выводим обычным текстом содержание буфера
-			sprintf(lcd_buf,"%2d:%2d:%2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+			sprintf(lcd_buf,"%0.2d:%0.2d:%0.2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
 			LcdString(7,4); // // Выводим обычным текстом содержание буфера
 
 			break;

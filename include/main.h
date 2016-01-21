@@ -150,7 +150,10 @@ extern uint32_t ix;
 extern uint32_t ix_update;
 
 //#define count_seconds 75 // 
-extern uint16_t Detector_massive[120+1];
+
+#define Detector_massive_pointer_max 120
+
+extern uint16_t Detector_massive[Detector_massive_pointer_max+1];
 
 #define FLASH_PAGE_SIZE                 0x100         // (НЕ ТРОГАТЬ! развилится оптимизация USB обмена!!)
 #define FLASH_START_ADDR                0x0800F000

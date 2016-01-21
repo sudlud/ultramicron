@@ -14,6 +14,9 @@
 // Изменение порога тревоги
 void  plus_alarm(uint32_t *param) // +
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+	
   if((*Menu_list[*param-1].Parameter_value  >= 1000)&&(*Menu_list[*param-1].Parameter_value  < 9999)) *Menu_list[*param-1].Parameter_value+= 500;
   if((*Menu_list[*param-1].Parameter_value  >=  100)&&(*Menu_list[*param-1].Parameter_value  < 1000)) *Menu_list[*param-1].Parameter_value+= 100;
   if(                                                  *Menu_list[*param-1].Parameter_value  <  100)  *Menu_list[*param-1].Parameter_value+=  25;
@@ -22,6 +25,9 @@ void  plus_alarm(uint32_t *param) // +
 }
 void minus_alarm(uint32_t *param) // -
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   if( *Menu_list[*param-1].Parameter_value  <=  100)                                                   *Menu_list[*param-1].Parameter_value-=   25;
   if((*Menu_list[*param-1].Parameter_value  >   100)&&(*Menu_list[*param-1].Parameter_value <= 1000))  *Menu_list[*param-1].Parameter_value-=  100;
   if((*Menu_list[*param-1].Parameter_value  >  1000)&&(*Menu_list[*param-1].Parameter_value <  9999))  *Menu_list[*param-1].Parameter_value-=  500;
@@ -34,12 +40,18 @@ void minus_alarm(uint32_t *param) // -
 // Изменение порога сна
 void  plus_sleep(uint32_t *param) //+
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   *Menu_list[*param-1].Parameter_value+=5;
   if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=0;
 }
 
 void minus_sleep(uint32_t *param) //-
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   *Menu_list[*param-1].Parameter_value-=5;
   if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=250;
 }
@@ -50,11 +62,17 @@ void minus_sleep(uint32_t *param) //-
 // вкл-откл
 void  plus_on(uint32_t *param) // вкл
 {  
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   *Menu_list[*param-1].Parameter_value=1;
 }
 
 void minus_off(uint32_t *param) // откл
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   *Menu_list[*param-1].Parameter_value=0;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +80,9 @@ void minus_off(uint32_t *param) // откл
 void  plus_doze_reset(uint32_t *param) // Сброс дозы
 {
 	int i;
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
 	for(i=doze_length;i>0;i--)
 	{
 		ram_Doze_massive[i]=0;
@@ -80,6 +101,9 @@ DataUpdate.doze_sec_count=0;
 // +1 -1
 void  plus_one(uint32_t *param) // +1
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
   if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
   {
@@ -91,6 +115,9 @@ void  plus_one(uint32_t *param) // +1
 
 void minus_one(uint32_t *param) // -1
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить минимально допустимое значение, то переходим на максимум
   if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
   {
@@ -105,6 +132,9 @@ void minus_one(uint32_t *param) // -1
 // +10 -10
 void  plus_ten(uint32_t *param) // +10
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
   if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
   {
@@ -117,6 +147,9 @@ void  plus_ten(uint32_t *param) // +10
 
 void minus_ten(uint32_t *param) // -10
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить минимально допустимое значение, то переходим на максимум
   if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
   {
@@ -131,6 +164,9 @@ void minus_ten(uint32_t *param) // -10
 // +50 -50
 void  plus_50(uint32_t *param) // +50
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
   if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
   {
@@ -142,6 +178,9 @@ void  plus_50(uint32_t *param) // +50
 
 void minus_50(uint32_t *param) // -50
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить минимально допустимое значение, то переходим на максимум
   if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
   {
@@ -157,6 +196,9 @@ void minus_50(uint32_t *param) // -50
 // +500 -500
 void  plus_500(uint32_t *param) // +50
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
   if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
   {
@@ -168,6 +210,9 @@ void  plus_500(uint32_t *param) // +50
 
 void minus_500(uint32_t *param) // -500
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
   //Если пытаемся привысить минимально допустимое значение, то переходим на максимум
   if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
   {
@@ -183,6 +228,9 @@ void minus_500(uint32_t *param) // -500
 // перезагрузка и выключение
 void plus_reboot(uint32_t *param) // перезагрузка
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
 	if(licensed  && Power.USB_active)USB_off();
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_REBOOTPR); // Пишем в буфер значение счетчика
@@ -207,7 +255,11 @@ void minus_poweroff(uint32_t *param) // выключение
 {
   NVIC_InitTypeDef NVIC_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
-	if(licensed  && Power.USB_active)USB_off(); 		
+
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
+		if(licensed  && Power.USB_active)USB_off(); 		
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_POWEROFF); // Пишем в буфер значение счетчика
 	LcdString(1,5); // // Выводим обычным текстом содержание буфера
@@ -290,7 +342,7 @@ void minus_poweroff(uint32_t *param) // выключение
   RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
   RTC_ClearFlag(RTC_FLAG_ALRAF);
 
-	while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
+	while(RTC_WakeUpCmd(DISABLE)!=SUCCESS){}
   RTC_ITConfig(RTC_IT_WUT, DISABLE);
   RTC_ITConfig(RTC_IT_ALRA, DISABLE);
   PWR_RTCAccessCmd(DISABLE);
@@ -337,6 +389,8 @@ void minus_poweroff(uint32_t *param) // выключение
 // перезагрузка и выключение
 void usb_activate(uint32_t *param) // Включение USB
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
 
 USB_not_active=0;
 if(!Power.USB_active)
@@ -355,6 +409,9 @@ Settings.USB=1;
 
 void usb_deactivate(uint32_t *param) // Выключение USB
 {
+	if(*param>max_struct_index)return;
+	if(*param==0)return;
+
 	if(Power.USB_active)
 	{
 #ifndef version_401
@@ -410,6 +467,9 @@ void keys_proccessing(void)
 		///////////
     if(enter_menu_item==ENABLE)
     {
+
+	if(menu_select>max_struct_index)return;
+	if(menu_select==0)return;
       
       if(Menu_list[menu_select-1].Plus_reaction!=0x00) // Если адрес функции существует, то выполнить ее.
       {
@@ -456,6 +516,9 @@ void keys_proccessing(void)
     ///////////
     if(enter_menu_item==ENABLE) // тревога
     {
+			if(menu_select>max_struct_index)return;
+			if(menu_select==0)return;
+
       if(Menu_list[menu_select-1].Minus_reaction!=0x00) // Если адрес функции существует, то выполнить ее.
       {
         (*Menu_list[menu_select-1].Minus_reaction)(&menu_select); // запуск  функции - гиперхак мать его :)

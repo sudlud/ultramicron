@@ -26,7 +26,7 @@ uint16_t key; // массив нажатых кнопок [012]
 uint32_t ix;
 uint32_t ix_update;
 
-uint16_t Detector_massive[120+1];
+uint16_t Detector_massive[Detector_massive_pointer_max+1];
 uint32_t ram_Doze_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
 uint32_t ram_max_fon_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
 uint16_t USB_maxfon_massive_pointer=0;
@@ -102,16 +102,12 @@ FunctionalState check_license(void)
 																0x42C06A9E  // Ivanjust              	0D473130 35383935 00410039
 															 };
 
-	uint32_t i=0;
-	uint32_t CPU_serial=0;
-	uint32_t EEPROM_serial=0;
-	uint32_t tmp=0;
+	uint32_t i=0, CPU_serial=0, EEPROM_serial=0, tmp=0;
 	FunctionalState found=DISABLE;
 	
 	CPU_serial+=U_ID_0;
 	CPU_serial+=U_ID_1;
 	CPU_serial+=U_ID_2;
-	//CPU_serial&=0xffffffff;
 
 	tmp=Settings.serial0 & 0xff;
 	tmp=tmp<<24;
@@ -128,8 +124,6 @@ FunctionalState check_license(void)
 	tmp=Settings.serial3 & 0xff;
 	EEPROM_serial+=tmp;
 
-	//EEPROM_serial+=0x01;
-	
 	if (CPU_serial == EEPROM_serial)
 	{
 		found=ENABLE;
@@ -141,8 +135,6 @@ FunctionalState check_license(void)
 	
 	return found;
 	
-//return ENABLE;
-//return DISABLE;
 }
 
 float convert_mkr_sv(uint32_t mkrn)

@@ -64,7 +64,6 @@ void Set_next_alarm_wakeup(void)
 	{
 		RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds=RTC_TimeStructure.RTC_Seconds-56;		
 	}
-	//RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_All;
 	RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_Exept_seconds;
 
   /* Configure the RTC Alarm A register */
@@ -98,9 +97,7 @@ void RTC_Config(void)
   SynchPrediv = (Settings.LSI_freq/128) - 1;
 #else // версии с кварцем
 	RCC_LSEConfig(RCC_LSE_ON); // Пытаемся включить LSE // по ДШ время запуска 1 секунда
-	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
-	{
-	}
+	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET){}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	SynchPrediv = 0xFF;
 	Settings.LSI_freq=0x00;
@@ -119,11 +116,11 @@ void RTC_Config(void)
 
 	Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 
-    /* Enable the RTC Alarm A Interrupt */
-    RTC_ITConfig(RTC_IT_ALRA, ENABLE);
+ /* Enable the RTC Alarm A Interrupt */
+  RTC_ITConfig(RTC_IT_ALRA, ENABLE);
 
-    /* Enable the alarm  A */
-    RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
+  /* Enable the alarm  A */
+  RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
 
   
   /* Clear the RTC Alarm Flag */
@@ -165,7 +162,7 @@ void RTC_Config(void)
   
   RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16); // 1 tick is 488 us
   RTC_SetWakeUpCounter(0xFFF);
-	while(RTC_WakeUpCmd(ENABLE)!=SUCCESS);
+	while(RTC_WakeUpCmd(ENABLE)!=SUCCESS){}
   
   
   // Enable the RTC Wakeup Interrupt
@@ -173,6 +170,3 @@ void RTC_Config(void)
   
   
 }
-
-
-

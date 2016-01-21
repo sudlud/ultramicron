@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 void sound_activate(void)
 {
-	if(!Power.USB_active)
+	if(Power.USB_active==DISABLE)
 	{
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 		if(Power.Display_active==ENABLE)
@@ -35,19 +35,16 @@ void sound_deactivate(void)
 	TIM_Cmd(TIM2, DISABLE);
 	
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить подачу импульсов
-//	TIM_Cmd(TIM10, DISABLE);
 
 	TIM_SetAutoreload(TIM10, 16 );
-
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
 
   Power.Sound_active=DISABLE;      
 	Sound_key_pressed=DISABLE;
 
 #ifdef version_401
-			GPIO_ResetBits(GPIOA,GPIO_Pin_15);// де-активируем вибромотор
+	GPIO_ResetBits(GPIOA,GPIO_Pin_15);// де-активируем вибромотор
 #endif
 
 }
@@ -74,7 +71,6 @@ void reset_TIM_prescallers_and_Compare(void)
 	} else {
 		pump_period=(Settings.v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1,75мкс*4.2В/3.3В напряжение АКБ=2.0мкс)
 	}
-//	pump_period=v4_target_pump;
 #else
 	pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage; // перерасчет энергии накачки
 	if((pump_period>32) && (Settings.LSI_freq==0))pump_period=32; // не привышать критический уровень для верии 3.*
@@ -180,8 +176,6 @@ GPIO_InitTypeDef   GPIO_InitStructure;
 	TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
   TIM_OC1Init(TIM10, &TIM_OCConfig);  // Инициализируем первый выход таймера
 
-//  TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-	//TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // Запретить выдачу звука
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // Запретить выдачу звука
   TIM_Cmd(TIM10, ENABLE);
 }

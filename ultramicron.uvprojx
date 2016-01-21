@@ -10,7 +10,8 @@
       <TargetName>Ultra-Micron 4.02+ service</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
+      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -88,7 +89,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -761,7 +762,7 @@
                     <SplitLS>0</SplitLS>
                     <OneElfS>0</OneElfS>
                     <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
+                    <EnumInt>2</EnumInt>
                     <PlainCh>0</PlainCh>
                     <Ropi>0</Ropi>
                     <Rwpi>0</Rwpi>
@@ -957,7 +958,7 @@
                     <SplitLS>0</SplitLS>
                     <OneElfS>0</OneElfS>
                     <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
+                    <EnumInt>2</EnumInt>
                     <PlainCh>0</PlainCh>
                     <Ropi>0</Ropi>
                     <Rwpi>0</Rwpi>
@@ -3186,7 +3187,8 @@
       <TargetName>Ultra-Micron 2.04+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
+      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
+      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -3264,7 +3266,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>

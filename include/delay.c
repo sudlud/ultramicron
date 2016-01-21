@@ -5,7 +5,8 @@ uint32_t  msTicks = 0;		// counts 1ms timeTicks
 #pragma O0
 void delay_ms(uint32_t ms)
 {
-
+ if(ms==0)return;
+	
  if (SysTick_Config(SystemCoreClock / 1000))
  { 
     /* Capture error */ 

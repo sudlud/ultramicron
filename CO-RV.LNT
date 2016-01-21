@@ -33,7 +33,7 @@
 -e525 // Игнорировать отступ -
 -e539 // Игнорировать отступ +
 -e641 // Игнорировать Converting enum 'FlagStatus' to int
--e534 // Игнорировать возврат значения функции в никуда
+//-e534 // Игнорировать возврат значения функции в никуда
 -e537 // Игнорировать Warning 537: Repeated include file
 
 -hsb_3           // formatting options required for MicroVision IDE

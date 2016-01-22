@@ -227,7 +227,9 @@ int main(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 2 Pre + 2 Sub
 
 	set_msi();
+#ifndef debug
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, DISABLE);
+#endif
 		
   set_bor();
 	Power.sleep_now=DISABLE;
@@ -326,7 +328,9 @@ int main(void)
 			{
 				if(!Power.Pump_active && !Power.Sound_active)
 				{
+#ifndef debug
 					PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
+#endif
 #ifdef debug
  					Wakeup.total_wakeup++;
 					DataUpdate.Need_display_update=ENABLE;

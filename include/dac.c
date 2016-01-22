@@ -8,7 +8,7 @@ void dac_init()
   //Конфигурируем систему детектирования выброса
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 
-  DAC_InitStructure.DAC_Trigger = DAC_Trigger_None;
+  DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
   DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
   DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Disable;
 
@@ -54,4 +54,5 @@ void dac_reload()
 	ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
 
 	DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
+	DAC_SoftwareTriggerCmd(DAC_Channel_2, ENABLE);
 }

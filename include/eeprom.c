@@ -19,7 +19,7 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
       { 
         Settings.Alarm_level=50;
         Settings.Sound=ENABLE;
-        Settings.Sleep_time=60;
+        Settings.Sleep_time=80;
         Settings.Display_reverse=2;
 				Settings.Second_count=250;
 				Settings.LSI_freq=37000;

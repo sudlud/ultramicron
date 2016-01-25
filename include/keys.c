@@ -43,8 +43,13 @@ void  plus_sleep(uint32_t *param) //+
 	if(*param>max_struct_index)return;
 	if(*param==0)return;
 
-  *Menu_list[*param-1].Parameter_value+=5;
-  if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=0;
+  //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
+  if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
+  {
+    *Menu_list[*param-1].Parameter_value=Menu_list[*param-1].Min_limit;
+  } else {
+    *Menu_list[*param-1].Parameter_value=*Menu_list[*param-1].Parameter_value*2; //*2
+  }
 }
 
 void minus_sleep(uint32_t *param) //-
@@ -52,8 +57,12 @@ void minus_sleep(uint32_t *param) //-
 	if(*param>max_struct_index)return;
 	if(*param==0)return;
 
-  *Menu_list[*param-1].Parameter_value-=5;
-  if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=250;
+  if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
+  {
+    *Menu_list[*param-1].Parameter_value=Menu_list[*param-1].Max_limit;
+  } else {
+    *Menu_list[*param-1].Parameter_value=*Menu_list[*param-1].Parameter_value/2; // /2
+  }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

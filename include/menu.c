@@ -11,7 +11,7 @@ MenuItem Menu_list[max_struct_index] = {
   
   //Сервис   Текст          Если значение 0   Если 1          если больше чем 1  Откуда брать само значение                             минимум  максимум  дефолт   Реакция на увеличение     на уменьшение 
   {  0x00, LANG_ALARM,	    LANG_OFF,					"",		          LANG_UMKR,	   &Settings.Alarm_level,                                  0,       10000,    60,      &plus_alarm,              &minus_alarm},
-  {  0x00, LANG_SLEEP,		  LANG_OFF,					"",			        LANG_USEC,	   &Settings.Sleep_time,                                   10,      230,      30,      &plus_ten,                &minus_ten},
+  {  0x00, LANG_SLEEP,		  LANG_OFF,					"",			        LANG_USEC,	   &Settings.Sleep_time,                                   10,      10240,    40,      &plus_sleep,              &minus_sleep},
   {  0x00, LANG_SOUND,      LANG_OFF,					LANG_ON,	      LANG_KEY,	     &Settings.Sound,                                        0,       2,        0,       &plus_one,                &minus_one},
 #ifdef version_401
 	{  0x00, LANG_VIBRO,      LANG_OFF,    		  LANG_ON, 		    LANG_ALARM2,   &Settings.Vibro,                                        0,       2,        0x00,    &plus_one,                &minus_one},

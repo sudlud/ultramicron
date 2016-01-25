@@ -151,7 +151,7 @@ extern uint32_t ix_update;
 
 //#define count_seconds 75 // 
 
-#define Detector_massive_pointer_max 120
+#define Detector_massive_pointer_max 375
 
 extern uint16_t Detector_massive[Detector_massive_pointer_max+1];
 

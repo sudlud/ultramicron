@@ -381,18 +381,16 @@ void recalculate_fon()
 ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
-		int i;
+	int i;
 #ifdef debug
-		Wakeup.rtc_wakeup++;
+	Wakeup.rtc_wakeup++;
 #endif
-    if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
+  if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
+	{
+		RTC_ClearITPendingBit(RTC_IT_ALRA);
+    EXTI_ClearITPendingBit(EXTI_Line17);
+		if(!poweroff_state)
 		{
-			RTC_ClearITPendingBit(RTC_IT_ALRA);
-      EXTI_ClearITPendingBit(EXTI_Line17);
-			if(!poweroff_state)
-			{
-			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
-				
 			DataUpdate.Need_display_update=ENABLE;
 				
 			if(Power.USB_active)
@@ -537,9 +535,12 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			
 			if(Power.led_sleep_time>4){Power.led_sleep_time-=4;}
 			else{Power.led_sleep_time=0;}
+			
+			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
+
+			if(Pump_on_alarm==ENABLE)Pump_now(ENABLE); // оптимизируем накачку вынося из вейкап таймера
 		}
-		if(Pump_on_alarm==ENABLE)Pump_now(ENABLE); // оптимизируем накачку вынося из вейкап таймера
-		}
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

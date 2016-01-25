@@ -57,13 +57,9 @@ void Set_next_alarm_wakeup(void)
 	
   RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
-	if (RTC_TimeStructure.RTC_Seconds<56)
-	{
-		RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds=RTC_TimeStructure.RTC_Seconds+4;		
-	} else
-	{
-		RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds=RTC_TimeStructure.RTC_Seconds-56;		
-	}
+	RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds=RTC_TimeStructure.RTC_Seconds+4;
+  if (RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds>59)	RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds-=60;
+
 	RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_Exept_seconds;
 
   /* Configure the RTC Alarm A register */
@@ -140,7 +136,7 @@ void RTC_Config(void)
   
   /* Enable the RTC Alarm Interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -155,7 +151,7 @@ void RTC_Config(void)
   
   // Enable the RTC Wakeup Interrupt
   NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);

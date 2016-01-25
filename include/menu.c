@@ -26,8 +26,11 @@ MenuItem Menu_list[max_struct_index] = {
   {  0x01, LANG_COUNT,      "",		  					"",			        LANG_USEC,	   &Settings.Second_count,                                 200,     1450,     250,     &plus_ten,                &minus_ten},
 	{  0x01, "LSI",		        LANG_QUARTZ,			"",			        LANG_UHZ,	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
 	{  0x01, LANG_V4PUMP,     "",								"",			        LANG_UV4PUMP,  &Settings.v4_target_pump,                       	       4,       14,       11,      &plus_one,                &minus_one},
-	{  0x01, LANG_VOLTAGE,	  "",		  					"",			        LANG_UV,	     &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten}
-/*	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
+	{  0x01, LANG_VOLTAGE,	  "",		  					"",			        LANG_UV,	     &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
+// Заплатка на бета окно		if(menu_struct_index == 13) ! Исправить в коде при изменении порядка пунктов меню!
+	{  0x01, LANG_BWINDOW,    "",								"",			        LANG_BWINDOW_, &Settings.Beta_window,                       	         1,       100,       20,     &plus_one,                &minus_one},
+	{  0x01, LANG_BPROCENT,   "",								"",			        LANG_BPROCENT_,&Settings.Beta_procent,                       	         1,       100,       37,     &plus_one,                &minus_one}
+	/*	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
   {  0x00, "Подсветка",		  "откл",							"",			        	"%uсек",	     &Settings.Led_Sleep_time,                               0,       300,      30,      &plus_sleep,              &minus_sleep},
   {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
   {  0x01, "Потребление",	  "мин",  						"макс",		       	"",	           &Settings.Power_comp,                                   0,       1,        0,       &plus_one,                &minus_one}
@@ -296,6 +299,7 @@ void menu_screen()
     uint32_t para_len=0; 
     uint32_t text_len=0; 
     uint32_t menu_struct_index=0; 
+		float tmp;
     
     menu_struct_index=(menu_page*(max_string_count-start_offset))+i; // вычисление адеса в структуре
     if (menu_struct_index>=max_struct_index)break; // если меню кончилось
@@ -323,6 +327,14 @@ void menu_screen()
 		// Заплатка на мкЗв
 		if((menu_struct_index == 0) && Settings.units)
 			sprintf (para_string,  LANG_UMKZV, convert_mkr_sv(*Menu_list[menu_struct_index].Parameter_value)); 
+
+		// Заплатка на бета окно
+		if(menu_struct_index == 13)
+		{
+			tmp=*Menu_list[menu_struct_index].Parameter_value;
+			tmp=tmp/10;
+			sprintf (para_string,  LANG_BWINDOW_, tmp);
+		}
 		
     para_len=strlen(para_string);                  // длинна параметра
     text_len=strlen(Menu_list[menu_struct_index].Text);            // линна текста

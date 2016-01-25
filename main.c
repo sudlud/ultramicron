@@ -224,7 +224,6 @@ int main(void)
 
 {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH,0x3000);  
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 2 Pre + 2 Sub
 
 	set_msi();
 #ifndef debug

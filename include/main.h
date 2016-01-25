@@ -99,6 +99,8 @@ typedef struct
 	uint32_t v4_target_pump;
 	uint32_t units;
 	uint32_t Vibro;
+	uint32_t Beta_window;
+	uint32_t Beta_procent;
 	uint32_t serial0;
 	uint32_t serial1;
 	uint32_t serial2;

@@ -1,16 +1,4 @@
-#include "usb.h"
 #include "main.h"
-#include "ext2760.h"
-#include "hw_config.h"
-#include "usb_lib.h"
-#include "usb_desc.h"
-#include "usb_pwr.h"
-#include "usb.h"
-#include "keys.h"
-#include "clock.h"
-#include "flash_save.h"
-#include "eeprom.h"
-#include "rtc.h"
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;

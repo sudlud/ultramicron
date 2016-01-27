@@ -1,6 +1,4 @@
 #include "main.h"
-#include "rtc.h"
-#include "delay.h"
 
 RTC_InitTypeDef   RTC_InitStructure;
 RTC_AlarmTypeDef  RTC_AlarmStructure;

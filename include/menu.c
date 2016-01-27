@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "main.h"
-#include "menu.h"
-#include "keys.h"
-#include "ext2760.h"
-#include "lang.h"
-#include "flash_save.h"
 	
 MenuItem Menu_list[max_struct_index] = {
   

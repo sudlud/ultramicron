@@ -1,13 +1,6 @@
-#include "main.h"
-#include "menu.h"
-#include "delay.h"
-#include "ext2760.h"
-#include "eeprom.h"
-#include "usb.h"
 #include <stdio.h>
 #include <string.h>
-#include "lang.h"
-#include "stm32l1xx_it.h"
+#include "main.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

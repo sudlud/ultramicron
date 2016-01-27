@@ -1,8 +1,4 @@
 #include "main.h"
-#include "delay.h"
-#include "adc.h"
-#include "timers.h"
-#include "dac.h"
 
 //************************************************************************************************************
 void adc_check_event(void)

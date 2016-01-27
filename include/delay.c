@@ -1,4 +1,4 @@
-#include "delay.h"
+#include "main.h"
 
 uint32_t  msTicks = 0;		// counts 1ms timeTicks
 

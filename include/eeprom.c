@@ -1,11 +1,5 @@
 #include "stm32l1xx.h"
-#include "eeprom.h"
 #include "main.h"
-#include "ext2760.h"
-#include "delay.h"
-#include "timers.h"
-#include "clock.h"
-#include "dac.h"
 
 __IO FLASH_Status FLASHStatus = FLASH_COMPLETE;
 __IO TestStatus DataMemoryProgramStatus = PASSED;

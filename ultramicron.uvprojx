@@ -981,6 +981,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1069,8 +1074,7 @@
       <TargetName>Ultra-Micron 4.02+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
-      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -2040,6 +2044,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2128,8 +2137,7 @@
       <TargetName>Ultra-Micron 3.00+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
-      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -3099,6 +3107,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3187,8 +3200,7 @@
       <TargetName>Ultra-Micron 2.04+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
-      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -4158,6 +4170,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4246,8 +4263,7 @@
       <TargetName>Ultra-Micron 4.02+ EN</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
-      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -5216,6 +5232,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -27,7 +27,7 @@ uint16_t key; // массив нажатых кнопок [012]
 uint32_t ix;
 uint32_t ix_update;
 
-uint16_t Detector_massive[120+1];
+uint16_t Detector_massive[376];
 uint32_t ram_Doze_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
 uint32_t ram_max_fon_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
 uint16_t USB_maxfon_massive_pointer=0;

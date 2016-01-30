@@ -3,6 +3,32 @@
 
 #include "stm32l1xx.h"
 
+#include "adc.h"
+#include "comp.h"
+#include "clock.h"
+#include "dac.h"
+#include "delay.h"
+#include "ext2760.h"
+#include "eeprom.h"
+#include "flash_save.h"
+#include "io_ports.h"
+#include "interrupt.h"
+#include "keys.h"
+#include "lang.h"
+#include "menu.h"
+#include "power.h"
+#include "rtc.h"
+#include "services.h"
+#include "stm32_it.h"
+#include "timers.h"
+
+#include "usb.h"
+#include "hw_config.h"
+#include "usb_lib.h"
+#include "usb_istr.h"
+#include "usb_pwr.h"
+#include "usb_desc.h"
+
 
 // ------------- СЕРИЙНИК ! ------------- 
 #define U_ID_0 (*(uint32_t*) 0x1FF80050) // MCU Serial
@@ -41,6 +67,7 @@ typedef struct
 	uint32_t  current_flash_page;                    // Служебный счетчик для отметки окончания массива дозы
 	FunctionalState Need_update_mainscreen_counters;
 	FunctionalState Need_erase_flash;
+	FunctionalState RTC_tick_update;
 //  uint8_t second_pump_counter;
 //  uint8_t pump_pulse_by_impulse_counter;
   
@@ -99,6 +126,8 @@ typedef struct
 	uint32_t v4_target_pump;
 	uint32_t units;
 	uint32_t Vibro;
+	uint32_t Beta_window;
+	uint32_t Beta_procent;
 	uint32_t serial0;
 	uint32_t serial1;
 	uint32_t serial2;
@@ -150,7 +179,10 @@ extern uint32_t ix;
 extern uint32_t ix_update;
 
 //#define count_seconds 75 // 
-extern uint16_t Detector_massive[120+1];
+
+#define Detector_massive_pointer_max 375
+
+extern uint16_t Detector_massive[Detector_massive_pointer_max+1];
 
 #define FLASH_PAGE_SIZE                 0x100         // (НЕ ТРОГАТЬ! развилится оптимизация USB обмена!!)
 #define FLASH_START_ADDR                0x0800F000

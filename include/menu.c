@@ -1,17 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "main.h"
-#include "menu.h"
-#include "keys.h"
-#include "ext2760.h"
-#include "lang.h"
-#include "flash_save.h"
 	
 MenuItem Menu_list[max_struct_index] = {
   
   //Сервис   Текст          Если значение 0   Если 1          если больше чем 1  Откуда брать само значение                             минимум  максимум  дефолт   Реакция на увеличение     на уменьшение 
   {  0x00, LANG_ALARM,	    LANG_OFF,					"",		          LANG_UMKR,	   &Settings.Alarm_level,                                  0,       10000,    60,      &plus_alarm,              &minus_alarm},
-  {  0x00, LANG_SLEEP,		  LANG_OFF,					"",			        LANG_USEC,	   &Settings.Sleep_time,                                   10,      230,      30,      &plus_ten,                &minus_ten},
+  {  0x00, LANG_SLEEP,		  LANG_OFF,					"",			        LANG_USEC,	   &Settings.Sleep_time,                                   10,      10240,    40,      &plus_sleep,              &minus_sleep},
   {  0x00, LANG_SOUND,      LANG_OFF,					LANG_ON,	      LANG_KEY,	     &Settings.Sound,                                        0,       2,        0,       &plus_one,                &minus_one},
 #ifdef version_401
 	{  0x00, LANG_VIBRO,      LANG_OFF,    		  LANG_ON, 		    LANG_ALARM2,   &Settings.Vibro,                                        0,       2,        0x00,    &plus_one,                &minus_one},
@@ -23,11 +18,14 @@ MenuItem Menu_list[max_struct_index] = {
 	{  0x00, LANG_UNITS,      LANG_UR,    		  LANG_UZV, 	    "",      		   &Settings.units,                                        0x00,    0x01,     0x00,    &plus_one, 		           &minus_one},
   {  0x01, LANG_CONTRAST,   "",		  					"",			        "%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
   {  0x01, LANG_REVERSE,    LANG_OFF,					"",			        "%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
-  {  0x01, LANG_COUNT,      "",		  					"",			        LANG_USEC,	   &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
+  {  0x01, LANG_COUNT,      "",		  					"",			        LANG_USEC,	   &Settings.Second_count,                                 200,     1450,     250,     &plus_ten,                &minus_ten},
 	{  0x01, "LSI",		        LANG_QUARTZ,			"",			        LANG_UHZ,	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
 	{  0x01, LANG_V4PUMP,     "",								"",			        LANG_UV4PUMP,  &Settings.v4_target_pump,                       	       4,       14,       11,      &plus_one,                &minus_one},
-	{  0x01, LANG_VOLTAGE,	  "",		  					"",			        LANG_UV,	     &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten}
-/*	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
+	{  0x01, LANG_VOLTAGE,	  "",		  					"",			        LANG_UV,	     &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
+// Заплатка на бета окно		if(menu_struct_index == 13) ! Исправить в коде при изменении порядка пунктов меню!
+	{  0x01, LANG_BWINDOW,    "",								"",			        LANG_BWINDOW_, &Settings.Beta_window,                       	         1,       100,       20,     &plus_one,                &minus_one},
+	{  0x01, LANG_BPROCENT,   "",								"",			        LANG_BPROCENT_,&Settings.Beta_procent,                       	         1,       100,       37,     &plus_one,                &minus_one}
+	/*	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
   {  0x00, "Подсветка",		  "откл",							"",			        	"%uсек",	     &Settings.Led_Sleep_time,                               0,       300,      30,      &plus_sleep,              &minus_sleep},
   {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
   {  0x01, "Потребление",	  "мин",  						"макс",		       	"",	           &Settings.Power_comp,                                   0,       1,        0,       &plus_one,                &minus_one}
@@ -54,7 +52,7 @@ void main_screen()
 	RTC_DateTypeDef RTC_DateStructure;
 
   
-  uint32_t battery_procent=0, i=0,x=0;
+  uint32_t battery_procent, i=0,x=0;
    
   //Рачсет процента батарейки 3.5В = 0% 4.0В = 100%
   battery_procent=ADCData.Batt_voltage;
@@ -63,11 +61,11 @@ void main_screen()
   if(ADCData.Batt_voltage<3500){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
-	if (main_menu_stat>8)main_menu_stat=1;
-	if (main_menu_stat<1)main_menu_stat=8;
+  if (main_menu_stat>8)main_menu_stat=1;
+  if (main_menu_stat<1)main_menu_stat=8;
 
-	if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
-	{
+  if(DataUpdate.Need_update_mainscreen_counters==ENABLE) // Если требуется обновление счетчиков
+  {
 		DataUpdate.Need_update_mainscreen_counters=DISABLE;
 		Max_fon=0;
 		Doze_day_count=0;
@@ -92,7 +90,7 @@ void main_screen()
 		}
 	}
 
-	switch (main_menu_stat)
+  switch (main_menu_stat)
 	{
 		case 0x01:
 			sprintf (lcd_buf, LANG_TIME); // Пишем в буфер значение счетчика
@@ -292,10 +290,11 @@ void menu_screen()
 	
   for(i=0;i<(max_string_count-start_offset);i++)
   {
-    uint8_t fill_len=0; 
-    uint8_t para_len=0; 
-    uint8_t text_len=0; 
-    uint8_t menu_struct_index=0; 
+    uint32_t fill_len=0; 
+    uint32_t para_len=0; 
+    uint32_t text_len=0; 
+    uint32_t menu_struct_index=0; 
+		float tmp;
     
     menu_struct_index=(menu_page*(max_string_count-start_offset))+i; // вычисление адеса в структуре
     if (menu_struct_index>=max_struct_index)break; // если меню кончилось
@@ -307,22 +306,30 @@ void menu_screen()
     // вычисляем значение параметра "10сек"
     switch(*Menu_list[menu_struct_index].Parameter_value)
     {
-    case 0:  // если значение параметра равно нулю, ищем нет ли макроподстановки на этот случай
-      if(Menu_list[menu_struct_index].Param_is_0[0] != '\0')
-      { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_0); break;}
+      case 0:  // если значение параметра равно нулю, ищем нет ли макроподстановки на этот случай
+        if(Menu_list[menu_struct_index].Param_is_0[0] != '\0')
+        { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_0); break;}
       
-    case 1:  // если значение параметра равен еденице, ищем нет ли макроподстановки на этот случай
-      if(Menu_list[menu_struct_index].Param_is_1[0] != '\0')
-      { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_1);  break;}
+      case 1:  // если значение параметра равен еденице, ищем нет ли макроподстановки на этот случай
+        if(Menu_list[menu_struct_index].Param_is_1[0] != '\0')
+        { sprintf (para_string,  Menu_list[menu_struct_index].Param_is_1);  break;}
       
-    default:  // во всех остальных случиях выводим по шаблону
-      sprintf (para_string,  Menu_list[menu_struct_index].Param_is_N, *Menu_list[menu_struct_index].Parameter_value); 
-      break;
+      default:  // во всех остальных случиях выводим по шаблону
+        sprintf (para_string,  Menu_list[menu_struct_index].Param_is_N, *Menu_list[menu_struct_index].Parameter_value); 
+        break;
     }
     
 		// Заплатка на мкЗв
 		if((menu_struct_index == 0) && Settings.units)
 			sprintf (para_string,  LANG_UMKZV, convert_mkr_sv(*Menu_list[menu_struct_index].Parameter_value)); 
+
+		// Заплатка на бета окно
+		if(menu_struct_index == 13)
+		{
+			tmp=*Menu_list[menu_struct_index].Parameter_value;
+			tmp=tmp/10;
+			sprintf (para_string,  LANG_BWINDOW_, tmp);
+		}
 		
     para_len=strlen(para_string);                  // длинна параметра
     text_len=strlen(Menu_list[menu_struct_index].Text);            // линна текста

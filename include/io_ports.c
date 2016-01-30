@@ -172,7 +172,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_13;           // Ножка
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_TIM9);
 	

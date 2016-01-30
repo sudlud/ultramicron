@@ -1,16 +1,4 @@
-#include "usb.h"
 #include "main.h"
-#include "ext2760.h"
-#include "hw_config.h"
-#include "usb_lib.h"
-#include "usb_desc.h"
-#include "usb_pwr.h"
-#include "usb.h"
-#include "keys.h"
-#include "clock.h"
-#include "flash_save.h"
-#include "eeprom.h"
-#include "rtc.h"
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
@@ -187,7 +175,7 @@ void time_loading(uint32_t current_rcvd_pointer)
 		//-----------------------------------------------------------------------------------------
 		RTC_TimeStructInit(&RTC_TimeStructure);
 		RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
-
+		if(current_rcvd_pointer+6>=VIRTUAL_COM_PORT_DATA_SIZE)return;
 		if(
 				( RTC_TimeStructure.RTC_Hours           != (Receive_Buffer[current_rcvd_pointer+4] & 0xff)) ||
 				( RTC_TimeStructure.RTC_Minutes         != (Receive_Buffer[current_rcvd_pointer+5] & 0xff)) ||
@@ -278,6 +266,7 @@ void USB_work()
 
 			while(Receive_length>current_rcvd_pointer)
 			{
+				if(current_rcvd_pointer>=VIRTUAL_COM_PORT_DATA_SIZE)return;
 				switch (Receive_Buffer[current_rcvd_pointer])
 				{
 					case 0xD4: 								// Отправка данных по запросу каждую минуту (RCV 1 байт)
@@ -372,6 +361,7 @@ void USB_work()
 					case 0xE3: 								// Ключ разблокировки (RCV 5 байт)
 							if((current_rcvd_pointer+5)<=Receive_length) // Проверка длинны принятого участка
 							{
+								if(current_rcvd_pointer+4>=VIRTUAL_COM_PORT_DATA_SIZE)return;
 								eeprom_write(unlock_0_address, Receive_Buffer[current_rcvd_pointer+1]);
 								eeprom_write(unlock_1_address, Receive_Buffer[current_rcvd_pointer+2]);
 								eeprom_write(unlock_2_address, Receive_Buffer[current_rcvd_pointer+3]);
@@ -413,7 +403,7 @@ void USB_work()
 		wait_count=0;
 		while((packet_sent != 1) && (wait_count<0xFFFF))wait_count++; // Проверяем передан ли прошлый пакет
 
-		#ifndef version_401 
+#ifndef version_401 
 		Settings.USB=0;
 #endif
 		usb_deactivate(0x00);

@@ -1,9 +1,6 @@
 #include "stm32l1xx.h"
 #include "main.h"
-#include "flash_save.h"
                     
-
-typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 
 __IO FLASH_Status FLASHStatus_eeprom = FLASH_COMPLETE;
 __IO TestStatus MemoryProgramStatus_eeprom = PASSED;
@@ -12,7 +9,7 @@ __IO TestStatus MemoryProgramStatus_eeprom = PASSED;
 //////////////////////////////////////////////////////////////////////////////////////
 void full_erase_flash(void) // Erase full dataflash
 {  
-	uint32_t j = 0, Address = 0, NbrOfPage = 0;
+	uint32_t j, Address, NbrOfPage, tmp;
 
   /* Unlock the FLASH Program memory */ 
   FLASH_Unlock();
@@ -26,7 +23,11 @@ void full_erase_flash(void) // Erase full dataflash
   /* Erase the FLASH Program memory pages */
   for(j = 0; j < NbrOfPage; j++)
   {
-    FLASHStatus_eeprom = FLASH_ErasePage(Address + (FLASH_PAGE_SIZE * j));
+		tmp=Address + (FLASH_PAGE_SIZE * j);
+		if(tmp>FLASH_END_ADDR){FLASH_Lock();return;}
+		if(tmp<FLASH_START_ADDR){FLASH_Lock();return;}
+		
+    FLASHStatus_eeprom = FLASH_ErasePage(tmp);
 
     if (FLASHStatus_eeprom != FLASH_COMPLETE)
     {
@@ -58,6 +59,10 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 
   Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE);
   /* Erase the FLASH Program memory pages */
+
+	if(Address>FLASH_END_ADDR){FLASH_Lock();return;}
+	if(Address<FLASH_START_ADDR){FLASH_Lock();return;}
+
   FLASHStatus_eeprom = FLASH_ErasePage(Address);
 
   if (FLASHStatus_eeprom != FLASH_COMPLETE)
@@ -94,6 +99,10 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
                   | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
   
   /* Write the FLASH Program memory using HalfPage operation */
+	
+	if(Address>FLASH_END_ADDR){FLASH_Lock();return;}
+	if(Address<FLASH_START_ADDR){FLASH_Lock();return;}
+
   FLASHStatus_eeprom = FLASH_ProgramHalfPage(Address, ram_Doze_massive);
 
   if(FLASHStatus_eeprom == FLASH_COMPLETE)
@@ -105,8 +114,12 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
                     | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
   } 
 
-	Address+=FLASH_PAGE_SIZE>>1;
+  Address+=FLASH_PAGE_SIZE>>1;
   /* Write the FLASH Program memory using HalfPage operation */
+
+	if(Address>FLASH_END_ADDR){FLASH_Lock();return;}
+	if(Address<FLASH_START_ADDR){FLASH_Lock();return;}
+
   FLASHStatus_eeprom = FLASH_ProgramHalfPage(Address, ram_max_fon_massive);
 
   if(FLASHStatus_eeprom == FLASH_COMPLETE)
@@ -126,7 +139,7 @@ if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 //////////////////////////////////////////////////////////////////////////////////////
 uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 {  
-	uint32_t Address=0, page=0, page_num=0, index=0;
+	uint32_t Address=FLASH_START_ADDR, page=0, page_num=0, index=0;
 
 	if(virt_element>=FLASH_MAX_ELEMENT)return 0; // Проверка входящего параметра
 
@@ -163,8 +176,10 @@ uint32_t flash_read_massive(uint32_t virt_element, uint32_t mode)
 		//if(mode == dose_select)    Address = FLASH_START_ADDR +                       (page * FLASH_PAGE_SIZE) + (index*4); // вычисляем адрес начала страницы
 		if(mode == max_fon_select) Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE >> 1) + (page << 8) + (index << 2); // вычисляем адрес начала страницы
 		if(mode == dose_select)    Address = FLASH_START_ADDR +                          (page << 8) + (index << 2); // вычисляем адрес начала страницы
+    if (Address < FLASH_START_ADDR) return 0;
+		if (Address > FLASH_END_ADDR) return 0;
 
-		return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+		return 	(*(__IO uint32_t*)Address);
 	}
 	return 0;
 }

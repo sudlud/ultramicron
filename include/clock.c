@@ -1,6 +1,4 @@
-#include "clock.h"
 #include "main.h"
-#include "timers.h"
 #include "stm32l1xx_rcc.h"
 /*
   ============================================================================== 

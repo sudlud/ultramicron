@@ -10,7 +10,8 @@
       <TargetName>Ultra-Micron 4.02+ service</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
+      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
+      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -199,7 +200,7 @@
             <ldmm>1</ldmm>
             <ldXref>1</ldXref>
             <BigEnd>0</BigEnd>
-            <AdsALst>1</AdsALst>
+            <AdsALst>0</AdsALst>
             <AdsACrf>1</AdsACrf>
             <AdsANop>0</AdsANop>
             <AdsANot>0</AdsANot>
@@ -708,29 +709,29 @@
           <GroupName>Includes</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\dac.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>io_ports.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\io_ports.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32l1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>ext2760.c</FileName>
@@ -761,7 +762,7 @@
                     <SplitLS>0</SplitLS>
                     <OneElfS>0</OneElfS>
                     <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
+                    <EnumInt>2</EnumInt>
                     <PlainCh>0</PlainCh>
                     <Ropi>0</Ropi>
                     <Rwpi>0</Rwpi>
@@ -785,14 +786,101 @@
               </FileOption>
             </File>
             <File>
-              <FileName>menu.c</FileName>
+              <FileName>flash_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\include\menu.c</FilePath>
+              <FilePath>.\include\flash_save.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>9</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>1</Optim>
+                    <oTime>0</oTime>
+                    <SplitLS>0</SplitLS>
+                    <OneElfS>0</OneElfS>
+                    <Strict>0</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>0</PlainCh>
+                    <Ropi>0</Ropi>
+                    <Rwpi>0</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>0</uThumb>
+                    <uSurpInc>0</uSurpInc>
+                    <uC99>0</uC99>
+                    <useXO>0</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>io_ports.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\io_ports.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>keys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\keys.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\power.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\stm32l1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
@@ -847,26 +935,6 @@
               </FileOption>
             </File>
             <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\interrupt.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\comp.c</FilePath>
-            </File>
-            <File>
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\usb.c</FilePath>
@@ -904,68 +972,6 @@
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
                     <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>0</vShortEn>
-                    <vShortWch>0</vShortWch>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_save.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\flash_save.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>1</Optim>
-                    <oTime>0</oTime>
-                    <SplitLS>0</SplitLS>
-                    <OneElfS>0</OneElfS>
-                    <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
-                    <PlainCh>0</PlainCh>
-                    <Ropi>0</Ropi>
-                    <Rwpi>0</Rwpi>
-                    <wLevel>2</wLevel>
-                    <uThumb>0</uThumb>
-                    <uSurpInc>0</uSurpInc>
-                    <uC99>0</uC99>
-                    <useXO>0</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
@@ -1766,29 +1772,29 @@
           <GroupName>Includes</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\dac.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>io_ports.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\io_ports.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32l1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>ext2760.c</FileName>
@@ -1843,14 +1849,101 @@
               </FileOption>
             </File>
             <File>
-              <FileName>menu.c</FileName>
+              <FileName>flash_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\include\menu.c</FilePath>
+              <FilePath>.\include\flash_save.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>9</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>1</Optim>
+                    <oTime>0</oTime>
+                    <SplitLS>0</SplitLS>
+                    <OneElfS>0</OneElfS>
+                    <Strict>0</Strict>
+                    <EnumInt>0</EnumInt>
+                    <PlainCh>0</PlainCh>
+                    <Ropi>0</Ropi>
+                    <Rwpi>0</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>0</uThumb>
+                    <uSurpInc>0</uSurpInc>
+                    <uC99>0</uC99>
+                    <useXO>0</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>io_ports.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\io_ports.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>keys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\keys.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\power.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\stm32l1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
@@ -1905,26 +1998,6 @@
               </FileOption>
             </File>
             <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\interrupt.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\comp.c</FilePath>
-            </File>
-            <File>
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\usb.c</FilePath>
@@ -1962,68 +2035,6 @@
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
                     <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>0</vShortEn>
-                    <vShortWch>0</vShortWch>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_save.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\flash_save.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>1</Optim>
-                    <oTime>0</oTime>
-                    <SplitLS>0</SplitLS>
-                    <OneElfS>0</OneElfS>
-                    <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
-                    <PlainCh>0</PlainCh>
-                    <Ropi>0</Ropi>
-                    <Rwpi>0</Rwpi>
-                    <wLevel>2</wLevel>
-                    <uThumb>0</uThumb>
-                    <uSurpInc>0</uSurpInc>
-                    <uC99>0</uC99>
-                    <useXO>0</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
@@ -2126,8 +2137,7 @@
       <TargetName>Ultra-Micron 3.00+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pArmCC>
-      <pCCUsed>5040082::V5.04 update 2 (build 82)::.\ARMCC_504u2</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -2205,7 +2215,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -2825,29 +2835,29 @@
           <GroupName>Includes</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\dac.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>io_ports.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\io_ports.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32l1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>ext2760.c</FileName>
@@ -2902,14 +2912,101 @@
               </FileOption>
             </File>
             <File>
-              <FileName>menu.c</FileName>
+              <FileName>flash_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\include\menu.c</FilePath>
+              <FilePath>.\include\flash_save.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>9</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>1</Optim>
+                    <oTime>0</oTime>
+                    <SplitLS>0</SplitLS>
+                    <OneElfS>0</OneElfS>
+                    <Strict>0</Strict>
+                    <EnumInt>0</EnumInt>
+                    <PlainCh>0</PlainCh>
+                    <Ropi>0</Ropi>
+                    <Rwpi>0</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>0</uThumb>
+                    <uSurpInc>0</uSurpInc>
+                    <uC99>0</uC99>
+                    <useXO>0</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>io_ports.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\io_ports.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>keys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\keys.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\power.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\stm32l1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
@@ -2964,26 +3061,6 @@
               </FileOption>
             </File>
             <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\interrupt.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\comp.c</FilePath>
-            </File>
-            <File>
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\usb.c</FilePath>
@@ -3021,68 +3098,6 @@
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
                     <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>0</vShortEn>
-                    <vShortWch>0</vShortWch>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_save.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\flash_save.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>1</Optim>
-                    <oTime>0</oTime>
-                    <SplitLS>0</SplitLS>
-                    <OneElfS>0</OneElfS>
-                    <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
-                    <PlainCh>0</PlainCh>
-                    <Ropi>0</Ropi>
-                    <Rwpi>0</Rwpi>
-                    <wLevel>2</wLevel>
-                    <uThumb>0</uThumb>
-                    <uSurpInc>0</uSurpInc>
-                    <uC99>0</uC99>
-                    <useXO>0</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
@@ -3185,7 +3200,7 @@
       <TargetName>Ultra-Micron 2.04+</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152CB</Device>
@@ -3227,8 +3242,8 @@
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
-          <DebugInformation>0</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <DebugInformation>1</DebugInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\obj\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -3263,7 +3278,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -3349,10 +3364,10 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4096</DriverSelection>
+            <DriverSelection>4103</DriverSelection>
           </Flash1>
-          <bUseTDR>1</bUseTDR>
-          <Flash2>BIN\UL2CM3.DLL</Flash2>
+          <bUseTDR>0</bUseTDR>
+          <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -3578,7 +3593,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile></ScatterFile>
+            <ScatterFile>.\obj\Ultra-Micron_2_04.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -3883,29 +3898,29 @@
           <GroupName>Includes</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\dac.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>io_ports.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\io_ports.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32l1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>ext2760.c</FileName>
@@ -3960,14 +3975,101 @@
               </FileOption>
             </File>
             <File>
-              <FileName>menu.c</FileName>
+              <FileName>flash_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\include\menu.c</FilePath>
+              <FilePath>.\include\flash_save.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>9</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>1</Optim>
+                    <oTime>0</oTime>
+                    <SplitLS>0</SplitLS>
+                    <OneElfS>0</OneElfS>
+                    <Strict>0</Strict>
+                    <EnumInt>0</EnumInt>
+                    <PlainCh>0</PlainCh>
+                    <Ropi>0</Ropi>
+                    <Rwpi>0</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>0</uThumb>
+                    <uSurpInc>0</uSurpInc>
+                    <uC99>0</uC99>
+                    <useXO>0</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>io_ports.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\io_ports.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>keys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\keys.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\power.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\stm32l1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
@@ -4022,26 +4124,6 @@
               </FileOption>
             </File>
             <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\interrupt.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\comp.c</FilePath>
-            </File>
-            <File>
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\usb.c</FilePath>
@@ -4079,68 +4161,6 @@
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
                     <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>0</vShortEn>
-                    <vShortWch>0</vShortWch>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_save.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\flash_save.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>1</Optim>
-                    <oTime>0</oTime>
-                    <SplitLS>0</SplitLS>
-                    <OneElfS>0</OneElfS>
-                    <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
-                    <PlainCh>0</PlainCh>
-                    <Ropi>0</Ropi>
-                    <Rwpi>0</Rwpi>
-                    <wLevel>2</wLevel>
-                    <uThumb>0</uThumb>
-                    <uSurpInc>0</uSurpInc>
-                    <uC99>0</uC99>
-                    <useXO>0</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
@@ -4941,29 +4961,29 @@
           <GroupName>Includes</GroupName>
           <Files>
             <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\dac.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>io_ports.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\io_ports.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32l1xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>ext2760.c</FileName>
@@ -5018,14 +5038,101 @@
               </FileOption>
             </File>
             <File>
-              <FileName>menu.c</FileName>
+              <FileName>flash_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\include\menu.c</FilePath>
+              <FilePath>.\include\flash_save.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>9</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>1</Optim>
+                    <oTime>0</oTime>
+                    <SplitLS>0</SplitLS>
+                    <OneElfS>0</OneElfS>
+                    <Strict>0</Strict>
+                    <EnumInt>0</EnumInt>
+                    <PlainCh>0</PlainCh>
+                    <Ropi>0</Ropi>
+                    <Rwpi>0</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>0</uThumb>
+                    <uSurpInc>0</uSurpInc>
+                    <uC99>0</uC99>
+                    <useXO>0</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>io_ports.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\io_ports.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\interrupt.c</FilePath>
             </File>
             <File>
               <FileName>keys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\keys.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\power.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\stm32l1xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>services.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\services.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\include\timers.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
@@ -5080,26 +5187,6 @@
               </FileOption>
             </File>
             <File>
-              <FileName>interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\interrupt.c</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\comp.c</FilePath>
-            </File>
-            <File>
               <FileName>usb.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\include\usb.c</FilePath>
@@ -5137,68 +5224,6 @@
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
                     <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>0</vShortEn>
-                    <vShortWch>0</vShortWch>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>flash_save.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\flash_save.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>1</Optim>
-                    <oTime>0</oTime>
-                    <SplitLS>0</SplitLS>
-                    <OneElfS>0</OneElfS>
-                    <Strict>0</Strict>
-                    <EnumInt>0</EnumInt>
-                    <PlainCh>0</PlainCh>
-                    <Ropi>0</Ropi>
-                    <Rwpi>0</Rwpi>
-                    <wLevel>2</wLevel>
-                    <uThumb>0</uThumb>
-                    <uSurpInc>0</uSurpInc>
-                    <uC99>0</uC99>
-                    <useXO>0</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>

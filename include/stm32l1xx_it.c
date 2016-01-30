@@ -1,51 +1,11 @@
 #include "stm32l1xx_it.h"
 #include "main.h"
-#include "timers.h"
-#include "dac.h"
-#include "comp.h"
-#include "hw_config.h"
-#include "stm32_it.h"
-#include "usb_lib.h"
-#include "usb_istr.h"
-#include "usb_pwr.h"
-#include "usb.h"
-#include "rtc.h"
-#include "keys.h"
-#include "flash_save.h"
 
 
 
 uint16_t tmpCC1[2] = {0, 0};
 extern __IO uint32_t CaptureNumber, PeriodValue;
 uint32_t IC1ReadValue1 = 0, IC1ReadValue2 =0;
-
-// ===============================================================================================
-void Pump_now(FunctionalState pump)
-{
-
-	if(pump==ENABLE && !Power.Pump_deny)
-	{
-		Power.Pump_active=ENABLE;
-		dac_on();  // Включаем ЦАП
-		TIM9->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-		TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-		
-		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Enable); // разрешить накачку	
-		TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
-
-		comp_on(); // Включаем компаратор
-	} else {
-		
-		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
-		TIM_ITConfig(TIM9, TIM_IT_Update, DISABLE);
-		pump_counter_avg_impulse_by_1sec[0]++;
-		comp_off();              // Выключаем компаратор
-		dac_off(); // Выключаем ЦАП
-		TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-		Power.Pump_active=DISABLE;
-	}
-}
-// ===============================================================================================
 
 
 // ===============================================================================================
@@ -155,24 +115,6 @@ void SysTick_Handler(void)
 /**
 * @}
 */ 
-
-void check_wakeup_keys()
-{
-		if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
-		{
-			GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
-		} else {
-			GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-		}			
-
-	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
-	{
-		if(Settings.Sound == 1 | Settings.Sound == 2)sound_activate();
-    Power.sleep_time=Settings.Sleep_time;
-		Power.led_sleep_time=Settings.Sleep_time-3;
-	}
-	
-}
 
 // =======================================================
 // Прерывание по нажатию кнопки 0
@@ -342,38 +284,6 @@ void TIM2_IRQHandler(void)
 		}
 	}
 	}
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void recalculate_fon()
-{
-	int i,pointer;
-	int massive_len=Settings.Second_count>>2; // 50@200 62@250
-	int recalc_len=massive_len/auto_speedup_factor; // 62/9 = 6.8
-	float tmp;
-	
-	fon_level=0;				  
-					
-	for(i=0;i<recalc_len;i++)
-	{
-		if(Detector_massive_pointer>=i)
-		{
-			pointer=Detector_massive_pointer-i;
-		}else
-		{
-			pointer=massive_len-(i-Detector_massive_pointer);
-		}
-		fon_level+=Detector_massive[pointer];
-	}
-	tmp=fon_level; // фон 6-ти ячеек (при ускорении 9)... 24 000
-	//tmp=tmp/recalc_len;
-	//tmp=tmp*(massive_len/auto_speedup_factor);
-	tmp=tmp*auto_speedup_factor;
-	tmp=tmp+(((tmp/recalc_len)/auto_speedup_factor)*(massive_len % auto_speedup_factor)); // ячейка 24000/6=4000; остаток от деления 8
-																																												// (4000/9*)8=3552; 24000+3552=27552
-	fon_level=tmp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,16 +1,4 @@
-#include "usb.h"
 #include "main.h"
-#include "ext2760.h"
-#include "hw_config.h"
-#include "usb_lib.h"
-#include "usb_desc.h"
-#include "usb_pwr.h"
-#include "usb.h"
-#include "keys.h"
-#include "clock.h"
-#include "flash_save.h"
-#include "eeprom.h"
-#include "rtc.h"
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
@@ -415,7 +403,7 @@ void USB_work()
 		wait_count=0;
 		while((packet_sent != 1) && (wait_count<0xFFFF))wait_count++; // Проверяем передан ли прошлый пакет
 
-		#ifndef version_401 
+#ifndef version_401 
 		Settings.USB=0;
 #endif
 		usb_deactivate(0x00);

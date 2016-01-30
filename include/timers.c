@@ -1,6 +1,5 @@
 #include "stm32l1xx_tim.h"
 #include "main.h"
-#include "delay.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 void sound_activate(void)
@@ -98,7 +97,7 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 4000000) - 1; // ƒелитель (1 тик = 0.25мкс)
   TIM_BaseConfig.TIM_ClockDivision = 0;
 #ifdef version_401
-  TIM_BaseConfig.TIM_Period = 300;  // ќбщее количество тиков (скваженность) 75мкс (частота накачки 1с/75мкс=13 к√ц)
+  TIM_BaseConfig.TIM_Period = 560;  // »«ћ≈–≈ЌЌќ ќ—÷џЋќћ, Ќ≈ ћ≈Ќя“№!  ќбщее количество тиков (скваженность) 140мкс (частота накачки 1с/140мкс=** к√ц)
 #else
   TIM_BaseConfig.TIM_Period = 560;  // ќбщее количество тиков (скваженность) 140мкс
 #endif
@@ -119,7 +118,7 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_ARRPreloadConfig(TIM9, ENABLE);
 
   NVIC_InitStructure.NVIC_IRQChannel = TIM9_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -201,7 +200,7 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_TimeBaseInit(TIM2, &TIM_BaseConfig);
 
   NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);

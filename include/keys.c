@@ -1,13 +1,6 @@
-#include "main.h"
-#include "menu.h"
-#include "delay.h"
-#include "ext2760.h"
-#include "eeprom.h"
-#include "usb.h"
 #include <stdio.h>
 #include <string.h>
-#include "lang.h"
-#include "stm32l1xx_it.h"
+#include "main.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +36,13 @@ void  plus_sleep(uint32_t *param) //+
 	if(*param>max_struct_index)return;
 	if(*param==0)return;
 
-  *Menu_list[*param-1].Parameter_value+=5;
-  if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=0;
+  //Если пытаемся привысить максимально допустимое значение, то переходим на минимум
+  if(*Menu_list[*param-1].Parameter_value >= Menu_list[*param-1].Max_limit)
+  {
+    *Menu_list[*param-1].Parameter_value=Menu_list[*param-1].Min_limit;
+  } else {
+    *Menu_list[*param-1].Parameter_value=*Menu_list[*param-1].Parameter_value*2; //*2
+  }
 }
 
 void minus_sleep(uint32_t *param) //-
@@ -52,8 +50,12 @@ void minus_sleep(uint32_t *param) //-
 	if(*param>max_struct_index)return;
 	if(*param==0)return;
 
-  *Menu_list[*param-1].Parameter_value-=5;
-  if(*Menu_list[*param-1].Parameter_value>250)*Menu_list[*param-1].Parameter_value=250;
+  if(*Menu_list[*param-1].Parameter_value <= Menu_list[*param-1].Min_limit)
+  {
+    *Menu_list[*param-1].Parameter_value=Menu_list[*param-1].Max_limit;
+  } else {
+    *Menu_list[*param-1].Parameter_value=*Menu_list[*param-1].Parameter_value/2; // /2
+  }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,8 +82,6 @@ void minus_off(uint32_t *param) // откл
 void  plus_doze_reset(uint32_t *param) // Сброс дозы
 {
 	int i;
-	if(*param>max_struct_index)return;
-	if(*param==0)return;
 
 	for(i=doze_length;i>0;i--)
 	{
@@ -228,9 +228,6 @@ void minus_500(uint32_t *param) // -500
 // перезагрузка и выключение
 void plus_reboot(uint32_t *param) // перезагрузка
 {
-	if(*param>max_struct_index)return;
-	if(*param==0)return;
-
 	if(licensed  && Power.USB_active)USB_off();
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_REBOOTPR); // Пишем в буфер значение счетчика
@@ -256,10 +253,7 @@ void minus_poweroff(uint32_t *param) // выключение
   NVIC_InitTypeDef NVIC_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
 
-	if(*param>max_struct_index)return;
-	if(*param==0)return;
-
-		if(licensed  && Power.USB_active)USB_off(); 		
+	if(licensed  && Power.USB_active)USB_off(); 		
 	LcdClear_massive();
 	sprintf (lcd_buf, LANG_POWEROFF); // Пишем в буфер значение счетчика
 	LcdString(1,5); // // Выводим обычным текстом содержание буфера
@@ -286,13 +280,12 @@ void minus_poweroff(uint32_t *param) // выключение
   
   // Описываем канал прерывания
   NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;           // канал
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
 // =======================================================
   NVIC_InitStructure.NVIC_IRQChannel = COMP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -319,7 +312,7 @@ void minus_poweroff(uint32_t *param) // выключение
   
   /* Enable the RTC Alarm Interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -334,7 +327,7 @@ void minus_poweroff(uint32_t *param) // выключение
   
   // Enable the RTC Wakeup Interrupt
   NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -342,7 +335,7 @@ void minus_poweroff(uint32_t *param) // выключение
   RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
   RTC_ClearFlag(RTC_FLAG_ALRAF);
 
-	while(RTC_WakeUpCmd(DISABLE)!=SUCCESS){}
+	while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
   RTC_ITConfig(RTC_IT_WUT, DISABLE);
   RTC_ITConfig(RTC_IT_ALRA, DISABLE);
   PWR_RTCAccessCmd(DISABLE);
@@ -389,9 +382,6 @@ void minus_poweroff(uint32_t *param) // выключение
 // перезагрузка и выключение
 void usb_activate(uint32_t *param) // Включение USB
 {
-	if(*param>max_struct_index)return;
-	if(*param==0)return;
-
 USB_not_active=0;
 if(!Power.USB_active)
 {
@@ -409,15 +399,13 @@ Settings.USB=1;
 
 void usb_deactivate(uint32_t *param) // Выключение USB
 {
-	if(*param>max_struct_index)return;
-	if(*param==0)return;
-
 	if(Power.USB_active)
 	{
 #ifndef version_401
 		Settings.USB=0;
 #endif
-		USB_off(); 		
+		USB_off(); 
+		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);		
 //		LcdClear_massive();
 //		sprintf (lcd_buf, LANG_USBOFF); // Пишем в буфер значение счетчика
 //		LcdString(1,5); // // Выводим обычным текстом содержание буфера

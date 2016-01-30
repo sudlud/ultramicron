@@ -12,11 +12,8 @@
 **********************************************/
 
 #include <stdio.h>
-#include "font5x8.h"
 #include "main.h"
-#include "delay.h"
-#include "ext2760.h"
-#include "lang.h"
+#include "font5x8.h"
 
 char lcd_buf[20];		        // текстовый буфер для вывода на LCD
 unsigned char  LcdCache [LCD_CACHSIZE];	// Фреймбуфер

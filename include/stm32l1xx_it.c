@@ -1,50 +1,12 @@
 #include "stm32l1xx_it.h"
 #include "main.h"
-#include "timers.h"
-#include "dac.h"
-#include "comp.h"
-#include "hw_config.h"
-#include "stm32_it.h"
-#include "usb_lib.h"
-#include "usb_istr.h"
-#include "usb_pwr.h"
-#include "usb.h"
-#include "rtc.h"
-#include "keys.h"
-#include "flash_save.h"
-
 
 
 uint16_t tmpCC1[2] = {0, 0};
 extern __IO uint32_t CaptureNumber, PeriodValue;
 uint32_t IC1ReadValue1 = 0, IC1ReadValue2 =0;
 
-// ===============================================================================================
-void Pump_now(FunctionalState pump)
-{
 
-	if(pump==ENABLE && !Power.Pump_deny)
-	{
-		Power.Pump_active=ENABLE;
-		dac_on();  // Включаем ЦАП
-		TIM9->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-		TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-		
-		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Enable); // разрешить накачку	
-		TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
-
-		comp_on(); // Включаем компаратор
-	} else {
-		
-		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
-		TIM_ITConfig(TIM9, TIM_IT_Update, DISABLE);
-		pump_counter_avg_impulse_by_1sec[0]++;
-		comp_off();              // Выключаем компаратор
-		dac_off(); // Выключаем ЦАП
-		TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-		Power.Pump_active=DISABLE;
-	}
-}
 // ===============================================================================================
 
 
@@ -156,24 +118,6 @@ void SysTick_Handler(void)
 * @}
 */ 
 
-void check_wakeup_keys()
-{
-		if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
-		{
-			GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
-		} else {
-			GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-		}			
-
-	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
-	{
-		if((Settings.Sound == 1) || (Settings.Sound == 2))sound_activate();
-    Power.sleep_time=Settings.Sleep_time;
-		Power.led_sleep_time=Settings.Sleep_time-3;
-	}
-	
-}
-
 // =======================================================
 // Прерывание по нажатию кнопки 0
 void EXTI3_IRQHandler(void)
@@ -227,33 +171,7 @@ void EXTI9_5_IRQHandler(void)
 #ifdef debug
 		Wakeup.sensor_wakeup++;
 #endif
-  if(EXTI_GetITStatus(EXTI_Line8) != RESET)
-  {
-		EXTI_ClearITPendingBit(EXTI_Line8);
-		if(!poweroff_state)  
-		{		
-			Detector_massive[Detector_massive_pointer]++;  // Добавляем пойманную частицу к счетчику  
-			ram_Doze_massive[0]++;	           					// Увеличение суточного массива дозы
-
-			if(Power.Pump_active==DISABLE)
-			{
-				if(last_count_pump_on_impulse>3)
-				{
-					pump_on_impulse=ENABLE;
-					Pump_now(ENABLE);
-				} else last_count_pump_on_impulse++;
-			}
-			if(Settings.Sound == 1 && !(Alarm.Alarm_active && !Alarm.User_cancel))
-			{
-				if(Power.Display_active)
-				{
-					sound_activate();
-				}
-			}
-		}
-	}
-  
-  if(EXTI_GetITStatus(EXTI_Line6) != RESET)
+  if(EXTI_GetITStatus(EXTI_Line6) != RESET) // Кнопка
   {
     EXTI_ClearITPendingBit(EXTI_Line6);
 		if(!poweroff_state)
@@ -278,7 +196,32 @@ void EXTI9_5_IRQHandler(void)
 		}			
   }
 #endif
-  
+  if(EXTI_GetITStatus(EXTI_Line8) != RESET) // Импульс датчика
+  {
+		EXTI_ClearITPendingBit(EXTI_Line8);
+		if(!poweroff_state)  
+		{		
+			Detector_massive[Detector_massive_pointer]++;  // Добавляем пойманную частицу к счетчику  
+			ram_Doze_massive[0]++;	           					// Увеличение суточного массива дозы
+
+			if(Settings.Sound == 1 && !(Alarm.Alarm_active && !Alarm.User_cancel))
+			{
+				if(Power.Display_active)
+				{
+					sound_activate();
+				}
+			}
+			if(Power.Pump_active==DISABLE)
+			{
+				if(last_count_pump_on_impulse>5)
+				{
+					pump_on_impulse=ENABLE;
+					Pump_now(ENABLE);
+					last_count_pump_on_impulse=0;
+				} else last_count_pump_on_impulse++;
+			}
+		}
+	}
 }
 
 
@@ -293,12 +236,15 @@ void TIM9_IRQHandler(void)
 	{
 		current_pulse_count++;
 		pump_counter_avg_impulse_by_1sec[0]++;
+/*
 		if(COMP->CSR  & COMP_CSR_INSEL) // если компаратор активен
 		{
 			if(Power.Pump_active==DISABLE) Pump_now(DISABLE); 
 		}else{
 			comp_on();
 		}
+*/
+
 	}
 	TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
 }
@@ -344,202 +290,22 @@ void TIM2_IRQHandler(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void recalculate_fon()
-{
-	int i,pointer;
-	int massive_len=Settings.Second_count>>2; // 50@200 62@250
-	int recalc_len=massive_len/auto_speedup_factor; // 62/9 = 6.8
-	float tmp;
-	
-	fon_level=0;				  
-					
-	for(i=0;i<recalc_len;i++)
-	{
-		if(Detector_massive_pointer>=i)
-		{
-			pointer=Detector_massive_pointer-i;
-		}else
-		{
-			pointer=massive_len-(i-Detector_massive_pointer);
-		}
-		fon_level+=Detector_massive[pointer];
-	}
-	tmp=fon_level; // фон 6-ти ячеек (при ускорении 9)... 24 000
-	//tmp=tmp/recalc_len;
-	//tmp=tmp*(massive_len/auto_speedup_factor);
-	tmp=tmp*auto_speedup_factor;
-	tmp=tmp+(((tmp/recalc_len)/auto_speedup_factor)*(massive_len % auto_speedup_factor)); // ячейка 24000/6=4000; остаток от деления 8
-																																												// (4000/9*)8=3552; 24000+3552=27552
-	fon_level=(uint32_t)tmp;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 ////////////////////////////////////////
 // Секундный тик
 ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
-		int i;
 #ifdef debug
-		Wakeup.rtc_wakeup++;
+	Wakeup.rtc_wakeup++;
 #endif
-    if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
-		{
-			RTC_ClearITPendingBit(RTC_IT_ALRA);
-      EXTI_ClearITPendingBit(EXTI_Line17);
-			if(!poweroff_state)
-			{
-			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
-				
-			DataUpdate.Need_display_update=ENABLE;
-				
-			if(Power.USB_active)
-			{
-				USB_not_active++; // Счетчик неактивности USB
-				madorc_impulse+=Detector_massive[Detector_massive_pointer]; // Счетчик импульсов для передачи по USB
-			}
-			
-			// Счетчик времени для обновления напряжения АКБ (каждые 4 минуты)
-			if(DataUpdate.Batt_update_time_counter>75) 
-			{
-				DataUpdate.Need_batt_voltage_update=ENABLE;
-				DataUpdate.Batt_update_time_counter=0;
-			} else DataUpdate.Batt_update_time_counter++;
-			
-			// Счетчик времени для обновления счетчика импульсов накачки
-			if(DataUpdate.pump_counter_update_time>14) 
-			{
-#ifdef debug
-				Wakeup.total_wakeup=0;
-				Wakeup.total_cycle=0;
-				Wakeup.rtc_wakeup=0;
-				Wakeup.tim9_wakeup=0;
-				Wakeup.pump_wakeup=0;
-				Wakeup.comp_wakeup=0;
-				Wakeup.sensor_wakeup=0;
-#endif
-
-				if(!Power.USB_active)madorc_impulse=0;
-				pump_counter_avg_impulse_by_1sec[1]=pump_counter_avg_impulse_by_1sec[0];
-				pump_counter_avg_impulse_by_1sec[0]=0;
-				DataUpdate.pump_counter_update_time=0;
-
-				if((Power.led_sleep_time>0)&&(Power.Display_active)) // Управление подсветкой
-				{
-					GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
-				} else {
-					GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-				}			
-								
-				if(pump_counter_avg_impulse_by_1sec[1]==0) //затычка на случай глюка с накачкой
-				{
-					dac_init();
-					Pump_now(DISABLE);
-					while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
-					RTC_SetWakeUpCounter(0xF96); 			// Установить таймаут просыпания = 2 секунды
-					current_pulse_count=0;
-					while(RTC_WakeUpCmd(ENABLE)!=SUCCESS);
-				}
-
-			} else DataUpdate.pump_counter_update_time++;
-	
-			// Счетчик дней
-			if(DataUpdate.days_sec_count>=24600) // каждые 24 часа минут
-			{
-				DataUpdate.days_sec_count=0;
-				working_days++;
-				
-			} else DataUpdate.days_sec_count++;
-			// Сдвиг массива дозы
-			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут (150)
-			{
-				if(DataUpdate.Need_erase_flash==ENABLE){full_erase_flash();DataUpdate.Need_erase_flash=DISABLE;}
-				DataUpdate.Need_update_mainscreen_counters=ENABLE;
-
-				// -----------------------------------------------------
-				DataUpdate.doze_count++;
-				if(DataUpdate.doze_count>=doze_length) // Запись страницы во Flash
-				//if(DataUpdate.doze_count>1) // Запись страницы во Flash
-				{
-					DataUpdate.doze_count=0;
-					flash_write_page(DataUpdate.current_flash_page);
-					DataUpdate.current_flash_page++;
-					if(DataUpdate.current_flash_page > (FLASH_MAX_PAGE)) // если за границами диапазона
-						DataUpdate.current_flash_page=0;
-				}
-				// -----------------------------------------------------
-
-				for(i=doze_length;i>0;i--)
-				{
-					ram_Doze_massive[i]=ram_Doze_massive[i-1];                        // сдвиг массива дозы
-					ram_max_fon_massive[i]=ram_max_fon_massive[i-1];                  // сдвиг массива максимального фона
-				}
-				ram_Doze_massive[0]=0;
-				ram_max_fon_massive[0]=0;
-				DataUpdate.doze_sec_count=1; //// !!!!! 0
-
-			} else DataUpdate.doze_sec_count++;
-			////////////////////////////////////////////////////	
-
-			
-			////////////////////////////////////////////////////    
-				if(Detector_massive[Detector_massive_pointer]>9)
-				{	
-					if(Detector_massive[Detector_massive_pointer]>199) // деление на 9 при фоне более 10 000
-					{ 
-						if(auto_speedup_factor!=10)auto_speedup_factor=9;
-					} else
-					{
-						if(Detector_massive[Detector_massive_pointer]>99) // деление на 5 при фоне более 5 000
-						{ 
-							if(auto_speedup_factor!=5)auto_speedup_factor=5;
-						} else
-						{
-							if(Detector_massive[Detector_massive_pointer]>19) // деление на 3 при фоне более 1 000
-							{ 
-								if(auto_speedup_factor!=3)auto_speedup_factor=3;
-							} else
-							{ // деление на 2 при фоне более 500
-								if(auto_speedup_factor!=2)auto_speedup_factor=2;
-							}
-						}
-					}
-					
-					if(auto_speedup_factor!=1)recalculate_fon(); // пересчет фона, если активированно ускорение
-					
-				} else
-				{ // если ускорение не требуется
-					if(auto_speedup_factor!=1){auto_speedup_factor=1;recalculate_fon();}
-					else
-					{	fon_level+=Detector_massive[Detector_massive_pointer];}
-				}
-
-				Detector_massive_pointer++;
-				if(Detector_massive_pointer>=(Settings.Second_count>>2))	
-				{
-					if(auto_speedup_factor==1)fon_level-=Detector_massive[0];
-					Detector_massive[0]=0;
-					Detector_massive_pointer=0;
-				}else
-				{
-					if(auto_speedup_factor==1)fon_level-=Detector_massive[Detector_massive_pointer];
-					Detector_massive[Detector_massive_pointer]=0;
-				}
-				if(fon_level>ram_max_fon_massive[0])ram_max_fon_massive[0]=fon_level; // заполнение массива максимального фона
-			
-				DataUpdate.Need_fon_update=ENABLE;
-			////////////////////////////////////////////////////
-		
-			if(Power.sleep_time>4){Power.sleep_time-=4;}
-			else{Power.sleep_time=0;}
-			
-			if(Power.led_sleep_time>4){Power.led_sleep_time-=4;}
-			else{Power.led_sleep_time=0;}
-		}
+  if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
+	{
+		RTC_ClearITPendingBit(RTC_IT_ALRA);
+    EXTI_ClearITPendingBit(EXTI_Line17);
+		Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 		if(Pump_on_alarm==ENABLE)Pump_now(ENABLE); // оптимизируем накачку вынося из вейкап таймера
-		}
+		DataUpdate.RTC_tick_update=ENABLE;
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -650,7 +416,7 @@ void COMP_IRQHandler(void)
 #endif
 				current_pulse_count=0;
 			} else {
-				last_count_pump_on_impulse=current_pulse_count;
+				//last_count_pump_on_impulse=current_pulse_count;
 				pump_on_impulse=DISABLE;
 			}
 		}

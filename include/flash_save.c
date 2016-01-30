@@ -1,9 +1,6 @@
 #include "stm32l1xx.h"
 #include "main.h"
-#include "flash_save.h"
                     
-
-typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 
 __IO FLASH_Status FLASHStatus_eeprom = FLASH_COMPLETE;
 __IO TestStatus MemoryProgramStatus_eeprom = PASSED;

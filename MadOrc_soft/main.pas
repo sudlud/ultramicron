@@ -171,7 +171,7 @@ type
 end;
 
 var
-  Need_build: string = '27 Sep 2015';
+  Need_build: string = '30 Jan 2016';
   mainFrm: TmainFrm;
   MyThread: TMyThread;
   FeatureReportLen: integer = 0;
@@ -2067,6 +2067,7 @@ if (fBuf[0] = $e5) then begin // Дата прошивки
   HW_Label.Caption:='Ultra-Micron HW:'+hardware_version+'  FW:'+firmware_date;
   if(Need_build<>firmware_date) then
     showmessage('Unsupported device detected! Reload firmeare NOW!');
+
 end;
 
 
